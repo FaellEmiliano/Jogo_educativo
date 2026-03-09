@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://cyjlqsg103gpy"]
+
+[ext_resource type="Script" uid="uid://dks6cf1hq3eb6" path="res://scripts/Interpretador/lexer.gd" id="1_gycf6"]
+[ext_resource type="Script" uid="uid://cvpd8s7aganlx" path="res://scripts/Interpretador/interpretador.gd" id="1_rf5pq"]
+[ext_resource type="Script" uid="uid://81sa4om2p7mj" path="res://scripts/Interpretador/token.gd" id="2_rf5pq"]
+[ext_resource type="Script" uid="uid://bxa0eisoivxk2" path="res://scripts/Interpretador/parser.gd" id="3_ypojf"]
+[ext_resource type="Script" uid="uid://c57fg1wjaravi" path="res://scripts/Interpretador/ast_nodes.gd" id="4_8e3cf"]
+[ext_resource type="Script" uid="uid://dfqqx7gl5y1ln" path="res://scripts/Interpretador/AST/var_decl_node.gd" id="5_8e3cf"]
+[ext_resource type="Script" uid="uid://b2mnll2ihf5m3" path="res://scripts/Interpretador/AST/number_node.gd" id="6_ihpcw"]
+[ext_resource type="Script" uid="uid://4mjoom481vd4" path="res://scripts/Interpretador/AST/identifier_node.gd" id="7_edqv1"]
+[ext_resource type="Script" uid="uid://uomrh1rouk04" path="res://scripts/Interpretador/AST/binary_op_node.gd" id="8_6owf4"]
+[ext_resource type="Script" uid="uid://b6ufj74ggeg14" path="res://scripts/Interpretador/AST/block_node.gd" id="9_r4ftd"]
+[ext_resource type="Script" uid="uid://yykxaysystwt" path="res://scripts/Interpretador/AST/if_node.gd" id="10_4hwfi"]
+[ext_resource type="Script" uid="uid://crp1hfywe6bta" path="res://scripts/Interpretador/AST/while_node.gd" id="11_h86x1"]
+[ext_resource type="Script" uid="uid://dbmjt5cany3i2" path="res://scripts/Interpretador/AST/func_decl_node.gd" id="12_rp8wa"]
+
+[node name="Interpretador" type="Node" unique_id=547286985]
+script = ExtResource("1_rf5pq")
+
+[node name="lexer" type="Node" parent="." unique_id=1968118105]
+script = ExtResource("1_gycf6")
+
+[node name="parser" type="Node" parent="." unique_id=996068169]
+script = ExtResource("3_ypojf")
+
+[node name="executor" type="Node" parent="." unique_id=1176474241]
+
+[node name="ASTNodes" type="Node" parent="." unique_id=1638204364]
+script = ExtResource("4_8e3cf")
+
+[node name="VarDeclNode" type="Node" parent="ASTNodes" unique_id=1702643529]
+script = ExtResource("5_8e3cf")
+
+[node name="NumberNode" type="Node" parent="ASTNodes" unique_id=700622492]
+script = ExtResource("6_ihpcw")
+
+[node name="IdentifierNode" type="Node" parent="ASTNodes" unique_id=1850309524]
+script = ExtResource("7_edqv1")
+
+[node name="BinaryOpNode" type="Node" parent="ASTNodes" unique_id=1699570343]
+script = ExtResource("8_6owf4")
+
+[node name="BlockNode" type="Node" parent="ASTNodes" unique_id=397280590]
+script = ExtResource("9_r4ftd")
+
+[node name="IfNode" type="Node" parent="ASTNodes" unique_id=484103068]
+script = ExtResource("10_4hwfi")
+
+[node name="WhileNode" type="Node" parent="ASTNodes" unique_id=1380146664]
+script = ExtResource("11_h86x1")
+
+[node name="FuncDeclNode" type="Node" parent="ASTNodes" unique_id=2040883619]
+script = ExtResource("12_rp8wa")
+
+[node name="Token" type="Node" parent="." unique_id=1334861130]
+script = ExtResource("2_rf5pq")

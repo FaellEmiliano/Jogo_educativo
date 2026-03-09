@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://4qncax22otv7"]
+
+[ext_resource type="Script" uid="uid://b5bn5a1gn5cf8" path="res://scripts/console.gd" id="1_pb8m1"]
+[ext_resource type="FontFile" uid="uid://crsno0io4sjh8" path="res://Fontes/JetBrainsMono-VariableFont_wght.ttf" id="1_y2upi"]
+[ext_resource type="Script" uid="uid://8jvjybxhuevb" path="res://scripts/code_edit.gd" id="2_i0nem"]
+
+[sub_resource type="CodeHighlighter" id="CodeHighlighter_pb8m1"]
+
+[node name="Window" type="Window" unique_id=433975758]
+oversampling_override = 1.0
+position = Vector2i(682, 42)
+size = Vector2i(252, 252)
+script = ExtResource("1_pb8m1")
+
+[node name="Console" type="Control" parent="." unique_id=47562620]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="CodeEdit" type="CodeEdit" parent="Console" unique_id=658888005]
+custom_minimum_size = Vector2(252, 252)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("1_y2upi")
+theme_override_font_sizes/font_size = 16
+syntax_highlighter = SubResource("CodeHighlighter_pb8m1")
+highlight_all_occurrences = true
+script = ExtResource("2_i0nem")
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]

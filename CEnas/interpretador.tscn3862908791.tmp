@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cyjlqsg103gpy"]
+
+[ext_resource type="Script" uid="uid://dks6cf1hq3eb6" path="res://scripts/Interpretador/lexer.gd" id="1_gycf6"]
+[ext_resource type="Script" uid="uid://81sa4om2p7mj" path="res://scripts/Interpretador/token.gd" id="2_rf5pq"]
+
+[node name="Interpretador" type="Node2D" unique_id=1377327292]
+
+[node name="lexer" type="Node2D" parent="." unique_id=2140206883]
+script = ExtResource("1_gycf6")
+
+[node name="parser" type="Node2D" parent="." unique_id=1684993689]
+
+[node name="interpreter" type="Node2D" parent="." unique_id=307695571]
+
+[node name="ast_nodes" type="Node2D" parent="." unique_id=778896032]
+
+[node name="Token" type="Node2D" parent="." unique_id=958976796]
+script = ExtResource("2_rf5pq")
