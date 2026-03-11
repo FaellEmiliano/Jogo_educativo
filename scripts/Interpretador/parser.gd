@@ -67,13 +67,10 @@ func factor():
 		consumir(Token.TiposToken.RPAREN)
 		return node
 
-	push_error("factor inválido")
+	push_error("factor inválido ",nome_token(token.type))
 	return null
 
 func unary():#i++ ++i i-- --i
-	# caso "nao"
-	var node = factor()
-	
 	# PREFIX
 	if token_atual.type in [
 		Token.TiposToken.OP_MINUS,
@@ -85,6 +82,9 @@ func unary():#i++ ++i i-- --i
 		avancar()
 		return ASTNodes.UnaryOpNode.new(op, unary())
 
+	# numero do meio/caso nao tiver unary
+	var node = factor()
+	
 	# POSTFIX
 	while token_atual.type in [
 		Token.TiposToken.OP_PLUS_PLUS,
@@ -239,7 +239,7 @@ func parse_variable_declaration(tipo, nome):#declaracao de variavel
 	return ASTNodes.VarDeclNode.new(tipo, nome, value)
 
 
-func parse_function_declaration(tipo, nome):#Declaracao de funcao
+func parse_function_declaration(_tipo, nome):#Declaracao de funcao
 
 	consumir(Token.TiposToken.LPAREN)
 
@@ -249,10 +249,10 @@ func parse_function_declaration(tipo, nome):#Declaracao de funcao
 
 		while true:
 
-			var ptype = tipo
-			avancar()
+			var ptype = token_atual.value
+			consumir(Token.TiposToken.KW_INT) # ou tipo genérico
 
-			var pname = nome
+			var pname = token_atual.value
 			consumir(Token.TiposToken.IDENTIFIER)
 
 			params.append([ptype, pname])
@@ -266,7 +266,7 @@ func parse_function_declaration(tipo, nome):#Declaracao de funcao
 
 	var body = parse_block()
 
-	return ASTNodes.FunctionDeclNode.new(name, params, body)
+	return ASTNodes.FunctionDeclNode.new(nome, params, body)
 
 func parse_function_call(nome):#chamadas de funcao gerais (chamado em factor)
 	consumir(Token.TiposToken.LPAREN)

@@ -1,19 +1,51 @@
 extends Node
+var executor
 
 func _ready():
 
 
 	# 1. Tokenizar
-	var lexer = Lexer.new("
-int fatorial(int n) {
-	int resultado = 1;
-    while (n > 1) {
-        resultado = resultado * n;
-        n--;
-    }
-    return resultado;
-}
-")
+	var lexer = Lexer.new("""
+		int soma(int a, int b) {
+		    int resultado = a + b;
+		    return resultado;
+		}
+
+		int contador(int limite) {
+
+		    int i = 0;
+
+		    while (i < limite) {
+
+		        if (i == 2) {
+					print("dentro do if");
+		        }
+
+		        print(i);
+
+		        i = i + 1;
+		    }
+
+		    return i;
+		}
+
+		int main() {
+
+		    int x = 5;
+		    int y = 3;
+
+		    int z = soma(x, y);
+
+			print("resultado da soma:");
+		    print(z);
+
+		    int final = contador(4);
+
+			print("contador terminou em:");
+		    print(final);
+
+		}
+		""")
 	var tokens = lexer.tokenize()
 
 	for t in tokens:
