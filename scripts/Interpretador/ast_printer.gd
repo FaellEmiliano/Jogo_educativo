@@ -1,3 +1,4 @@
+#SOMENTE PRA DEBUG
 extends Node
 
 class_name ASTPrinter

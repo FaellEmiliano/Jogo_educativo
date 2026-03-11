@@ -1,3 +1,4 @@
+#classifica todas as palavras no codigo
 extends Node
 
 class_name Lexer
@@ -11,8 +12,8 @@ var delimitadores = {}
 var linha = 1
 var coluna = 1
 
-
-func _init(codigo) -> void:
+#pega o codigo e constroi as tabelas
+func _init(codigo = "") -> void:
 	origem = codigo
 	char_atual = origem[0] if origem.length() > 0 else ""
 	build_keywords()
@@ -60,7 +61,7 @@ func build_single_char():
 	delimitadores["."] = Token.TiposToken.DOT
 	delimitadores[":"] = Token.TiposToken.COLON
 
-
+#funcao pra avancar a letra
 func avancar():
 	if char_atual == "\n":
 		linha += 1
@@ -72,7 +73,7 @@ func avancar():
 		char_atual = ""
 	else:
 		char_atual = origem[posicao]
-
+#funcao pra espiar o proximo caracter
 func peek():
 	var next_pos = posicao + 1
 	
@@ -80,11 +81,11 @@ func peek():
 		return ""
 	
 	return origem[next_pos]
-
+#pula espacos
 func espaco():
 	while char_atual == " " or char_atual == "\n" or char_atual == "\t" or char_atual == "\r":
 		avancar()
-
+#detecta strings
 func string():
 
 	var resultado = ""
@@ -117,7 +118,7 @@ func string():
 	avancar()
 
 	return Token.new(Token.TiposToken.STRING, resultado)
-	
+#detecta numeros
 func numero():
 	var resultado = ""
 	var decimal = false
@@ -157,7 +158,7 @@ func comentario_multilinha():
 
 func is_letter(c: String) -> bool:
 	return c.is_valid_ascii_identifier() and not c.is_valid_int()
-
+#pega identificadores(nomes de variaveis/funcoes)
 func identifier():
 	var resultado = ""
 
@@ -165,12 +166,12 @@ func identifier():
 	char_atual.is_valid_int() or char_atual == "_"):
 		resultado += char_atual
 		avancar()
-
+	#pesquisa no dict
 	if resultado in keywords:
 		return Token.new(keywords[resultado], resultado)
 
 	return Token.new(Token.TiposToken.IDENTIFIER, resultado)
-
+#funcao principal
 func get_next_token():
 
 	while char_atual != "":

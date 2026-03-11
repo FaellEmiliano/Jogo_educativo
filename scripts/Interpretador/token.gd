@@ -3,7 +3,7 @@ extends Node
 class_name Token
 var type
 var value
-func _init(t,v) -> void:
+func _init(t="",v="") -> void:
 	type = t
 	value = v
 
