@@ -21,6 +21,8 @@ enum TiposToken{
 	KW_RETURN,
 	KW_INT,
 	KW_FLOAT,
+	KW_TRUE,
+	KW_FALSE,
 	KW_BREAK,
 	KW_CONTINUE,
 	

@@ -5,17 +5,16 @@ func _ready():
 
 	# 1. Tokenizar
 	var lexer = Lexer.new("""
-
-int soma(int a,int b){
-    int x = 100;
-    return a + b;
-    print(999);
-}
-
 int main(){
-    print(soma(2,2));
+
+	int a = 1;
+	print(a++);
+	print(a);
+	print(++a);
+	print(a);
+    return 0;
 }
-		""")
+""")
 	var tokens = lexer.tokenize()
 
 	for t in tokens:
