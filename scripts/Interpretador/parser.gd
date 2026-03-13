@@ -43,6 +43,13 @@ func factor():
 	if token.type == Token.TiposToken.NUMBER:
 		consumir(Token.TiposToken.NUMBER)
 		return ASTNodes.NumberNode.new(token.value)
+	#booleano
+	if token.type == Token.TiposToken.KW_TRUE:
+		consumir(Token.TiposToken.KW_TRUE)
+		return ASTNodes.BoolNode.new(token.value)
+	if token.type == Token.TiposToken.KW_FALSE:
+		consumir(Token.TiposToken.KW_FALSE)
+		return ASTNodes.BoolNode.new(token.value)
 	#string
 	if token.type == Token.TiposToken.STRING:
 		consumir(Token.TiposToken.STRING)
@@ -80,7 +87,7 @@ func unary():#i++ ++i i-- --i
 	]:
 		var op = token_atual
 		avancar()
-		return ASTNodes.UnaryOpNode.new(op, unary())
+		return ASTNodes.UnaryOpNode.new(op, unary(),true)
 
 	# numero do meio/caso nao tiver unary
 	var node = factor()
@@ -92,7 +99,7 @@ func unary():#i++ ++i i-- --i
 	]:
 		var op = token_atual
 		avancar()
-		node = ASTNodes.UnaryOpNode.new(op, node)
+		node = ASTNodes.UnaryOpNode.new(op, node,false)
 
 	return node
 

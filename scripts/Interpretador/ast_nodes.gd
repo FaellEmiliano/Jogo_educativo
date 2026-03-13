@@ -8,8 +8,8 @@ class ProgramNode extends  ASTNodes:
 	func _init(s):
 		statements = s
 		
-	func accept(visitor):
-			return visitor.visit_program(self)
+	func accept_exec(visitor):
+			return visitor.exec_program(self)
 
 class BlockNode extends  ASTNodes:
 	var statements
@@ -17,8 +17,8 @@ class BlockNode extends  ASTNodes:
 	func _init(s):
 		statements = s
 		
-	func accept(visitor):
-		return visitor.visit_block(self)
+	func accept_exec(visitor):
+		return visitor.exec_block(self)
 
 class VarDeclNode extends  ASTNodes:
 	var type
@@ -28,8 +28,8 @@ class VarDeclNode extends  ASTNodes:
 		type = t
 		name = n
 		value = v
-	func accept(visitor):
-		return visitor.visit_var_decl(self)
+	func accept_exec(visitor):
+		return visitor.exec_var_decl(self)
 
 class IfNode extends  ASTNodes:
 	var condicao
@@ -41,8 +41,8 @@ class IfNode extends  ASTNodes:
 		if_branch = i
 		else_branch = e
 		
-	func accept(visitor):
-		return visitor.visit_if(self)
+	func accept_exec(visitor):
+		return visitor.exec_if(self)
 
 class WhileNode extends  ASTNodes:
 	var condicao
@@ -52,8 +52,8 @@ class WhileNode extends  ASTNodes:
 		condicao = c
 		body = b
 		
-	func accept(visitor):
-		return visitor.visit_while(self)
+	func accept_exec(visitor):
+		return visitor.exec_while(self)
 
 class ForNode extends  ASTNodes:
 	var init
@@ -66,6 +66,8 @@ class ForNode extends  ASTNodes:
 		condicao = c
 		incremento = inc
 		body = b
+	func accept_exec(visitor):
+		return visitor.exec_for(self)
 
 class ReturnNode extends  ASTNodes:
 	var value
@@ -73,8 +75,8 @@ class ReturnNode extends  ASTNodes:
 	func _init(v):
 		value = v
 	
-	func accept(visitor):
-		return visitor.visit_return(self)
+	func accept_exec(visitor):
+		return visitor.exec_return(self)
 
 class FunctionDeclNode extends  ASTNodes:
 	var params
@@ -85,8 +87,8 @@ class FunctionDeclNode extends  ASTNodes:
 		params = p
 		body = b
 		
-	func accept(visitor):
-		return visitor.visit_function_decl(self)
+	func accept_exec(visitor):
+		return visitor.exec_function_decl(self)
 
 
 class FunctionCallNode extends  ASTNodes:
@@ -96,32 +98,32 @@ class FunctionCallNode extends  ASTNodes:
 	func _init(n,a):
 		name = n
 		args = a
-	func accept(visitor):
-		return visitor.visit_function_call(self)
+	func accept_eval(visitor):
+		return visitor.eval_function_call(self)
 
 class ExpressionStatementNode extends  ASTNodes:
 	var expression
 	
 	func _init(e):
 		expression = e
-	func accept(visitor):
-		return visitor.visit_expression_statement(self)
+	func accept_exec(visitor):
+		return visitor.exec_expression_statement(self)
 
 class NumberNode extends ASTNodes:
 	var value
 	
 	func _init(v):
 		value = v
-	func accept(visitor):
-		return visitor.visit_number(self)
+	func accept_eval(visitor):
+		return visitor.eval_number(self)
 
 class StringNode extends  ASTNodes:
 	var value
 	
 	func _init(v):
 		value = v
-	func accept(visitor):
-		return visitor.visit_string(self)
+	func accept_eval(visitor):
+		return visitor.eval_string(self)
 
 class AssignNode extends  ASTNodes:
 	var node
@@ -130,28 +132,35 @@ class AssignNode extends  ASTNodes:
 	func _init(n,v):
 		node = n
 		value = v
-	func accept(visitor):
-		return visitor.visit_assign(self)
+	func accept_eval(visitor):
+		return visitor.eval_assign(self)
 
 class IdentifierNode extends  ASTNodes:
 	func _init(n):
 		name = n
-	func accept(visitor):
-		return visitor.visit_identifier(self)
+	func accept_eval(visitor):
+		return visitor.eval_identifier(self)
 
 class BreakNode extends  ASTNodes:
-	pass
+	func accept_exec(visitor):
+		return visitor.exec_break(self)
 
 class ContinueNode extends  ASTNodes:
-	pass
+	func accept_exec(visitor):
+		return visitor.exec_continue(self)
 
 class UnaryOpNode extends  ASTNodes:
 	var op
 	var operando
+	var prefix
 	
-	func _init(o,expr):
+	func _init(o,expr,p):
 		op = o
 		operando = expr
+		prefix = p
+
+	func accept_eval(visitor):
+		return visitor.eval_unary(self)
 
 class BinaryOpNode extends  ASTNodes:
 	var left
@@ -163,5 +172,17 @@ class BinaryOpNode extends  ASTNodes:
 		op = o
 		right = r
 		
-	func accept(visitor):
-		return visitor.visit_binary(self)
+	func accept_eval(visitor):
+		return visitor.eval_binary(self)
+
+class BoolNode extends ASTNodes:
+	var value
+	func _init(v) -> void:
+		if v == "false":
+			value = false
+		elif v == "true":
+			value = true
+		else:
+			value = null
+	func accept_eval(visitor):
+		return visitor.eval_bool(self)
