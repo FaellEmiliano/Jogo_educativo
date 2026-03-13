@@ -5,14 +5,14 @@ func _ready():
 
 	# 1. Tokenizar
 	var lexer = Lexer.new("""
+	int a(){
+		print(b);
+	}
 int main(){
+int b = 0;
+a();
 
-	int a = 1;
-	print(a++);
-	print(a);
-	print(++a);
-	print(a);
-    return 0;
+	return 0;
 }
 """)
 	var tokens = lexer.tokenize()

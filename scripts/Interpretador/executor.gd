@@ -20,9 +20,7 @@ func current_env():
 
 func get_var(nome):
 	for i in range(enviroments.size() - 1, -1, -1):
-
 		if nome in enviroments[i]:
-
 			return enviroments[i][nome]
 
 	push_error("variavel nao definida: " + nome)
@@ -68,6 +66,7 @@ func exec_block(node):
 		#print("stmt:", stmt)
 		var result = exec(stmt)
 		if result != null:
+			pop_env()
 			return result
 	pop_env()
 
@@ -204,7 +203,27 @@ func exec_while(node):
 		if result is ControlSignal.ContinueSignal:
 			continue
 		
-		
+func exec_for(node):
+	push_env()
+	if node.init != null:
+		exec(node.init)
+	while true:
+		if node.condicao != null and not eval(node.condicao):
+			break
+		var result = exec(node.body)
+		if result is ControlSignal.ReturnSignal:
+			pop_env()
+			return result
+		if result is ControlSignal.BreakSignal:
+			break
+		if result is ControlSignal.ContinueSignal:
+			if node.incremento != null:
+				eval(node.incremento)
+			continue
+		if node.incremento != null:
+			eval(node.incremento)
+	pop_env()
+
 func exec_break(_node):
 	return ControlSignal.BreakSignal.new()
 

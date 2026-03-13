@@ -66,6 +66,8 @@ class ForNode extends  ASTNodes:
 		condicao = c
 		incremento = inc
 		body = b
+	func accept_exec(visitor):
+		return visitor.exec_for(self)
 
 class ReturnNode extends  ASTNodes:
 	var value
