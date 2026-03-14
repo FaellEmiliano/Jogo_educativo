@@ -3,9 +3,13 @@ extends Node
 class_name Token
 var type
 var value
-func _init(t="",v="") -> void:
+var linha
+var coluna
+func _init(t="",v="",l := 0, c := 0) -> void:
 	type = t
 	value = v
+	linha = l
+	coluna = c
 
 enum TiposToken{
 	NUMBER,

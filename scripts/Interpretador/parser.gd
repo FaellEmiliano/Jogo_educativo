@@ -5,10 +5,32 @@ class_name Parser
 var tokens = []
 var pos = 0
 var token_atual
+var debug_enabled := true
+var debug_indent := 0
+var debug_lines := []
+
 
 func _init(listatoken= [""]):
 	tokens = listatoken
 	token_atual = tokens[0]
+
+func dbg(msg):
+	if not debug_enabled:
+		return
+	
+	var indent = "  ".repeat(debug_indent)
+	debug_lines.append(indent + msg)
+
+func dbg_enter(rule):
+	dbg("→ " + rule)
+	debug_indent += 1
+
+func dbg_exit(rule):
+	debug_indent -= 1
+	dbg("← " + rule)
+
+func dbg_token():
+	dbg("TOKEN " + nome_token(token_atual.type) + " (" + str(token_atual.value) + ")")
 
 func avancar():
 	pos += 1
@@ -24,8 +46,8 @@ func nome_token(tipo):
 	return "DESCONHECIDO"
 #tira o token atual da lista de tokens e valida ele
 func consumir(tipo):
-	print("TOKEN:", nome_token(token_atual.type)," ", token_atual.value)
-
+	dbg_token()
+	
 	if token_atual.type == tipo:
 		avancar()
 	else:
@@ -36,7 +58,7 @@ func consumir(tipo):
 
 #primeiro nivel
 func factor():
-
+	dbg_enter("factor")
 	var token = token_atual
 
 	# número
@@ -62,6 +84,16 @@ func factor():
 
 		if token_atual.type == Token.TiposToken.LPAREN:
 			return parse_function_call(token.value)
+
+		if token_atual.type == Token.TiposToken.LBRACKET:
+			var indexes = []
+
+			while token_atual.type == Token.TiposToken.LBRACKET:
+				consumir(Token.TiposToken.LBRACKET)
+				indexes.append(assignment())
+				consumir(Token.TiposToken.RBRACKET)
+			var array = ASTNodes.IdentifierNode.new(token.value)
+			return ASTNodes.ArrayAccessNode.new(array,indexes)
 
 		var node = ASTNodes.IdentifierNode.new(token.value)
 
@@ -116,7 +148,7 @@ func term():#op de / * e %
 	return node
 
 func expr():# + e -
-	
+	dbg_enter("expr")
 	var node = term()
 	
 	while token_atual.type in  [Token.TiposToken.OP_PLUS,Token.TiposToken.OP_MINUS]:
@@ -233,10 +265,15 @@ func parse_declaration():#declaracao de variavel ou funcao
 	# função
 	if token_atual.type == Token.TiposToken.LPAREN:
 		return parse_function_declaration(tipo.value, nome)
-
+	
+	#array
+	if token_atual.type == Token.TiposToken.LBRACKET:
+		return parse_array_declaration(tipo.value, nome)
+		
 	# variável
 	return parse_variable_declaration(tipo.value, nome)
-
+	
+	
 func parse_variable_declaration(tipo, nome):#declaracao de variavel
 	var value = null
 	if token_atual.type == Token.TiposToken.OP_EQUAL:
@@ -245,6 +282,16 @@ func parse_variable_declaration(tipo, nome):#declaracao de variavel
 	consumir(Token.TiposToken.SEMICOLON)
 	return ASTNodes.VarDeclNode.new(tipo, nome, value)
 
+func parse_array_declaration(tipo, nome):
+	var sizes = []
+
+	while token_atual.type == Token.TiposToken.LBRACKET:
+		consumir(Token.TiposToken.LBRACKET)
+		sizes.append(assignment())
+		consumir(Token.TiposToken.RBRACKET)
+
+	consumir(Token.TiposToken.SEMICOLON)
+	return ASTNodes.ArrayDeclNode.new(tipo, nome, sizes)
 
 func parse_function_declaration(_tipo, nome):#Declaracao de funcao
 
@@ -343,6 +390,7 @@ func parse_for():
 	# atribuicao
 	elif token_atual.type != Token.TiposToken.SEMICOLON:
 		init = assignment()
+		consumir(Token.TiposToken.SEMICOLON)
 	
 	else:
 		consumir(Token.TiposToken.SEMICOLON)
@@ -387,11 +435,19 @@ func parse_continue():
 	return ASTNodes.ContinueNode.new()
 
 func parse(): #Funcao principal
+	debug_lines.clear()
+	dbg_enter("parse")
+	
 	var statements = []
 	while token_atual.type != Token.TiposToken.EOF:
 		statements.append(statement())
+		
+	dbg_exit("parse")
 	
 	return ASTNodes.ProgramNode.new(statements)
+
+func print_parser():
+	print("\n".join(debug_lines))
 
 ##perceba que TODAS as funcoes necessitam de ; no final da linha (por causa do consumir)
 #COMO DEBUGAR:

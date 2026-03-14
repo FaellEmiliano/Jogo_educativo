@@ -1,41 +1,74 @@
 extends Node
 
 class_name Executor
-var enviroments = []
+var call_stack = []
 var functions = {}
 var builtins = {}
 
 func _init():
-	push_env()
 	register_builtin()
+	#frame global
+	var global_frame = {
+		"function": "global",
+		"scope_stack": []
+	}
+	call_stack.append(global_frame)
+	push_scope()
 
-func push_env():
-	enviroments.append({})
+func push_scope():
+	var frame=call_stack.back()
+	frame["scope_stack"].append({})
 
-func pop_env():
-	enviroments.pop_back()
+func pop_scope():
+	var frame=call_stack.back()
+	frame["scope_stack"].pop_back()
 
-func current_env():
-	return enviroments[enviroments.size()-1]
+func current_scope():
+	return call_stack.back()["scope_stack"].back()
 
-func get_var(nome):
-	for i in range(enviroments.size() - 1, -1, -1):
-		if nome in enviroments[i]:
-			return enviroments[i][nome]
+func create_frame(function_name):
+	return {"function":function_name,"scope_stack":[]}
+
+func get_var(node):
+	var nome = node.name
+	var frame = call_stack.back()
+	for i in range(frame["scope_stack"].size() - 1, -1, -1):
+		if nome in frame["scope_stack"][i]:
+			return frame["scope_stack"][i][nome]
 
 	push_error("variavel nao definida: " + nome)
 	return null
 
 func declare_var(nome,value):
-	current_env()[nome] = value
+	current_scope()[nome] = value
 
-func assign_var(nome,value):
-	for i in range(enviroments.size() - 1, -1, -1):
-		if nome in enviroments[i]:
-			enviroments[i][nome] = value
-			return
-	push_error("variavel nao definida: " + nome)
+func assign_var(node,value):
+	var frame = call_stack.back()
+	#var
+	if node is ASTNodes.IdentifierNode:
+		var nome = node.name
+		for i in range(frame["scope_stack"].size() - 1, -1, -1):
+			if nome in frame["scope_stack"][i]:
+				frame["scope_stack"][i][nome] = value
+				return
+		push_error("variavel nao definida: " + nome)
+		return
+	#array
+	elif node is ASTNodes.ArrayAccessNode:
+		var array :Array
+		array = get_var(node.array)
+		var indexes = node.indexes
 
+		for i in range(indexes.size()-1):
+			var idx = eval(indexes[i])
+			array = array[idx]
+
+		var last = eval(indexes.back())
+		array[last] = value
+		return
+	push_error("variavel nao definida: " + node.name)
+	return
+		
 func register_builtin():
 	builtins["print"] = func(args):
 		for a in args:
@@ -61,14 +94,14 @@ func exec_program(node):
 			exec(stmt)
 
 func exec_block(node):
-	push_env()
+	push_scope()
 	for stmt in node.statements:
 		#print("stmt:", stmt)
 		var result = exec(stmt)
 		if result != null:
-			pop_env()
+			pop_scope()
 			return result
-	pop_env()
+	pop_scope()
 
 func eval_number(node):
 	return node.value
@@ -83,21 +116,21 @@ func eval_unary(node):
 		Token.TiposToken.OP_PLUS:
 			return value
 		Token.TiposToken.OP_PLUS_PLUS:
-			var nome = node.operando.name
+			var operando = node.operando
 
-			var value_inner = get_var(nome)
+			var value_inner = get_var(operando)
 	
 			value_inner +=1
-			assign_var(nome,value_inner)
+			assign_var(operando,value_inner)
 			if node.prefix:
 				return value_inner
 			else:
 				return value_inner -1
 		Token.TiposToken.OP_MINUS_MINUS:
-			var nome = node.operando.name
-			var value_inner = get_var(nome)
+			var operando = node.operando
+			var value_inner = get_var(operando)
 			value_inner -=1
-			assign_var(nome,value_inner)
+			assign_var(operando,value_inner)
 			if node.prefix:
 				return value_inner
 			else:
@@ -107,7 +140,7 @@ func eval_string(node):
 	return node.value
 
 func eval_identifier(node):
-	return get_var(node.name)
+	return get_var(node)
 
 func exec_var_decl(node):
 	var value = null
@@ -115,9 +148,39 @@ func exec_var_decl(node):
 		value = eval(node.value)
 	declare_var(node.name,value)
 
+func exec_array_decl(node):
+	var array = create_nd_array(node.sizes)
+	current_scope()[node.name] = array
+
+func create_nd_array(sizes,depth = 0):
+	var size = eval(sizes[depth])
+	var arr = []
+	if depth == sizes.size()-1:
+		for i in range(size):
+			arr.append(0)
+	else:
+		for i in range(size):
+			arr.append(create_nd_array(sizes,depth+1))
+	return arr
+
+func eval_array_acess(node):
+	var array = get_var(node.array)
+	if array == null:
+		push_error("array nao existe")
+		return null
+	for index_node in node.indexes:
+		if not (array is Array):
+			push_error("tentativa de indexar valor que nao é array")
+			return null
+		var idx = eval(index_node)
+		if idx < 0 or idx >= array.size():
+			push_error("Index fora do limite")
+			return null
+		array = array[idx]
+	return array
 func eval_assign(node):
 	var value = eval(node.value)
-	assign_var(node.node.name,value)
+	assign_var(node.node,value)
 	return value
 
 func eval_bool(node):
@@ -156,12 +219,15 @@ func call_function(nome,args):
 		return builtins[nome].call(args)
 	if nome in functions:
 		var func_ = functions[nome]
-		push_env()
+		var frame = create_frame(nome)
+		call_stack.append(frame)
+		push_scope()
 		for i in range(func_.params.size()):
 			var pname = func_.params[i][1]
 			declare_var(pname,args[i])
 		var result = exec(func_.body)
-		pop_env()
+		pop_scope()
+		call_stack.pop_back()
 		if result is ControlSignal.ReturnSignal:
 			return result.value
 		return null
@@ -204,15 +270,18 @@ func exec_while(node):
 			continue
 		
 func exec_for(node):
-	push_env()
+	push_scope()
 	if node.init != null:
-		exec(node.init)
+		if node.init is ASTNodes.AssignNode:
+			eval(node.init)
+		else:
+			exec(node.init)
 	while true:
 		if node.condicao != null and not eval(node.condicao):
 			break
 		var result = exec(node.body)
 		if result is ControlSignal.ReturnSignal:
-			pop_env()
+			pop_scope()
 			return result
 		if result is ControlSignal.BreakSignal:
 			break
@@ -222,7 +291,7 @@ func exec_for(node):
 			continue
 		if node.incremento != null:
 			eval(node.incremento)
-	pop_env()
+	pop_scope()
 
 func exec_break(_node):
 	return ControlSignal.BreakSignal.new()

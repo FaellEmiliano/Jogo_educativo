@@ -1,172 +1,181 @@
-#SOMENTE PRA DEBUG
+# SOMENTE PRA DEBUG
 extends Node
-
 class_name ASTPrinter
 
-func print_ast(node, indent := ""):
-	
+
+func print_ast(node):
+	var text = ast_to_string(node)
+	print(text)
+
+
+func ast_to_string(node, indent := "", is_last := true) -> String:
+	var out := ""
+
+	var branch := "└─ " if is_last else "├─ "
+	var next_indent := indent + ("   " if is_last else "│  ")
+
 	if node == null:
-		print(indent + "null")
-		return
-	
+		return indent + branch + "null\n"
+
+	# ---------- LISTAS ----------
+	if node is Array:
+		for i in node.size():
+			out += ast_to_string(node[i], indent, i == node.size()-1)
+		return out
+
+
+	# ---------- PROGRAM ----------
 	if node is ASTNodes.ProgramNode:
-		print(indent + "Program")
+		out += indent + branch + "Program\n"
+		for i in node.statements.size():
+			out += ast_to_string(node.statements[i], next_indent, i == node.statements.size()-1)
+		return out
 
-		for stmt in node.statements:
-			print_ast(stmt, indent + "  ")
-			
-		return
-	
-	if node is ASTNodes.BreakNode:
-		print(indent + "Break")
-		return
-	
-	if node is ASTNodes.ContinueNode:
-		print(indent + "Continue")
-		return
-	
+
+	# ---------- BLOCK ----------
 	if node is ASTNodes.BlockNode:
-		print(indent + "Block")
+		out += indent + branch + "Block\n"
+		for i in node.statements.size():
+			out += ast_to_string(node.statements[i], next_indent, i == node.statements.size()-1)
+		return out
 
-		for stmt in node.statements:
-			print_ast(stmt, indent + "  ")
 
-		return
-	
+	# ---------- VAR DECL ----------
 	if node is ASTNodes.VarDeclNode:
+		out += indent + branch + "VarDecl (" + node.name + ":" + str(node.type) + ")\n"
 
-		print(indent + "VarDecl")
+		if node.value != null:
+			out += ast_to_string(node.value, next_indent, true)
 
-		print(indent + "  type: " + str(node.type))
-		print(indent + "  name: " + node.name)
+		return out
 
-		print(indent + "  value:")
-		print_ast(node.value, indent + "    ")
 
-		return
-	
+	# ---------- ARRAY DECL ----------
+	if node is ASTNodes.ArrayDeclNode:
+		out += indent + branch + "ArrayDecl (" + node.name + ":" + str(node.type) + ")\n"
+
+		for i in node.sizes.size():
+			out += ast_to_string(node.sizes[i], next_indent, i == node.sizes.size()-1)
+
+		return out
+
+
+	# ---------- ARRAY ACCESS ----------
+	if node is ASTNodes.ArrayAccessNode:
+		out += indent + branch + "ArrayAccess\n"
+
+		out += ast_to_string(node.array, next_indent, false)
+
+		for i in node.indexes.size():
+			out += ast_to_string(node.indexes[i], next_indent, i == node.indexes.size()-1)
+
+		return out
+
+
+	# ---------- IF ----------
 	if node is ASTNodes.IfNode:
+		out += indent + branch + "If\n"
 
-		print(indent + "If")
-
-		print(indent + "  condition:")
-		print_ast(node.condicao, indent + "    ")
-
-		print(indent + "  then:")
-		print_ast(node.if_branch, indent + "    ")
+		out += ast_to_string(node.condicao, next_indent, false)
+		out += ast_to_string(node.if_branch, next_indent, node.else_branch == null)
 
 		if node.else_branch != null:
-			print(indent + "  else:")
-			print_ast(node.else_branch, indent + "    ")
+			out += ast_to_string(node.else_branch, next_indent, true)
 
-		return
-	
+		return out
+
+
+	# ---------- WHILE ----------
 	if node is ASTNodes.WhileNode:
+		out += indent + branch + "While\n"
 
-		print(indent + "While")
+		out += ast_to_string(node.condicao, next_indent, false)
+		out += ast_to_string(node.body, next_indent, true)
 
-		print(indent + "  condition:")
-		print_ast(node.condicao, indent + "    ")
+		return out
 
-		print(indent + "  body:")
-		print_ast(node.body, indent + "    ")
 
-		return
-	
+	# ---------- FOR ----------
 	if node is ASTNodes.ForNode:
+		out += indent + branch + "For\n"
 
-		print(indent + "For")
+		out += ast_to_string(node.init, next_indent, false)
+		out += ast_to_string(node.condicao, next_indent, false)
+		out += ast_to_string(node.incremento, next_indent, false)
+		out += ast_to_string(node.body, next_indent, true)
 
-		print(indent + "  init:")
-		print_ast(node.init, indent + "    ")
+		return out
 
-		print(indent + "  condition:")
-		print_ast(node.condicao, indent + "    ")
 
-		print(indent + "  increment:")
-		print_ast(node.incremento, indent + "    ")
-
-		print(indent + "  body:")
-		print_ast(node.body, indent + "    ")
-
-		return
-		
-	if node is ASTNodes.ReturnNode:
-
-		print(indent + "Return")
-
-		print_ast(node.value, indent + "  ")
-
-		return
-		
-	if node is ASTNodes.FunctionCallNode:
-
-		print(indent + "FunctionCall: " + node.name)
-
-		for arg in node.args:
-			print_ast(arg, indent + "  ")
-
-		return
-	
-	if node is ASTNodes.UnaryOpNode:
-
-		print(indent + "UnaryOp: " + str(node.op.value))
-		print_ast(node.operando, indent + "  ")
-
-		return
-	
-	if node is ASTNodes.AssignNode:
-
-		print(indent + "Assignment")
-
-		print(indent + "  node:")
-		print_ast(node.node, indent + "    ")
-
-		print(indent + "  value:")
-		print_ast(node.value, indent + "    ")
-
-		return
-	
-	if node is ASTNodes.StringNode:
-		print(indent + "String: " + node.value)
-		return
-	
+	# ---------- FUNCTION DECL ----------
 	if node is ASTNodes.FunctionDeclNode:
+		out += indent + branch + "FunctionDecl " + node.name + "\n"
 
-		print(indent + "FunctionDecl: " + node.name)
-
-		print(indent + "  params:")
 		for p in node.params:
-			print(indent + "    " + str(p))
+			out += next_indent + "├─ param " + str(p) + "\n"
 
-		print(indent + "  body:")
-		print_ast(node.body, indent + "    ")
+		out += ast_to_string(node.body, next_indent, true)
 
-		return
-	
-	if node is ASTNodes.ExpressionStatementNode:
+		return out
 
-		print(indent + "ExpressionStatement")
 
-		print_ast(node.expression, indent + "  ")
+	# ---------- FUNCTION CALL ----------
+	if node is ASTNodes.FunctionCallNode:
+		out += indent + branch + "Call " + node.name + "\n"
 
-		return
-	
+		for i in node.args.size():
+			out += ast_to_string(node.args[i], next_indent, i == node.args.size()-1)
 
+		return out
+
+
+	# ---------- ASSIGN ----------
+	if node is ASTNodes.AssignNode:
+		out += indent + branch + "Assign\n"
+
+		out += ast_to_string(node.node, next_indent, false)
+		out += ast_to_string(node.value, next_indent, true)
+
+		return out
+
+
+	# ---------- RETURN ----------
+	if node is ASTNodes.ReturnNode:
+		out += indent + branch + "Return\n"
+		out += ast_to_string(node.value, next_indent, true)
+		return out
+
+
+	# ---------- EXPRESSIONS ----------
+	if node is ASTNodes.BinaryOpNode:
+		out += indent + branch + "BinaryOp " + str(node.op.value) + "\n"
+
+		out += ast_to_string(node.left, next_indent, false)
+		out += ast_to_string(node.right, next_indent, true)
+
+		return out
+
+
+	if node is ASTNodes.UnaryOpNode:
+		out += indent + branch + "UnaryOp " + str(node.op.value) + "\n"
+		out += ast_to_string(node.operando, next_indent, true)
+		return out
+
+
+	# ---------- TERMINAIS ----------
 	if node is ASTNodes.NumberNode:
-		print(indent + "Number: " + str(node.value))
-		return
+		return indent + branch + "Number " + str(node.value) + "\n"
+
+	if node is ASTNodes.StringNode:
+		return indent + branch + "String \"" + node.value + "\"\n"
 
 	if node is ASTNodes.IdentifierNode:
-		print(indent + "Identifier: " + node.name)
-		return
+		return indent + branch + "Identifier " + node.name + "\n"
 
-	if node is ASTNodes.BinaryOpNode:
-		print(indent + "BinaryOp: " + str(node.op.value))
-		print(indent + "├─ left")
-		print_ast(node.left, indent + "│  ")
-		print(indent + "└─ right")
-		print_ast(node.right, indent + "│   ")
-		return
+	if node is ASTNodes.BreakNode:
+		return indent + branch + "Break\n"
 
-	print(indent + "Unknown node: " + str(node.get_class()))
+	if node is ASTNodes.ContinueNode:
+		return indent + branch + "Continue\n"
+
+	return indent + branch + "Unknown " + str(node) + "\n"

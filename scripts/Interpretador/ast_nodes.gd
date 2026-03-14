@@ -31,6 +31,29 @@ class VarDeclNode extends  ASTNodes:
 	func accept_exec(visitor):
 		return visitor.exec_var_decl(self)
 
+class ArrayDeclNode extends ASTNodes:
+	var type
+	var sizes
+	
+	func _init(t,n,s):
+		type = t
+		name = n
+		sizes = s
+	
+	func accept_exec(visitor):
+		return visitor.exec_array_decl(self)
+
+class ArrayAccessNode extends ASTNodes:
+	var array
+	var indexes
+	
+	func _init(a,i):
+		array = a
+		indexes = i
+	
+	func accept_eval(visitor):
+		return visitor.eval_array_acess(self)
+
 class IfNode extends  ASTNodes:
 	var condicao
 	var if_branch

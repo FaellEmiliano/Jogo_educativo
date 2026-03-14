@@ -113,11 +113,11 @@ func string():
 
 	if char_atual == "":
 		push_error("String não fechada")
-		return Token.new(Token.TiposToken.STRING, resultado)
+		return Token.new(Token.TiposToken.STRING, resultado,linha,coluna)
 
 	avancar()
 
-	return Token.new(Token.TiposToken.STRING, resultado)
+	return Token.new(Token.TiposToken.STRING, resultado,linha,coluna)
 #detecta numeros
 func numero():
 	var resultado = ""
@@ -134,9 +134,9 @@ func numero():
 		avancar()
 		
 	if decimal:
-		return Token.new(Token.TiposToken.NUMBER, float(resultado))
+		return Token.new(Token.TiposToken.NUMBER, float(resultado),linha,coluna)
 		
-	return Token.new(Token.TiposToken.NUMBER, int(resultado))
+	return Token.new(Token.TiposToken.NUMBER, int(resultado),linha,coluna)
 
 func comentario_linha():
 
@@ -168,9 +168,9 @@ func identifier():
 		avancar()
 	#pesquisa no dict
 	if resultado in keywords:
-		return Token.new(keywords[resultado], resultado)
+		return Token.new(keywords[resultado], resultado,linha,coluna)
 
-	return Token.new(Token.TiposToken.IDENTIFIER, resultado)
+	return Token.new(Token.TiposToken.IDENTIFIER, resultado,linha,coluna)
 #funcao principal
 func get_next_token():
 
@@ -208,25 +208,25 @@ func get_next_token():
 			var tipo = operadores[two]
 			avancar()
 			avancar()
-			return Token.new(tipo, two)
+			return Token.new(tipo, two,linha,coluna)
 			
 		# operador simples
 		if char_atual in operadores:
 			var c = char_atual
 			var tipo = operadores[c]
 			avancar()
-			return Token.new(tipo, c)
+			return Token.new(tipo, c,linha,coluna)
 			
 		# delimitadores
 		if char_atual in delimitadores:
 			var c = char_atual
 			var tipo = delimitadores[c]
 			avancar()
-			return Token.new(tipo, c)
+			return Token.new(tipo, c,linha,coluna)
 
 		push_error("Caractere inválido: " + char_atual)
 		avancar()
-	return Token.new(Token.TiposToken.EOF, "")
+	return Token.new(Token.TiposToken.EOF, "",linha,coluna)
 
 func tokenize():
 	
