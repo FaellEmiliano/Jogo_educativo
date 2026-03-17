@@ -9,6 +9,6 @@ func _init() -> void:
 	mover(Vector2.DOWN)
 
 
-func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.is_pressed():
 		Eventos.emit_signal('conectar_terminal',self)
