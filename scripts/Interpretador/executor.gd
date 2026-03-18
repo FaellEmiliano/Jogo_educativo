@@ -214,6 +214,10 @@ func exec_function_decl(node):
 	functions[node.name] = node
 
 func call_function(nome,args):
+	if nome.begins_with("robo_"):
+		var command = nome.substr(5) # remove "robo_"
+		Eventos.emit_signal("api_robot", command, args)
+		return null
 	if nome in builtins:
 		return builtins[nome].call(args)
 	if nome in functions:

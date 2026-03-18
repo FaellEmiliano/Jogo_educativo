@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cghpxuoq080v5"]
 
-[ext_resource type="Script" uid="uid://c4vpm6er80nv" path="res://robo_script.gd" id="1_a20i6"]
+[ext_resource type="Script" uid="uid://c4vpm6er80nv" path="res://scripts/robo_script.gd" id="1_a20i6"]
 [ext_resource type="Texture2D" uid="uid://byiirqlisptxq" path="res://sprites/robo.png" id="2_tt8g8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cfaiu"]
