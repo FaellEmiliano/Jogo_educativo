@@ -71,7 +71,10 @@ func assign_var(node,value):
 		
 func register_builtin():
 	builtins["print"] = func(args):
-		print(args)
+		var _cat_str = ""
+		for arg in args:
+			_cat_str += str(arg)
+		print(str)
 		return null
 
 func exec(node):
