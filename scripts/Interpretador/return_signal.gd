@@ -13,3 +13,8 @@ class BreakSignal extends ControlSignal:
 
 class ContinueSignal extends ControlSignal:
 	pass
+
+class FunctionCallSignal extends ControlSignal:
+	var node
+	func _init(n):
+		node = n

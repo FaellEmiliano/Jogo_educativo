@@ -4,6 +4,15 @@ class_name Executor
 var call_stack = []
 var functions = {}
 var builtins = {}
+var execution_stack = []
+var pending_signal = null
+var last_return_value = null
+
+func push_exec(statements):
+	execution_stack.append({
+		"statements": statements,
+		"index": 0
+	})
 
 func _init():
 	register_builtin()
@@ -15,6 +24,122 @@ func _init():
 	call_stack.append(global_frame)
 	push_scope()
 
+func step():
+	if execution_stack.is_empty():
+		return false
+	
+	var frame = execution_stack.back()
+	
+	# tratar sinal pendente
+	if pending_signal != null:
+		if handle_signal(frame):
+			return true
+	
+	# 🔥 PROGRAM INIT (necessário)
+	if frame.get("type") == "program":
+		if frame["index"] >= frame["statements"].size():
+			execution_stack.pop_back()
+			
+			if "main" in functions:
+				call_function("main", [])
+			else:
+				push_error("main nao encontrada")
+			
+			return true
+		
+		var stmt = frame["statements"][frame["index"]]
+		frame["index"] += 1
+		
+		exec(stmt)
+		return true
+	
+	# FUNCTION
+	if frame.get("type") == "function":
+		if frame.get("executing_body", false) == false:
+			frame["executing_body"] = true
+			return true
+
+		# terminou execução
+		if execution_stack.back() == frame:
+			if frame.get("scope"):
+				pop_scope()
+			call_stack.pop_back()
+			execution_stack.pop_back()
+			return true
+	
+	# 🔥 BLOCK NORMAL
+	if frame.get("type", "block") == "block":
+		
+		if frame["index"] >= frame["statements"].size():
+			if frame.get("scope"):
+				pop_scope()
+			execution_stack.pop_back()
+			return true
+		
+		var stmt = frame["statements"][frame["index"]]
+		frame["index"] += 1
+		
+		var result = exec(stmt)
+		if result is ControlSignal.FunctionCallSignal:
+			var args = []
+			for arg in result.node.args:
+				args.append(eval(arg))
+			call_function(result.node.name, args)
+			return true
+
+		if result != null:
+			pending_signal = result
+		
+		return true
+	
+	# WHILE
+	if frame.get("type") == "while":
+		return step_while(frame)
+	
+	# FOR
+	if frame.get("type") == "for":
+		return step_for(frame)
+	
+	return true
+
+func handle_signal(frame):
+
+	# RETURN
+	if pending_signal is ControlSignal.ReturnSignal:
+		if frame.get("type") == "function":
+			
+			frame["return_value"] = pending_signal.value  # 🔥 aqui
+			last_return_value = frame["return_value"]
+			
+			if frame.get("scope"):
+				pop_scope()
+			
+			call_stack.pop_back()
+			execution_stack.pop_back()
+			
+			pending_signal = null
+			return true
+
+	# BREAK
+	if pending_signal is ControlSignal.BreakSignal:
+		if frame.get("type") in ["while", "for"]:
+			execution_stack.pop_back()
+			pending_signal = null
+			return true
+		else:
+			execution_stack.pop_back()
+			return false
+
+	# CONTINUE
+	if pending_signal is ControlSignal.ContinueSignal:
+		if frame.get("type") in ["while", "for"]:
+			pending_signal = null
+			return true
+		else:
+			execution_stack.pop_back()
+			return false
+
+	return false
 func push_scope():
 	var frame=call_stack.back()
 	frame["scope_stack"].append({})
@@ -74,7 +199,7 @@ func register_builtin():
 		var _cat_str = ""
 		for arg in args:
 			_cat_str += str(arg)
-		print(str)
+		print(_cat_str)
 		return null
 
 func exec(node):
@@ -84,26 +209,28 @@ func eval(node):
 	return node.accept_eval(self)
 
 func run(program):
-	exec(program)
-	if "main" in functions:
-		call_function("main",[])
-	else:
-		push_error("main nao encontrada")
+	execution_stack.clear()
+	pending_signal = null
+	last_return_value = null
+	
+	execution_stack.append({
+		"type": "program",
+		"statements": program.statements,
+		"index": 0
+	})
 
-func exec_program(node):
-	for stmt in node.statements:
-		if stmt is ASTNodes.FunctionDeclNode:
-			exec(stmt)
+func exec_program(_node):
+	# não faz nada, o run() já iniciou
+	pass
 
 func exec_block(node):
 	push_scope()
-	for stmt in node.statements:
-		#print("stmt:", stmt)
-		var result = exec(stmt)
-		if result != null:
-			pop_scope()
-			return result
-	pop_scope()
+	execution_stack.append({
+		"type": "block",
+		"statements": node.statements,
+		"index": 0,
+		"scope": true
+	})
 
 func eval_number(node):
 	return node.value
@@ -217,32 +344,42 @@ func exec_function_decl(node):
 	functions[node.name] = node
 
 func call_function(nome,args):
+	last_return_value = null
 	if nome.begins_with("robo_"):
-		var command = nome.substr(5) # remove "robo_"
+		var command = nome.substr(5)
 		Eventos.emit_signal("api_robot", command, args)
 		return null
+
 	if nome in builtins:
 		return builtins[nome].call(args)
+
 	if nome in functions:
 		var func_ = functions[nome]
 		var frame = create_frame(nome)
 		call_stack.append(frame)
 		push_scope()
+
 		for i in range(func_.params.size()):
 			var pname = func_.params[i][1]
 			declare_var(pname,args[i])
-		var result = exec(func_.body)
-		pop_scope()
-		call_stack.pop_back()
-		if result is ControlSignal.ReturnSignal:
-			return result.value
+
+		execution_stack.append({
+			"type": "function",
+			"node": func_,
+			"statements": func_.body.statements,
+			"index": 0,
+			"scope": true,
+			"return_value": null
+		})
 		return null
 
 func eval_function_call(node):
 	var args = []
 	for arg in node.args:
 		args.append(eval(arg))
-	return call_function(node.name,args)
+
+	call_function(node.name, args)
+	return last_return_value
 	
 func exec_expression_statement(node):
 	eval(node.expression)
@@ -264,40 +401,71 @@ func exec_if(node):
 		if result != null:
 			return result
 
-func exec_while(node):
-	while eval(node.condicao):
-		var result = exec(node.body)
+func step_while(frame):
+	var node = frame["node"]
+
+	if pending_signal is ControlSignal.ContinueSignal:
+		pending_signal = null
+
+	if not eval(node.condicao):
+		execution_stack.pop_back()
+		return true
+
+	push_exec(node.body.statements)
+	return true
+
+func step_for(frame):
+	var node = frame["node"]
+
+	# INIT (uma vez só)
+	if not frame["started"]:
+		frame["started"] = true
 		
-		if result is ControlSignal.ReturnSignal:
-			return result
-		if result is ControlSignal.BreakSignal:
-			break
-		if result is ControlSignal.ContinueSignal:
-			continue
+		push_scope()
+		frame["scope"] = true  # 🔥 importante
 		
-func exec_for(node):
-	push_scope()
-	if node.init != null:
-		if node.init is ASTNodes.AssignNode:
-			eval(node.init)
-		else:
-			exec(node.init)
-	while true:
-		if node.condicao != null and not eval(node.condicao):
-			break
-		var result = exec(node.body)
-		if result is ControlSignal.ReturnSignal:
-			pop_scope()
-			return result
-		if result is ControlSignal.BreakSignal:
-			break
-		if result is ControlSignal.ContinueSignal:
-			if node.incremento != null:
-				eval(node.incremento)
-			continue
+		if node.init != null:
+			if node.init is ASTNodes.AssignNode:
+				eval(node.init)
+			else:
+				exec(node.init)
+		return true
+
+	# CONTINUE
+	if pending_signal is ControlSignal.ContinueSignal:
+		pending_signal = null
 		if node.incremento != null:
 			eval(node.incremento)
-	pop_scope()
+
+	# CONDIÇÃO
+	if node.condicao != null and not eval(node.condicao):
+		if frame["scope"]:
+			pop_scope()
+		execution_stack.pop_back()
+		return true
+
+	# EXECUTA CORPO
+	push_exec(node.body.statements)
+
+	# INCREMENTO
+	if node.incremento != null:
+		eval(node.incremento)
+
+	return true
+
+func exec_while(node):
+	execution_stack.append({
+		"type": "while",
+		"node": node
+	})
+		
+func exec_for(node):
+	execution_stack.append({
+	"type": "for",
+	"node": node,
+	"started": false,
+	"scope": false
+})
 
 func exec_break(_node):
 	return ControlSignal.BreakSignal.new()
