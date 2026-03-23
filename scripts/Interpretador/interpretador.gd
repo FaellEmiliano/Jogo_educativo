@@ -1,18 +1,18 @@
 extends Node
 class_name Interpreter
-@export var debug = false
-var acc :float
-var speed = 10
+@export var debug = true
 var executor = Executor.new()
-var execute
+
 
 func _ready():
 	# 1. Tokenizar
 	var lexer = Lexer.new("""
-int main() {
-	int x = 0;
-	print(x);
-}""")
+int x = 0;
+while (x < 3) {
+	x = x + 1;
+	x;
+}
+""")
 	var tokens = lexer.tokenize()
 	if debug:
 		TokenPrinter.new().print_tokens(tokens)
@@ -25,17 +25,6 @@ int main() {
 		var printer = ASTPrinter.new()
 		printer.print_ast(ast)
 	#3. executor
-	executor.run(ast)
-	execute = true
-
-func _process(delta):
-	if execute:
-		acc += delta
-		var interval = 1.0 / speed
-		
-		while acc >= interval:
-			acc -= interval
-			
-			if not executor.step():
-				execute = false
-				break
+	executor.load_program(ast)
+	while not executor.is_finished:
+		executor.step()

@@ -42,7 +42,7 @@ func ast_to_string(node, indent := "", is_last := true) -> String:
 
 	# ---------- VAR DECL ----------
 	if node is ASTNodes.VarDeclNode:
-		out += indent + branch + "VarDecl (" + node.name + ":" + str(node.type) + ")\n"
+		out += indent + branch + "VarDecl (" + node.name + ":" + str(node.type_var) + ")\n"
 
 		if node.value != null:
 			out += ast_to_string(node.value, next_indent, true)
@@ -145,6 +145,11 @@ func ast_to_string(node, indent := "", is_last := true) -> String:
 		out += ast_to_string(node.value, next_indent, true)
 		return out
 
+	# ---------- EXPRESSION STATEMENT ----------
+	if node is ASTNodes.ExpressionStatementNode:
+		out += indent + branch + "ExpressionStatement\n"
+		out += ast_to_string(node.expression, next_indent, true)
+		return out
 
 	# ---------- EXPRESSIONS ----------
 	if node is ASTNodes.BinaryOpNode:

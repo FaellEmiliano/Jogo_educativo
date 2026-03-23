@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://c57fg1wjaravi" path="res://scripts/Interpretador/ast_nodes.gd" id="5_ypojf"]
 [ext_resource type="Script" uid="uid://cvtj57kucoear" path="res://scripts/Interpretador/ast_printer.gd" id="6_8e3cf"]
 [ext_resource type="Script" uid="uid://bxfuqh47hqu6v" path="res://scripts/Interpretador/executor.gd" id="7_ihpcw"]
-[ext_resource type="Script" uid="uid://c1v4oxemld7ba" path="res://scripts/Interpretador/return_signal.gd" id="8_edqv1"]
 
 [node name="Interpretador" type="Node" unique_id=547286985]
 script = ExtResource("1_rf5pq")
@@ -33,6 +32,3 @@ script = ExtResource("6_8e3cf")
 
 [node name="executor" type="Node" parent="." unique_id=209165782]
 script = ExtResource("7_ihpcw")
-
-[node name="ControlSignal" type="Node" parent="executor" unique_id=1393722745]
-script = ExtResource("8_edqv1")
