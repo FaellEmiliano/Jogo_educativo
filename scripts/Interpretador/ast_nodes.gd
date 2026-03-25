@@ -10,6 +10,7 @@ class ProgramNode extends  ASTNodes:
 
 class BlockNode extends  ASTNodes:
 	var statements
+	var type = "block"
 	
 	func _init(s):
 		statements = s
@@ -25,16 +26,18 @@ class VarDeclNode extends  ASTNodes:
 		value = v
 		
 class ArrayDeclNode extends ASTNodes:
-	var type
+	var type = "array_decl"
+	var type_var
 	var sizes
 	
 	func _init(t,n,s):
-		type = t
+		type_var = t
 		name = n
 		sizes = s
 	
 
 class ArrayAccessNode extends ASTNodes:
+	var type = "array_access"
 	var array
 	var indexes
 	
@@ -64,6 +67,7 @@ class WhileNode extends  ASTNodes:
 		
 
 class ForNode extends  ASTNodes:
+	var type = "for"
 	var init
 	var condicao
 	var incremento
@@ -83,11 +87,13 @@ class ReturnNode extends  ASTNodes:
 		value = v
 
 class FunctionDeclNode extends  ASTNodes:
+	var type_var
 	var params
 	var body
 	var type = "function_decl"
 	
-	func _init(n,p,b):
+	func _init(t,n,p,b):
+		type_var = t
 		name = n
 		params = p
 		body = b
@@ -144,6 +150,7 @@ class UnaryOpNode extends  ASTNodes:
 	var op
 	var operando
 	var prefix
+	var type = "unary"
 	
 	func _init(o,expr,p):
 		op = o

@@ -38,6 +38,19 @@ func current_frame():
 		return null
 	return execution_stack.back()
 
+func current_env():
+	return call_stack.back()
+
+func push_scope():
+	current_env()["scope_stack"].append({})
+
+func pop_scope():
+	current_env()["scope_stack"].pop_back()
+
+func current_scope():
+	var scopes = current_env()["scope_stack"]
+	return scopes[scopes.size() - 1]
+
 func load_program(program_node):
 	execution_stack.clear()
 	call_stack.clear()
@@ -45,7 +58,8 @@ func load_program(program_node):
 	
 	var global_frame = {
 		"name": "global",
-		"scope_stack": [{}]
+		"scope_stack": [{}],
+		"parent": null
 	}
 	
 	call_stack.append(global_frame)
@@ -75,7 +89,7 @@ func handle_signal(signal_):
 			handle_return(signal_)
 
 func process_frame(frame):
-	#print(frame)
+	#print("frame processado: ",frame)
 	match frame.type:
 		"program":
 			process_program(frame)
@@ -103,42 +117,84 @@ func process_frame(frame):
 			process_function_call(frame)
 		"expression":
 			process_expression(frame)
+		"for":
+			process_for(frame)
+		"global_block":
+			process_global_block(frame)
+		"array_decl":
+			process_array_decl(frame)
 		_:
 			push_error("nao implementado: ",frame.type)
 
 func process_program(frame):
 	match frame.index:
 		0:
-			push_frame("block",frame.node)
+			# registrar tudo primeiro
+			push_frame("global_block", frame.node)
 			frame.index = 1
+			return
+
 		1:
+			# chamar main
+			var main_fn = get_variable("main")
+
+			if main_fn == null:
+				push_error("função main não encontrada")
+				pop_frame()
+				return
+
+			push_frame("function_call", ASTNodes.FunctionCallNode.new("main", []))
+			frame.index = 2
+
+		2:
 			pop_frame()
 
 func process_block(frame):
 	var statements = frame.node.statements
-	
-	if frame.index >= statements.size():
-		pop_frame()
-		return
-	var stmt = statements[frame.index]
-	frame.index += 1
-	push_frame(stmt.type,stmt)
+
+	match frame.index:
+		0:
+			push_scope()
+			frame.index = 1
+
+		1:
+			if frame.state.get("initialized") != true:
+				frame.state["initialized"] = true
+
+			if frame.state.get("i") == null:
+				frame.state["i"] = 0
+
+			if frame.state["i"] >= statements.size():
+				frame.index = 2
+				return
+
+			var stmt = statements[frame.state["i"]]
+			frame.state["i"] += 1
+			push_frame(stmt.type, stmt)
+
+		2:
+			pop_scope()
+			pop_frame()
 
 func process_expression_statement(frame):
 	match frame.index:
 		0:
 			var expr = frame.node.expression
+			#print("expressao tipo: ",expr.type)
+			
 			if expr.type == "assign":
 				push_frame("assign", expr)
+			elif expr.type == "function_call":
+				push_frame("function_call", expr)
 			else:
-				var result = eval(expr)
-				frame.state["result"] = result
-				print("Resultado: ", result)
+				push_frame("expression", expr)
 			frame.index = 1
 		1:
+			var result = frame.state.get("value")
+			#print("resultado: ",result)
 			pop_frame()
 
-func eval(node):
+func eval(node)->Variant:
 	match node.type:
 		"number":
 			return node.value
@@ -148,6 +204,8 @@ func eval(node):
 			return get_variable(node.name)
 		"bool":
 			return node.value
+		"array_access":
+			return get_array_value(node)
 		_:
 			push_error("Tipo nao suportado: ",node.type)
 			return null
@@ -182,94 +240,95 @@ func eval_binary(node):
 	return null
 
 func get_variable(name):
-	for i in range(call_stack.size()-1,-1,-1):
-		var frame = call_stack[i]
-		var scopes = frame["scope_stack"]
+	var env = current_env()
 
-		for j in range(scopes.size() - 1, -1, -1):
-			var scope = scopes[j]
-			if name in scope:
-				return scope[name]
+	while env != null:
+		var scopes = env["scope_stack"]
 
-	push_error("Variável não definida: " + name)
+		for i in range(scopes.size() - 1, -1, -1):
+			if name in scopes[i]:
+				return scopes[i][name]["value"]
+
+		env = env["parent"]  # 🔥 sobe na cadeia
+
+	push_error("Variável não definida: " + str(name))
 	return null
 
 func set_variable(name, value):
-	# escreve no escopo atual (topo do scope stack)
-	for i in range(call_stack.size() - 1, -1, -1):
-		var frame = call_stack[i]
-		var scopes = frame["scope_stack"]
+	var env = current_env()
 
-		for j in range(scopes.size() - 1, -1, -1):
-			var scope = scopes[j]
-			if name in scope:
-				scope[name] = value
+	while env != null:
+		var scopes = env["scope_stack"]
+
+		for i in range(scopes.size() - 1, -1, -1):
+			if name in scopes[i]:
+				var var_data = scopes[i][name]
+				var_data["value"] = coerce_value(value, var_data["type"])
 				return
 
-	push_error("Variável não declarada: " + name)
-	
+		env = env["parent"]
+
+	push_error("variável não declarada: " + name)
+
 func process_assign(frame):
 	match frame.index:
 		0:
-			var value_node = frame.node.value
-			if value_node.type == "function_call":
-				frame.state["waiting_for"] = "function"
-				push_frame("function_call",value_node)
-				frame.index = 1
-				return
-				
-			var value = eval(frame.node.value)
-			frame.state["value"] = value
-			frame.index = 2
+			push_frame("expression", frame.node.value)
+			frame.index = 1
+			return
+
 		1:
-			frame.state["value"] = frame.state["function_result"]
-			frame.index = 2
-		2:
 			var target = frame.node.node
 			if target.type == "identifier":
-				set_variable(target.name,frame.state["value"])
+				set_variable(target.name, frame.state["value"])
+			elif target.type == "array_access":
+				var arr_wrapper = get_variable_wrapper(target.array.name)
+				var arr = arr_wrapper["value"]
+
+				var indexes = []
+				for idx_node in target.indexes:
+					indexes.append(eval(idx_node))
+
+				var offset = compute_offset(indexes, arr["dimensions"])
+
+				arr["data"][offset] = coerce_value(
+					frame.state["value"],
+					arr["element_type"]
+				)
 			else:
-				push_error("destino de atrib invalido")
-			frame.index = 3
-		3:
+				push_error("destino invalido")
+
 			pop_frame()
 
 func process_var_decl(frame):
 	match frame.index:
 		0:
-			var value_node = frame.node.value
-			if value_node != null and has_function_call(value_node):
-				frame.state["expr_node"] = value_node
-				push_frame("expression",value_node)
+			if frame.node.value != null:
+				push_frame("expression", frame.node.value)
 				frame.index = 1
 				return
-			if value_node != null:
-				frame.state["value"] = eval(frame.node.value)
 			else:
 				frame.state["value"] = null
-			frame.index = 1
+				frame.index = 1
+
 		1:
-			declare_variable(frame.node.name,frame.state["value"])
-			frame.index = 2
-		2:
+			declare_variable(frame.node.name, frame.state["value"],frame.node.type_var)
 			pop_frame()
 
-func declare_variable(name,value):
-	var current_frame_ = call_stack.back()
-	var current_scope = current_frame_["scope_stack"].back()
-	
-	if name in current_scope:
-		push_error("ja declarada: ",name)
-		return
-	current_scope[name] = value
+func declare_variable(name,value,type):
+	current_scope()[name] = {
+		"type": type,
+		"value": value
+	}
 
 func process_if(frame):
 	match frame.index:
 		0:
-			var cond = eval(frame.node.condicao)
-			frame.state["cond"] = cond
+			push_frame("expression",frame.node.condicao)
 			frame.index = 1
+			return
 		1:
+			frame.state["cond"] = frame.state["value"]
 			if frame.state["cond"]:
 				push_frame("block",frame.node.if_branch)
 			elif frame.node.else_branch != null:
@@ -282,10 +341,11 @@ func process_if(frame):
 func process_while(frame):
 	match frame.index:
 		0:
-			var cond = eval(frame.node.condicao)
-			frame.state["cond"] = cond
+			push_frame("expression",frame.node.condicao)
 			frame.index = 1
+			return
 		1:
+			frame.state["cond"] = frame.state["value"]
 			if frame.state["cond"]:
 				push_frame("block",frame.node.body)
 				frame.index = 2
@@ -309,7 +369,10 @@ func handle_continue():
 	while not execution_stack.is_empty():
 		var frame = current_frame()
 
-		if frame.type == "while":
+		if frame.type == "while" or frame.type == "for":
+			if frame.type == "for":
+				frame.index = 3
+				return
 			frame.index = 0
 			return
 
@@ -321,11 +384,15 @@ func process_return(frame):
 	match frame.index:
 		0:
 			if frame.node.value != null:
-				frame.state["value"] = eval(frame.node.value)
+				push_frame("expression", frame.node.value)
+				frame.index = 1
+				return
 			else:
 				frame.state["value"] = null
-			frame.index = 1
+				frame.index = 2
+
 		1:
+			print("Return: ", frame.state["value"])
 			return make_signal(SIGNAL_RETURN, frame.state["value"])
 
 func handle_return(signal_):
@@ -352,7 +419,7 @@ func process_function_decl(frame):
 				"params": frame.node.params,
 				"body": frame.node.body
 			}
-			declare_variable(frame.node.name, fn_obj)
+			declare_variable(frame.node.name, fn_obj,frame.node.type_var)
 			frame.index = 1
 
 		1:
@@ -378,13 +445,21 @@ func process_function_call(frame):
 			var args = frame.state["args"]
 			var new_frame = {
 				"name": fn.name,
-				"scope_stack": [{}]
+				"scope_stack": [],
+				"parent": current_env()
 			}
 			call_stack.append(new_frame)
+			push_scope()
 			for i in range(fn.params.size()):
+				var param_type = fn.params[i][0]
 				var param_name = fn.params[i][1]
+
 				var value = args[i] if i < args.size() else null
-				new_frame["scope_stack"].back()[param_name] = value
+
+				new_frame["scope_stack"].back()[param_name] = {
+					"type": param_type,
+					"value": coerce_value(value, param_type)
+				}
 			push_frame("block",fn.body)
 			frame.index = 2
 			return
@@ -410,14 +485,38 @@ func has_function_call(node):
 		return false
 	if node.type == "function_call":
 		return true
+	if node.type == "array_access":
+		return has_function_call(node.indexes[0])
 	if node.type == "binary":
 		return has_function_call(node.left) or has_function_call(node.right)
 	return false
 
 func process_expression(frame):
 	var node = frame.node
-	print(node.type)
+	#print(node.type)
 	match node.type:
+		
+		"number":
+			deliver_result_to_parent(node.value)
+			pop_frame()
+			return
+		
+		"array_access":
+			var value = get_array_value(node)
+			deliver_result_to_parent(value)
+			pop_frame()
+			return
+		"bool":
+			deliver_result_to_parent(node.value)
+			pop_frame()
+			return
+
+		"identifier":
+			var value = get_variable(node.name)
+			deliver_result_to_parent(value)
+			pop_frame()
+			return
+
 		"function_call":
 			match frame.index:
 				0:
@@ -428,42 +527,124 @@ func process_expression(frame):
 
 					pop_frame()
 		"binary":
-			match frame.index:
-				0:
-					# resolve left
-					if has_function_call(node.left):
+			if node.op.type == Token.TiposToken.OP_AND:
+				match frame.index:
+					0:
 						push_frame("expression", node.left)
 						frame.index = 1
 						return
-					else:
-						frame.state["left"] = eval(node.left)
-						frame.index = 1
 
-				1:
-					if not frame.state.has("left"):
-						frame.state["left"] = frame.state["value"]
+					1:
+						var left = frame.state["value"]
 
-					# resolve right
-					if has_function_call(node.right):
+						if not left:
+							deliver_result_to_parent(false)
+							pop_frame()
+							return
+
 						push_frame("expression", node.right)
 						frame.index = 2
 						return
-					else:
-						frame.state["right"] = eval(node.right)
+
+					2:
+						var right = frame.state["value"]
+						deliver_result_to_parent(right)
+						pop_frame()
+			if node.op.type == Token.TiposToken.OP_OR:
+				match frame.index:
+					0:
+						push_frame("expression", node.left)
+						frame.index = 1
+						return
+
+					1:
+						var left = frame.state["value"]
+
+						if left:
+							deliver_result_to_parent(true)
+							pop_frame()
+							return
+
+						push_frame("expression", node.right)
 						frame.index = 2
+						return
+
+					2:
+						var right = frame.state["value"]
+						deliver_result_to_parent(right)
+						pop_frame()
+			match frame.index:
+				0:
+					push_frame("expression", node.left)
+					frame.index = 1
+					return
+
+				1:
+					frame.state["left"] = frame.state["value"]
+
+					push_frame("expression", node.right)
+					frame.index = 2
+					return
 
 				2:
-					if not frame.state.has("right"):
-						frame.state["right"] = frame.state["value"]
+					frame.state["right"] = frame.state["value"]
 
 					var l = frame.state["left"]
 					var r = frame.state["right"]
 
 					frame.state["result"] = apply_op(node.op, l, r)
+
 					deliver_result_to_parent(frame.state["result"])
+					pop_frame()
+		"unary":
+			match frame.index:
+				0:
+					push_frame("expression", node.operando)
+					frame.index = 1
+					return
+
+				1:
+					var value = frame.state["value"]
+
+					match node.op.type:
+
+						Token.TiposToken.OP_MINUS:
+							deliver_result_to_parent(-value)
+
+						Token.TiposToken.OP_NOT:
+							deliver_result_to_parent(not value)
+
+						Token.TiposToken.OP_PLUS_PLUS:
+							if node.operando.type != "identifier":
+								push_error("++ precisa de variável")
+								return
+
+							var name = node.operando.name
+							var new_val = get_variable(name) + 1
+							set_variable(name, new_val)
+
+							if node.prefix:
+								deliver_result_to_parent(new_val)
+							else:
+								deliver_result_to_parent(new_val - 1)
+
+						Token.TiposToken.OP_MINUS_MINUS:
+							var name = node.operando.name
+							var new_val = get_variable(name) - 1
+							set_variable(name, new_val)
+
+							if node.prefix:
+								deliver_result_to_parent(new_val)
+							else:
+								deliver_result_to_parent(new_val + 1)
+
 					pop_frame()
 
 func apply_op(op,left,right):
+	# coerção automática
+	if typeof(left) == TYPE_FLOAT or typeof(right) == TYPE_FLOAT:
+		left = float(left)
+		right = float(right)
 	match op.type:
 		Token.TiposToken.OP_PLUS:
 			return left + right
@@ -473,7 +654,165 @@ func apply_op(op,left,right):
 			return left * right
 		Token.TiposToken.OP_SLASH:
 			return left / right
+		Token.TiposToken.OP_GREATER:
+			return left > right
+		Token.TiposToken.OP_MINOR:
+			return left < right
+		Token.TiposToken.OP_MINOR_EQUAL:
+			return left <= right
+		Token.TiposToken.OP_GREATER_EQUAL:
+			return left >= right
+		Token.TiposToken.OP_EQUAL_EQUAL:
+			return left == right
+		Token.TiposToken.OP_NOT_EQUAL:
+			return left != right
 	
 	push_error("Operador desconhecido")
 	return null
 					
+func process_for(frame):
+	match frame.index:
+
+		# 0 → init
+		0:
+			if frame.node.init != null:
+				push_frame(frame.node.init.type, frame.node.init)
+				frame.index = 1
+				return
+			frame.index = 1
+
+		# 1 → condição
+		1:
+			if frame.node.condicao != null:
+				push_frame("expression", frame.node.condicao)
+				frame.index = 2
+				return
+			frame.state["cond"] = true
+			frame.index = 2
+
+		# 2 → decidir se entra no loop
+		2:
+			if frame.node.condicao != null:
+				frame.state["cond"] = frame.state["value"]
+
+			if frame.state["cond"]:
+				push_frame("block", frame.node.body)
+				frame.index = 3
+			else:
+				pop_frame()
+
+		# 3 → incremento
+		3:
+			if frame.node.incremento != null:
+				push_frame("expression", frame.node.incremento)
+				frame.index = 4
+				return
+			frame.index = 4
+
+		# 4 → volta pro loop
+		4:
+			frame.index = 1
+
+func coerce_value(value, target_type):
+	if target_type == "array_decl":
+		return value
+	match target_type:
+		"int":
+			return int(value)
+
+		"float":
+			return float(value)
+
+	push_error("tipo desconhecido: " + target_type)
+	return value
+
+func process_global_block(frame):
+	var statements = frame.node.statements
+
+	match frame.index:
+		0:
+			frame.state["i"] = 0
+			frame.index = 1
+
+		1:
+			if frame.state["i"] >= statements.size():
+				pop_frame()
+				return
+
+			var stmt = statements[frame.state["i"]]
+			frame.state["i"] += 1
+			#print("stmt: ",stmt)
+			push_frame(stmt.type, stmt)
+
+func process_array_decl(frame):
+	match frame.index:
+		0:
+			var dimensions = []
+
+			for size_node in frame.node.sizes:
+				dimensions.append(eval(size_node))
+
+			var total_size = 1
+			for d in dimensions:
+				total_size *= d
+
+			var data = []
+			for i in range(total_size):
+				data.append(0)
+
+			var arr_value = {
+				"element_type": frame.node.type,
+				"dimensions": dimensions,
+				"data": data
+			}
+
+			declare_variable(
+				frame.node.name,
+				arr_value,
+				"array"
+			)
+
+			frame.index = 1
+
+		1:
+			pop_frame()
+
+func get_array_value(node):
+	var arr_wrapper = get_variable_wrapper(node.array.name)
+	var arr = arr_wrapper["value"]
+
+	var indexes = []
+	for idx_node in node.indexes:
+		indexes.append(eval(idx_node))
+
+	if indexes.size() != arr["dimensions"].size():
+		push_error("dimensão incorreta")
+
+	var offset = compute_offset(indexes, arr["dimensions"])
+
+	return arr["data"][offset]
+
+func compute_offset(indexes, dimensions):
+	var offset = 0
+	var stride = 1
+
+	for i in range(dimensions.size() - 1, -1, -1):
+		offset += indexes[i] * stride
+		stride *= dimensions[i]
+
+	return offset
+
+func get_variable_wrapper(name):
+	var env = current_env()
+
+	while env != null:
+		var scopes = env["scope_stack"]
+
+		for i in range(scopes.size() - 1, -1, -1):
+			if name in scopes[i]:
+				return scopes[i][name]
+
+		env = env["parent"]
+
+	push_error("Variável não definida: " + str(name))
+	return null

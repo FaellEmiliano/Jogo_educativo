@@ -320,7 +320,7 @@ func parse_function_declaration(_tipo, nome):#Declaracao de funcao
 
 	var body = parse_block()
 
-	return ASTNodes.FunctionDeclNode.new(nome, params, body)
+	return ASTNodes.FunctionDeclNode.new(_tipo,nome, params, body)
 
 func parse_function_call(nome):#chamadas de funcao gerais (chamado em factor)
 	consumir(Token.TiposToken.LPAREN)
@@ -370,7 +370,7 @@ func parse_while():
 	consumir(Token.TiposToken.KW_WHILE)
 	
 	consumir(Token.TiposToken.LPAREN)
-	var condicao = comparison()
+	var condicao = assignment()
 	consumir(Token.TiposToken.RPAREN)
 	
 	var body = statement()

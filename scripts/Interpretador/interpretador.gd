@@ -7,12 +7,13 @@ var executor = Executor.new()
 func _ready():
 	# 1. Tokenizar
 	var lexer = Lexer.new("""
-int soma(int a,int b) {
-	return a + b;
+int soma(int a, int b) {
+    return a + b;
 }
 
-int x = soma(2, 3)+5;
-x;
+int main() {
+    return soma(2, soma(1, 2));
+}
 """)
 	var tokens = lexer.tokenize()
 	if debug:
