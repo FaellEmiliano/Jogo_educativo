@@ -77,6 +77,7 @@ class ForNode extends  ASTNodes:
 
 class ReturnNode extends  ASTNodes:
 	var value
+	var type = "return"
 	
 	func _init(v):
 		value = v
@@ -84,6 +85,7 @@ class ReturnNode extends  ASTNodes:
 class FunctionDeclNode extends  ASTNodes:
 	var params
 	var body
+	var type = "function_decl"
 	
 	func _init(n,p,b):
 		name = n
@@ -91,7 +93,7 @@ class FunctionDeclNode extends  ASTNodes:
 		body = b
 
 class FunctionCallNode extends  ASTNodes:
-
+	var type = "function_call"
 	var args
 	
 	func _init(n,a):
@@ -133,10 +135,10 @@ class IdentifierNode extends  ASTNodes:
 		name = n
 
 class BreakNode extends  ASTNodes:
-	pass
+	var type = 'break'
 
 class ContinueNode extends  ASTNodes:
-	pass
+	var type = "continue"
 
 class UnaryOpNode extends  ASTNodes:
 	var op
@@ -161,6 +163,7 @@ class BinaryOpNode extends  ASTNodes:
 
 class BoolNode extends ASTNodes:
 	var value
+	var type = "bool"
 	func _init(v) -> void:
 		if v == "false":
 			value = false
