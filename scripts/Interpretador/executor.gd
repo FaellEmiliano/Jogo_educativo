@@ -3,6 +3,7 @@ class_name Executor
 
 var execution_stack = []
 var call_stack = []
+var builtins = {}
 
 var is_finished = false
 
@@ -51,10 +52,15 @@ func current_scope():
 	var scopes = current_env()["scope_stack"]
 	return scopes[scopes.size() - 1]
 
+func register_builtin(name,fn):
+	builtins[name] = fn
+
 func load_program(program_node):
 	execution_stack.clear()
 	call_stack.clear()
 	is_finished = false
+	var builtins_obj = Builtins.new()
+	builtins_obj.register(self)
 	
 	var global_frame = {
 		"name": "global",
@@ -206,6 +212,8 @@ func eval(node)->Variant:
 			return node.value
 		"array_access":
 			return get_array_value(node)
+		"string":
+			return node.value
 		_:
 			push_error("Tipo nao suportado: ",node.type)
 			return null
@@ -357,10 +365,10 @@ func process_while(frame):
 func handle_break():
 	while not execution_stack.is_empty():
 		var frame = current_frame()
-
+		
 		pop_frame()
 
-		if frame.type == "while":
+		if frame.type == "while" or frame.type == "for":
 			return
 
 	push_error("break usado fora de loop")
@@ -392,7 +400,7 @@ func process_return(frame):
 				frame.index = 2
 
 		1:
-			print("Return: ", frame.state["value"])
+			#print("Return: ", frame.state["value"])
 			return make_signal(SIGNAL_RETURN, frame.state["value"])
 
 func handle_return(signal_):
@@ -403,7 +411,7 @@ func handle_return(signal_):
 
 		if frame.type == "function_call":
 			frame.state["return_value"] = return_value
-			frame.index = 2
+			frame.index = 3
 			return
 			
 		pop_frame()
@@ -427,29 +435,74 @@ func process_function_decl(frame):
 
 func process_function_call(frame):
 	match frame.index:
+		# 0 → pegar função e preparar args
 		0:
-			var fn = get_variable(frame.node.name)
-			if fn == null or fn.type != "function":
-				push_error("nao é função: ",frame.node.name)
+			var fn_name = frame.node.name
+
+			#built-in?
+			if fn_name in builtins:
+				frame.state["builtin"] = builtins[fn_name]
+				frame.state["is_builtin"] = true
+				
+				frame.state["args"] = []
+				frame.state["arg_index"] = 0
+				
+				frame.index = 1
 				return
+
+			#função normal
+			var fn = get_variable(fn_name)
+			if fn == null or fn.type != "function":
+				push_error("nao é função: ", frame.node.name)
+				return
+
 			frame.state["fn"] = fn
-			
-			var args = []
-			for arg in frame.node.args:
-				args.append(eval(arg))
-			frame.state["args"] = args
+			frame.state["args"] = []
+			frame.state["arg_index"] = 0
+
 			frame.index = 1
-			
+
+		# 1 → resolver argumentos (step-by-step)
 		1:
+			var args_nodes = frame.node.args
+			var i = frame.state["arg_index"]
+
+			if i >= args_nodes.size():
+				frame.index = 2
+				return
+
+			# resolve argumento atual
+			push_frame("expression", args_nodes[i])
+			frame.index = 1.5
+			return
+
+		# 1.5 → pegar resultado do argumento
+		1.5:
+			frame.state["args"].append(frame.state["value"])
+			frame.state.erase("value") # 🔥 ESSENCIAL
+			frame.state["arg_index"] += 1
+			frame.index = 1
+
+		# 2 → executar função
+		2:
+			if frame.state.get("is_builtin"):
+				var result = frame.state["builtin"].call(frame.state["args"])
+				
+				deliver_result_to_parent(result)
+				pop_frame()
+				return
 			var fn = frame.state["fn"]
 			var args = frame.state["args"]
+
 			var new_frame = {
 				"name": fn.name,
 				"scope_stack": [],
 				"parent": current_env()
 			}
+
 			call_stack.append(new_frame)
 			push_scope()
+
 			for i in range(fn.params.size()):
 				var param_type = fn.params[i][0]
 				var param_name = fn.params[i][1]
@@ -460,16 +513,27 @@ func process_function_call(frame):
 					"type": param_type,
 					"value": coerce_value(value, param_type)
 				}
-			push_frame("block",fn.body)
-			frame.index = 2
-			return
-		2:
+
+			push_frame("block", fn.body)
 			frame.index = 3
+			return
+
+		# 3 → esperar return
 		3:
+			frame.index = 4
+
+
+		# 4 → finalizar
+		4:
 			var result = frame.state.get("return_value")
+
 			call_stack.pop_back()
+
 			deliver_result_to_parent(result)
-			
+
+			# 🔥 limpar estado
+			frame.state.erase("return_value")
+
 			pop_frame()
 
 func deliver_result_to_parent(value):
@@ -497,6 +561,11 @@ func process_expression(frame):
 	match node.type:
 		
 		"number":
+			deliver_result_to_parent(node.value)
+			pop_frame()
+			return
+		
+		"string":
 			deliver_result_to_parent(node.value)
 			pop_frame()
 			return
@@ -591,7 +660,7 @@ func process_expression(frame):
 
 					var l = frame.state["left"]
 					var r = frame.state["right"]
-
+					#print("l: ",l,"r: ",r)
 					frame.state["result"] = apply_op(node.op, l, r)
 
 					deliver_result_to_parent(frame.state["result"])
@@ -719,9 +788,10 @@ func coerce_value(value, target_type):
 	match target_type:
 		"int":
 			return int(value)
-
 		"float":
 			return float(value)
+		"string":
+			return str(value)
 
 	push_error("tipo desconhecido: " + target_type)
 	return value

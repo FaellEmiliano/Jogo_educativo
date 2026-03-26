@@ -1,20 +1,13 @@
 extends Node
 class_name Interpreter
-@export var debug = true
+@export var debug = false
 var executor = Executor.new()
+var executor_flag
 
-
-func _ready():
+#ARRUMAR FUNCAO COMO ARGUMENTO DE FUNCAO(EVAL NO FUNCTION_CALL)
+func run(codigo):
 	# 1. Tokenizar
-	var lexer = Lexer.new("""
-int soma(int a, int b) {
-    return a + b;
-}
-
-int main() {
-    return soma(2, soma(1, 2));
-}
-""")
+	var lexer = Lexer.new(codigo)
 	var tokens = lexer.tokenize()
 	if debug:
 		TokenPrinter.new().print_tokens(tokens)
@@ -28,5 +21,14 @@ int main() {
 		printer.print_ast(ast)
 	#3. executor
 	executor.load_program(ast)
-	while not executor.is_finished:
-		executor.step()
+	executor_flag = true
+
+var steps_per_frame = 10  # controla velocidade
+
+func _process(delta):
+	if executor != null and not executor.is_finished and executor_flag:
+		for i in range(steps_per_frame):
+			executor.step()
+			
+			if executor.is_finished:
+				break

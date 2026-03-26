@@ -11,9 +11,8 @@
 oversampling_override = 1.0
 initial_position = 1
 size = Vector2i(252, 252)
+nonclient_area = Rect2i(16, 16, 16, 16)
 borderless = true
-minimize_disabled = true
-maximize_disabled = true
 script = ExtResource("1_pb8m1")
 
 [node name="Panel" type="Panel" parent="." unique_id=1001660213]

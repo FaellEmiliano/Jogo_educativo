@@ -6,6 +6,7 @@ var interpreter = Interpreter.new()
 func _ready() -> void:
 	visible = false
 	Eventos.conectar_terminal.connect(conectar)
+	add_child(interpreter)
 	
 func conectar(robo):
 	alvo = robo

@@ -7,7 +7,7 @@ func _ready() -> void:
 	build_api()
 
 func build_api():
-	api_robot["move"] = func(args): mover(args[0])
+	api_robot["mover"] = func(args): mover(args[0])
 
 func event_call(command,args):
 	api_robot[command].call(args)

@@ -122,6 +122,7 @@ class NumberNode extends ASTNodes:
 
 class StringNode extends  ASTNodes:
 	var value
+	var type = "string"
 	
 	func _init(v):
 		value = v
