@@ -1,10 +1,10 @@
 extends Node
 class_name Interpreter
-@export var debug = false
+@export var debug = true
 var executor = Executor.new()
 var executor_flag
 
-#ARRUMAR FUNCAO COMO ARGUMENTO DE FUNCAO(EVAL NO FUNCTION_CALL)
+
 func run(codigo):
 	# 1. Tokenizar
 	var lexer = Lexer.new(codigo)
@@ -23,7 +23,7 @@ func run(codigo):
 	executor.load_program(ast)
 	executor_flag = true
 
-var steps_per_frame = 10  # controla velocidade
+var steps_per_frame = 1  # controla velocidade
 
 func _process(delta):
 	if executor != null and not executor.is_finished and executor_flag:
