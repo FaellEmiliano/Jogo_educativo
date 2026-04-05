@@ -20,8 +20,11 @@ func _send(args):
 	Eventos.emit_signal("send_output",id,args)
 
 func _catch_input(_args):
+	if exec.input_stack.is_empty():
+		push_error("Input stack vazia!")
+		return 0
+	
 	var input_value = exec.input_stack.front()
 	exec.input_stack.pop_front()
-	print(exec.input_stack)
 	return input_value
 	

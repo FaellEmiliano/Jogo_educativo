@@ -59,7 +59,7 @@ func register_builtin(name,fn):
 	builtins[name] = fn
 
 func load_program(program_node,id,input_stack):
-	self.input_stack = input_stack
+	self.input_stack = input_stack.duplicate()
 	self.id = id
 	execution_stack.clear()
 	call_stack.clear()
