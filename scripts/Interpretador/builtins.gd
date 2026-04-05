@@ -7,6 +7,7 @@ func register(executor):
 	exec = executor
 	executor.register_builtin("print", _print)
 	executor.register_builtin("send", _send)
+	executor.register_builtin("input", _catch_input)
 func _print(args):
 	var str_cat = ""
 	for c in args:
@@ -18,7 +19,9 @@ func _send(args):
 	var id = exec.id
 	Eventos.emit_signal("send_output",id,args)
 
-func _catch_input():
-	var input_value
+func _catch_input(_args):
+	var input_value = exec.input_stack.front()
+	exec.input_stack.pop_front()
+	print(exec.input_stack)
 	return input_value
 	

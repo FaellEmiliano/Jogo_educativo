@@ -4,17 +4,24 @@ extends Control
 @onready var window: VBoxContainer = $VBoxContainer2/VBoxContainer/Window
 
 
-
-var inputs = [arredondar(randf_range(10.0, 2000.0),2),arredondar(randf_range(10.0, 2000.0),2)]
-var saida_esperada = [inputs[0] + inputs[1]]
+var inputs
+var saida_esperada
 
 func _ready() -> void:
 	Eventos.send_output.connect(validate_code)
-	print_linha("< entrada 1: %s"%inputs[0])
-	print_linha("< entrada 2: %s"%inputs[1])
 	window.id = 1
 	input.grab_focus()
+	_init_game()
 
+func _init_game():
+	history.clear()
+	inputs = [arredondar(randf_range(10.0, 2000.0),2),arredondar(randf_range(10.0, 2000.0),2)]
+	window.input_stack = inputs
+	saida_esperada = [inputs[0] + inputs[1]]
+	print_linha("< entrada 1: %s"%inputs[0])
+	print_linha("< entrada 2: %s"%inputs[1])
+	
+	
 
 func _on_input_text_submitted(text: String) -> void:
 	print_linha("> "+text)
@@ -27,13 +34,16 @@ func print_linha(text):
 func validate_manual(text):
 	if text == str(saida_esperada):
 		print_linha("< Sucesso!!!")
+		_init_game()
 	else:
 		print_linha("< Entrada inválida: "+text)
+		print(str(saida_esperada))
 
 func validate_code(id,args):
 	if id == 1:
 		if args == saida_esperada:
 			print_linha("< Sucesso!!!")
+			_init_game()
 		else:
 			print_linha("< Entrada inválida: "+ str(args))
 

@@ -2,6 +2,7 @@ extends Node
 class_name Executor
 
 var id
+var input_stack
 
 var execution_stack = []
 var call_stack = []
@@ -57,7 +58,8 @@ func current_scope():
 func register_builtin(name,fn):
 	builtins[name] = fn
 
-func load_program(program_node,id):
+func load_program(program_node,id,input_stack):
+	self.input_stack = input_stack
 	self.id = id
 	execution_stack.clear()
 	call_stack.clear()

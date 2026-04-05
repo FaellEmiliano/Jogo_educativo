@@ -12,7 +12,6 @@
 
 [node name="Interpretador" type="Node" unique_id=547286985]
 script = ExtResource("1_rf5pq")
-debug = null
 
 [node name="lexer" type="Node" parent="." unique_id=1968118105]
 script = ExtResource("1_gycf6")
