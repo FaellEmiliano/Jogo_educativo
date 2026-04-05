@@ -1,10 +1,12 @@
 extends Node
 class_name Builtins
+@onready var interpretador: Interpreter = $"../.."
+var exec
 
 func register(executor):
+	exec = executor
 	executor.register_builtin("print", _print)
-	executor.register_builtin("move", _move)
-	executor.register_builtin("mine", _move)
+	executor.register_builtin("send", _send)
 func _print(args):
 	var str_cat = ""
 	for c in args:
@@ -12,8 +14,11 @@ func _print(args):
 	print(str_cat)
 	return null
 
-func _move(dir):
-	Eventos.emit_signal("api_robot","mover",dir)
+func _send(args):
+	var id = exec.id
+	Eventos.emit_signal("send_output",id,args)
 
-func _mine(dir):
-	Eventos.emit_signal("api_robot","mine",dir)
+func _catch_input():
+	var input_value
+	return input_value
+	

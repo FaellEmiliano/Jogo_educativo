@@ -12,6 +12,7 @@
 
 [node name="Interpretador" type="Node" unique_id=547286985]
 script = ExtResource("1_rf5pq")
+debug = null
 
 [node name="lexer" type="Node" parent="." unique_id=1968118105]
 script = ExtResource("1_gycf6")
@@ -34,5 +35,5 @@ script = ExtResource("6_8e3cf")
 [node name="executor" type="Node" parent="." unique_id=209165782]
 script = ExtResource("7_ihpcw")
 
-[node name="Builtind" type="Node" parent="executor" unique_id=590025224]
+[node name="Builtin" type="Node" parent="executor" unique_id=590025224]
 script = ExtResource("9_6owf4")

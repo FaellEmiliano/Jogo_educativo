@@ -21,7 +21,9 @@ offsets = PackedFloat32Array(0, 0.0064935065)
 gradient = SubResource("Gradient_m1rp2")
 width = 280
 
-[node name="Game" type="Node2D" unique_id=1620626050]
+[node name="Game" type="Control" unique_id=795943872]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("1_q1q1m")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=194912776]
@@ -97,9 +99,26 @@ texture_under = SubResource("GradientTexture2D_3n1ve")
 texture_progress = SubResource("GradientTexture2D_e2xye")
 script = ExtResource("5_e2xye")
 
-[connection signal="reset_progress" from="." to="UI/Menu/Sections/Panel/Actions/Bar_container/Bar_progress" method="_on_game_reset_progress"]
+[node name="Mini_challenges" type="VBoxContainer" parent="UI/Menu/Sections/Panel/Actions" unique_id=1231472914]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="UI/Menu/Sections/Panel/Actions/Mini_challenges" unique_id=618115232]
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 0
+text = "Calculadora"
+
+[node name="Panel" type="Panel" parent="UI/Menu/Sections/Panel/Actions/Mini_challenges/Button" unique_id=724910346]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [connection signal="reset_progress" from="." to="UI/Menu/Sections/Panel/Actions/Bar_container/Label_progress" method="_on_game_reset_progress"]
+[connection signal="reset_progress" from="." to="UI/Menu/Sections/Panel/Actions/Bar_container/Bar_progress" method="_on_game_reset_progress"]
 [connection signal="update_money" from="." to="UI/Menu/Sections/Panel/Actions/Number_money" method="_on_game_update_money"]
-[connection signal="update_progress" from="." to="UI/Menu/Sections/Panel/Actions/Bar_container/Bar_progress" method="_on_game_update_progress"]
 [connection signal="update_progress" from="." to="UI/Menu/Sections/Panel/Actions/Bar_container/Label_progress" method="_on_game_update_progress"]
+[connection signal="update_progress" from="." to="UI/Menu/Sections/Panel/Actions/Bar_container/Bar_progress" method="_on_game_update_progress"]
 [connection signal="pressed" from="UI/Menu/Sections/Panel/Actions/Click_container/Clicker" to="." method="_on_clicker_pressed"]

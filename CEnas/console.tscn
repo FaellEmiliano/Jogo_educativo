@@ -7,22 +7,17 @@
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_pb8m1"]
 
-[node name="Window" type="Window" unique_id=433975758]
-oversampling_override = 1.0
-initial_position = 1
-size = Vector2i(252, 252)
-nonclient_area = Rect2i(16, 16, 16, 16)
-borderless = true
+[node name="Window" type="VBoxContainer" unique_id=549207686]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_pb8m1")
 
-[node name="Panel" type="Panel" parent="." unique_id=1001660213]
-custom_minimum_size = Vector2(252, 252)
-offset_right = 252.0
-offset_bottom = 252.0
-
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1804841891]
-offset_right = 252.0
-offset_bottom = 252.0
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=396791688]
 layout_mode = 2
@@ -76,6 +71,10 @@ draw_tabs = true
 gutters_draw_line_numbers = true
 auto_brace_completion_enabled = true
 script = ExtResource("2_i0nem")
+
+[node name="Panel" type="Panel" parent="." unique_id=1001660213]
+custom_minimum_size = Vector2(252, 252)
+layout_mode = 2
 
 [connection signal="pressed" from="VBoxContainer/MarginContainer/Tittlebar/Run" to="." method="_on_run_pressed"]
 [connection signal="toggled" from="VBoxContainer/MarginContainer/Tittlebar/Minimizar" to="." method="_on_minimizar_toggled"]

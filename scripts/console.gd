@@ -1,16 +1,10 @@
-extends Window
-var alvo: Robo
+extends VBoxContainer
+var id
 @onready var code_edit: CodeEdit = $VBoxContainer/CodeEdit
 var interpreter = Interpreter.new()
 
 func _ready() -> void:
-	visible = false
-	Eventos.conectar_terminal.connect(conectar)
 	add_child(interpreter)
-	
-func conectar(robo):
-	alvo = robo
-	visible = true
 
 func _on_fechar_pressed() -> void:
 	get_window().hide()
@@ -23,4 +17,4 @@ func _on_minimizar_toggled(toggled_on: bool) -> void:
 
 
 func _on_run_pressed() -> void:
-	interpreter.run(code_edit.text)
+	interpreter.run(code_edit.text,id)
