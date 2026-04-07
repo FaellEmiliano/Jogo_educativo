@@ -329,9 +329,16 @@ func process_var_decl(frame):
 			pop_frame()
 
 func declare_variable(name,value,type):
+	# 🔥 se for função, NÃO faz cast
+	if typeof(value) == TYPE_DICTIONARY and value.get("type") == "function":
+		current_scope()[name] = {
+			"type": "function",
+			"value": value
+		}
+		return
 	current_scope()[name] = {
 		"type": type,
-		"value": value
+		"value": coerce_value(value, type)
 	}
 
 func process_if(frame):

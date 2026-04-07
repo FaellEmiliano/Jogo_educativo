@@ -36,7 +36,7 @@ alignment = 2
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_y2upi")
 theme_override_font_sizes/font_size = 14
-text = "Robô_1 Terminal"
+text = "Terminal"
 
 [node name="espaçador" type="Control" parent="VBoxContainer/MarginContainer/Tittlebar" unique_id=886519271 node_paths=PackedStringArray("shortcut_context")]
 layout_mode = 2
@@ -71,10 +71,6 @@ draw_tabs = true
 gutters_draw_line_numbers = true
 auto_brace_completion_enabled = true
 script = ExtResource("2_i0nem")
-
-[node name="Panel" type="Panel" parent="." unique_id=1001660213]
-custom_minimum_size = Vector2(252, 252)
-layout_mode = 2
 
 [connection signal="pressed" from="VBoxContainer/MarginContainer/Tittlebar/Run" to="." method="_on_run_pressed"]
 [connection signal="toggled" from="VBoxContainer/MarginContainer/Tittlebar/Minimizar" to="." method="_on_minimizar_toggled"]

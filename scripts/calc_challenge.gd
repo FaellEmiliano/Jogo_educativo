@@ -1,7 +1,8 @@
 extends Control
-@onready var history: RichTextLabel = $VBoxContainer2/VBoxContainer/Bash/history
-@onready var input: LineEdit = $VBoxContainer2/VBoxContainer/Bash/input
-@onready var window: VBoxContainer = $VBoxContainer2/VBoxContainer/Window
+@onready var history: RichTextLabel = $VBoxContainer2/Main/Actions/Bash/history
+@onready var input: LineEdit = $VBoxContainer2/Main/Actions/Bash/input
+@onready var window: VBoxContainer = $VBoxContainer2/Main/Actions/Window
+
 
 
 var inputs
@@ -35,18 +36,14 @@ func print_linha(text):
 func validate_manual(text):
 	if text == str(saida_esperada):
 		print_linha("< Sucesso!!!")
-		_init_game()
 	else:
 		print_linha("< Entrada inválida: "+text)
-		print(str(saida_esperada))
 
 func validate_code(id,args):
-	print("CHEGOU SINAL:", id, args)
 	print_linha("> "+str(args))
 	if id == 1:
 		if args == saida_esperada:
 			print_linha("< Sucesso!!!")
-			_init_game()
 		else:
 			print_linha("< Entrada inválida: "+ str(args))
 	window.running = false

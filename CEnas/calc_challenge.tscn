@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://w7f8ywohpxyd" path="res://scripts/calc_challenge.gd" id="1_bcoim"]
 [ext_resource type="PackedScene" uid="uid://4qncax22otv7" path="res://CEnas/console.tscn" id="2_oddgu"]
 
+[sub_resource type="Theme" id="Theme_oddgu"]
+
 [node name="Calc_challenge" type="Control" unique_id=1977280925]
 layout_mode = 3
 anchors_preset = 15
@@ -19,6 +21,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_oddgu")
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=1536957683]
 layout_mode = 1
@@ -31,7 +34,7 @@ grow_vertical = 2
 [node name="Label" type="Label" parent="VBoxContainer2" unique_id=2079338851]
 layout_mode = 2
 size_flags_vertical = 0
-text = "O seu cliente quer que você programe uma calculadora para calcular o preço da compra de um cliente dele.
+text = "O seu cliente quer que você programe uma calculadora para calcular o preço das compras feitas em sua loja
 O programa receberá dois números decimais e terá que retornar a soma desses dois.
 Exemplo de entrada:
 100,7
@@ -40,24 +43,28 @@ Saída:
 350,7"
 horizontal_alignment = 1
 
-[node name="VBoxContainer" type="HBoxContainer" parent="VBoxContainer2" unique_id=1220743292]
+[node name="Main" type="HBoxContainer" parent="VBoxContainer2" unique_id=1220743292]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Bash" type="VBoxContainer" parent="VBoxContainer2/VBoxContainer" unique_id=1785983911]
+[node name="Actions" type="VBoxContainer" parent="VBoxContainer2/Main" unique_id=2002895996]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
 
-[node name="history" type="RichTextLabel" parent="VBoxContainer2/VBoxContainer/Bash" unique_id=1463409408]
-custom_minimum_size = Vector2(0, 130)
+[node name="Bash" type="VBoxContainer" parent="VBoxContainer2/Main/Actions" unique_id=1785983911]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="history" type="RichTextLabel" parent="VBoxContainer2/Main/Actions/Bash" unique_id=1463409408]
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 bbcode_enabled = true
 
-[node name="input" type="LineEdit" parent="VBoxContainer2/VBoxContainer/Bash" unique_id=985183844]
+[node name="input" type="LineEdit" parent="VBoxContainer2/Main/Actions/Bash" unique_id=985183844]
 layout_mode = 2
 
-[node name="Window" parent="VBoxContainer2/VBoxContainer" unique_id=1189431800 instance=ExtResource("2_oddgu")]
+[node name="Window" parent="VBoxContainer2/Main/Actions" unique_id=1189431800 instance=ExtResource("2_oddgu")]
 layout_mode = 2
+size_flags_vertical = 3
 
-[connection signal="text_submitted" from="VBoxContainer2/VBoxContainer/Bash/input" to="." method="_on_input_text_submitted"]
+[connection signal="text_submitted" from="VBoxContainer2/Main/Actions/Bash/input" to="." method="_on_input_text_submitted"]
