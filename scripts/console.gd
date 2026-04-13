@@ -1,6 +1,5 @@
-extends VBoxContainer
-var id
-var input_stack
+extends Window
+var context
 @onready var code_edit: CodeEdit = $VBoxContainer/CodeEdit
 var interpreter = Interpreter.new()
 var running = false
@@ -21,4 +20,4 @@ func _on_minimizar_toggled(toggled_on: bool) -> void:
 func _on_run_pressed() -> void:
 	if not running:
 		running = true
-		interpreter.run(code_edit.text,id,input_stack)
+		interpreter.run(code_edit.text,context)

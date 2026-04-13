@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://bsbc3h6njxcr2"]
+
+[ext_resource type="Script" uid="uid://d3fljmgplkqwf" path="res://scripts/loja.gd" id="1_mdbcc"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_lvwut"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_mdbcc"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_bj7hn"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_k565m"]
+
+[node name="Loja" type="Control" unique_id=1980991917]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mdbcc")
+
+[node name="Panel" type="Panel" parent="." unique_id=234919985]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Container" type="HBoxContainer" parent="." unique_id=1564461876]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -406.0
+offset_top = -113.5
+offset_right = 406.0
+offset_bottom = 113.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="item1" type="VBoxContainer" parent="Container" unique_id=595613827]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Container/item1" unique_id=1229372539]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = SubResource("CanvasTexture_lvwut")
+
+[node name="Label" type="Label" parent="Container/item1" unique_id=1410555644]
+layout_mode = 2
+text = "Livro básico de C-Market"
+
+[node name="item2" type="VBoxContainer" parent="Container" unique_id=1593817497]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Container/item2" unique_id=101175358]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = SubResource("CanvasTexture_mdbcc")
+
+[node name="Label" type="Label" parent="Container/item2" unique_id=226664402]
+layout_mode = 2
+text = "Curso de tunagem 
+de computadores"
+
+[node name="item3" type="VBoxContainer" parent="Container" unique_id=1200230119]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Container/item3" unique_id=472861727]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = SubResource("CanvasTexture_bj7hn")
+
+[node name="Label" type="Label" parent="Container/item3" unique_id=257147099]
+layout_mode = 2
+text = "Robo repositor"
+
+[node name="item4" type="VBoxContainer" parent="Container" unique_id=468974631]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Container/item4" unique_id=151124894]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = SubResource("CanvasTexture_k565m")
+
+[node name="Label" type="Label" parent="Container/item4" unique_id=959063854]
+layout_mode = 2
+text = "Trofeu de aposentadoria"
+
+[node name="Button" type="Button" parent="." unique_id=644132097]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Fechar"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

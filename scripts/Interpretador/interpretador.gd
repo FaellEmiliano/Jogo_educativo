@@ -4,7 +4,7 @@ class_name Interpreter
 var executor = Executor.new()
 var executor_flag
 
-func run(codigo,id,input_stack):
+func run(codigo,context):
 	# 1. Tokenizar
 	var lexer = Lexer.new(codigo)
 	var tokens = lexer.tokenize()
@@ -19,7 +19,7 @@ func run(codigo,id,input_stack):
 		var printer = ASTPrinter.new()
 		printer.print_ast(ast)
 	#3. executor
-	executor.load_program(ast,id,input_stack)
+	executor.load_program(ast,context)
 	executor_flag = true
 
 var steps_per_frame = 1  # controla velocidade

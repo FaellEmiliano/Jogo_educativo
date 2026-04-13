@@ -9,9 +9,11 @@
 [ext_resource type="Script" uid="uid://cvtj57kucoear" path="res://scripts/Interpretador/ast_printer.gd" id="6_8e3cf"]
 [ext_resource type="Script" uid="uid://bxfuqh47hqu6v" path="res://scripts/Interpretador/executor.gd" id="7_ihpcw"]
 [ext_resource type="Script" uid="uid://cdtard8lpftx2" path="res://scripts/Interpretador/builtins.gd" id="9_6owf4"]
+[ext_resource type="Script" uid="uid://vygcv15x7d8l" path="res://scripts/Interpretador/env_context.gd" id="10_r4ftd"]
 
 [node name="Interpretador" type="Node" unique_id=547286985]
 script = ExtResource("1_rf5pq")
+debug = null
 
 [node name="lexer" type="Node" parent="." unique_id=1968118105]
 script = ExtResource("1_gycf6")
@@ -36,3 +38,6 @@ script = ExtResource("7_ihpcw")
 
 [node name="Builtin" type="Node" parent="executor" unique_id=590025224]
 script = ExtResource("9_6owf4")
+
+[node name="EnvContext" type="Node" parent="." unique_id=551800396]
+script = ExtResource("10_r4ftd")

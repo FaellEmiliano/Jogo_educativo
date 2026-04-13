@@ -1,8 +1,8 @@
 extends Node
 class_name Executor
 
-var id
 var input_stack
+var id
 
 var execution_stack = []
 var call_stack = []
@@ -58,9 +58,9 @@ func current_scope():
 func register_builtin(name,fn):
 	builtins[name] = fn
 
-func load_program(program_node,id,input_stack):
-	self.input_stack = input_stack.duplicate()
-	self.id = id
+func load_program(program_node,context):
+	self.input_stack = context.inputs.duplicate()
+	self.id = context.id
 	execution_stack.clear()
 	call_stack.clear()
 	is_finished = false
@@ -877,24 +877,18 @@ func get_array_value(node):
 func compute_offset(indexes, dimensions):
 	var offset = 0
 	var stride = 1
-
 	for i in range(dimensions.size() - 1, -1, -1):
 		offset += indexes[i] * stride
 		stride *= dimensions[i]
-
 	return offset
 
 func get_variable_wrapper(name):
 	var env = current_env()
-
 	while env != null:
 		var scopes = env["scope_stack"]
-
 		for i in range(scopes.size() - 1, -1, -1):
 			if name in scopes[i]:
-				return scopes[i][name]
-
+				return scopes[i][name] 
 		env = env["parent"]
-
 	push_error("Variável não definida: " + str(name))
 	return null

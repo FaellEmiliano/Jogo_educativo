@@ -1,7 +1,8 @@
 extends Control
-@onready var history: RichTextLabel = $VBoxContainer2/Main/Actions/Bash/history
-@onready var input: LineEdit = $VBoxContainer2/Main/Actions/Bash/input
-@onready var window: VBoxContainer = $VBoxContainer2/Main/Actions/Window
+@onready var history: RichTextLabel = $Main/VBoxContainer2/Bash/history
+@onready var input: LineEdit = $Main/VBoxContainer2/Bash/input
+@onready var window: VBoxContainer = $Main/Window
+
 
 
 
@@ -11,14 +12,13 @@ var saida_esperada
 
 func _ready() -> void:
 	Eventos.send_output.connect(validate_code)
-	window.id = 1
 	input.grab_focus()
 	_init_game()
 
 func _init_game():
 	inputs = [arredondar(randf_range(10.0, 2000.0),2),arredondar(randf_range(10.0, 2000.0),2)]
-	window.input_stack = inputs
 	saida_esperada = [inputs[0] + inputs[1]]
+	window.context = EnvContext.new(inputs,1,saida_esperada)
 	print_linha("< entrada 1: %s"%inputs[0])
 	print_linha("< entrada 2: %s"%inputs[1])
 	

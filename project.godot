@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Jogo educativo"
-run/main_scene="uid://c1glyeqt4oori"
+run/main_scene="uid://wv84o2ng5lw7"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
