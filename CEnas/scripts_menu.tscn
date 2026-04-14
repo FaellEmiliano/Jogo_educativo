@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://bccwxsey023jr"]
+
+[ext_resource type="Script" uid="uid://du5r06osdfenh" path="res://scripts/scripts_menu.gd" id="1_neihe"]
+
+[node name="ScriptsMenu" type="Control" unique_id=333834297]
+layout_mode = 3
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+script = ExtResource("1_neihe")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=720697111]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -50.5
+offset_right = 146.0
+offset_bottom = 50.5
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1437505790]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=925381251]
+layout_mode = 2
+
+[node name="Fechar" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=137455793]
+layout_mode = 2
+text = "Fechar"
+
+[node name="Cliente" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1088333865]
+layout_mode = 2
+text = "Client_manager"
+
+[node name="Estoque" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1994425596]
+layout_mode = 2
+text = "Estoque_manager
+"
+
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Fechar" to="." method="_on_fechar_pressed"]

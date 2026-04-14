@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bgmhs6p56nspk"]
 
 [ext_resource type="Script" uid="uid://w7f8ywohpxyd" path="res://scripts/calc_challenge.gd" id="1_bcoim"]
-[ext_resource type="PackedScene" uid="uid://4qncax22otv7" path="res://CEnas/console.tscn" id="2_oddgu"]
+[ext_resource type="PackedScene" uid="uid://cpfbdbrd16fhh" path="res://CEnas/bash.tscn" id="2_oddgu"]
 
 [sub_resource type="Theme" id="Theme_oddgu"]
 
@@ -48,22 +48,5 @@ Saída:
 350,7"
 horizontal_alignment = 1
 
-[node name="Bash" type="VBoxContainer" parent="Main/VBoxContainer2" unique_id=1785983911]
+[node name="Bash" parent="Main/VBoxContainer2" unique_id=425505446 instance=ExtResource("2_oddgu")]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="history" type="RichTextLabel" parent="Main/VBoxContainer2/Bash" unique_id=1463409408]
-custom_minimum_size = Vector2(0, 170)
-layout_mode = 2
-bbcode_enabled = true
-
-[node name="input" type="LineEdit" parent="Main/VBoxContainer2/Bash" unique_id=985183844]
-layout_mode = 2
-
-[node name="Window" parent="Main" unique_id=1189431800 instance=ExtResource("2_oddgu")]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[connection signal="text_submitted" from="Main/VBoxContainer2/Bash/input" to="." method="_on_input_text_submitted"]

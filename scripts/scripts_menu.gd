@@ -1,7 +1,8 @@
 extends Control
 
-var client_chance = 50
 
-func _on_button_pressed() -> void:
+
+func _on_fechar_pressed() -> void:
 	Eventos.emit_signal("redraw_buttons")
 	queue_free()
+	

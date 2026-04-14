@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://wv84o2ng5lw7"]
 
 [ext_resource type="Script" uid="uid://c3farscog4cao" path="res://CEnas/game.gd" id="1_520m1"]
-[ext_resource type="Texture2D" uid="uid://csh2cksrqnu1i" path="res://sprites/pixel-art-illustration-supermarket-background-pixelated-inside-store-inside-supermarket-store-pixelated-for-the-pixel-art-game-and-icon-for-website-and-video-game-old-school-retro-vector.jpg" id="1_a2c6e"]
+[ext_resource type="Texture2D" uid="uid://csh2cksrqnu1i" path="res://sprites/pixel-art-illustration-supermarket-background.jpg" id="1_a2c6e"]
+[ext_resource type="Script" uid="uid://bt5keeiwqwq76" path="res://scripts/cliente_spawner.gd" id="3_flef2"]
 
 [node name="Game" type="Control" unique_id=1523316571]
 layout_mode = 3
@@ -19,36 +20,45 @@ offset_bottom = 646.0
 texture = ExtResource("1_a2c6e")
 expand_mode = 3
 
-[node name="Scripts tab" type="Button" parent="." unique_id=799969641]
-layout_mode = 0
-offset_top = 138.0
-offset_right = 61.0
-offset_bottom = 169.0
-text = "Scripts"
+[node name="ColorRect" type="ColorRect" parent="TextureRect" unique_id=1884026285]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.3137255)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=635519515]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+offset_right = 67.0
+offset_bottom = 124.0
 
 [node name="Label" type="Label" parent="VBoxContainer" unique_id=1944517888]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
 text = "Dinheiro"
 
 [node name="Label2" type="Label" parent="VBoxContainer" unique_id=1420747364]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "10000"
 
-[node name="Loja" type="Button" parent="." unique_id=1801479837]
-layout_mode = 0
-offset_top = 178.0
-offset_right = 41.0
-offset_bottom = 209.0
+[node name="Control" type="Control" parent="VBoxContainer" unique_id=1248956224]
+custom_minimum_size = Vector2(0, 215)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Loja" type="Button" parent="VBoxContainer" unique_id=1801479837]
+layout_mode = 2
 text = "Loja"
+
+[node name="Scripts tab" type="Button" parent="VBoxContainer" unique_id=799969641]
+layout_mode = 2
+text = "Scripts"
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1152540424]
 
-[connection signal="pressed" from="Scripts tab" to="." method="_on_scripts_tab_pressed"]
-[connection signal="pressed" from="Loja" to="." method="_on_loja_pressed"]
+[node name="Cliente_manager" type="Node" parent="." unique_id=835778774]
+script = ExtResource("3_flef2")
+
+[connection signal="pressed" from="VBoxContainer/Loja" to="." method="_on_loja_pressed"]
+[connection signal="pressed" from="VBoxContainer/Scripts tab" to="." method="_on_scripts_tab_pressed"]
