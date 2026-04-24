@@ -43,3 +43,4 @@ text = "Estoque_manager
 "
 
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Fechar" to="." method="_on_fechar_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Cliente" to="." method="_on_cliente_pressed"]

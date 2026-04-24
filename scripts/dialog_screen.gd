@@ -6,6 +6,10 @@ var _step :float = 0.05
 var _id :int = 0
 var data :Dictionary = {}
 
+signal end_dialog()
+
+
+
 @export_category("Objects")
 @export var _name :Label = null
 @export var _dialog :RichTextLabel = null
@@ -22,6 +26,7 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_accept"):
 		_id += 1
 		if _id == data.size():
+			emit_signal("end_dialog")
 			queue_free()
 			return
 		_initialize_dialog()

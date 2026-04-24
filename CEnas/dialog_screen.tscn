@@ -2,13 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dr1ymh7s5rd2v" path="res://scripts/dialog_screen.gd" id="1_6d2ib"]
 [ext_resource type="Texture2D" uid="uid://cr1shtxlxu3vn" path="res://icon.svg" id="1_pca1l"]
-[ext_resource type="FontFile" uid="uid://d05vv1ixumnr0" path="res://Fontes/JetBrainsMono-Italic-VariableFont_wght.ttf" id="2_6d2ib"]
-[ext_resource type="FontFile" uid="uid://crsno0io4sjh8" path="res://Fontes/JetBrainsMono-VariableFont_wght.ttf" id="3_2dlcf"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_i4heq"]
-line_spacing = 0.0
-font = ExtResource("2_6d2ib")
-shadow_color = Color(0, 0, 0, 0.6)
+[ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://themes/pixel label.tres" id="3_pca1l"]
 
 [node name="DialogScreen" type="Control" unique_id=1978871622 node_paths=PackedStringArray("_name", "_dialog", "_faceset")]
 custom_minimum_size = Vector2(700, 150)
@@ -73,16 +67,18 @@ size_flags_horizontal = 3
 
 [node name="Name" type="Label" parent="background/HContainer/VContainer" unique_id=26225059]
 layout_mode = 2
+theme = ExtResource("3_pca1l")
+theme_override_font_sizes/font_size = 14
 text = "Cliente"
-label_settings = SubResource("LabelSettings_i4heq")
 horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="Dialog" type="RichTextLabel" parent="background/HContainer/VContainer" unique_id=1404395910]
 layout_mode = 2
 size_flags_vertical = 3
+theme = ExtResource("3_pca1l")
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
-theme_override_fonts/normal_font = ExtResource("3_2dlcf")
+theme_override_font_sizes/normal_font_size = 12
 text = "dsadsadasdsa"

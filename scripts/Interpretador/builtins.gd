@@ -17,7 +17,7 @@ func _print(args):
 
 func _send(args):
 	var id = exec.id
-	Eventos.emit_signal("send_output",id,args)
+	Eventos.emit_signal("send_output",args)
 
 func _catch_input(_args):
 	if exec.input_stack.is_empty():

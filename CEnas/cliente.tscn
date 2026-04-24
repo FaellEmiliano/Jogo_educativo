@@ -1,31 +1,26 @@
 [gd_scene format=3 uid="uid://rerk5wlh3yd6"]
 
-[ext_resource type="Texture2D" uid="uid://byiirqlisptxq" path="res://sprites/robo.png" id="1_bfclj"]
 [ext_resource type="Script" uid="uid://di0s051fc53ng" path="res://scripts/cliente.gd" id="1_ylctr"]
+[ext_resource type="Texture2D" uid="uid://b0s6vv2stb2nb" path="res://sprites/cliente.png" id="2_ylctr"]
 
 [node name="Cliente" type="Control" unique_id=1025457365]
+visibility_layer = 512
 layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 4
 anchor_top = 0.5
-anchor_right = 0.5
 anchor_bottom = 0.5
-grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(0.3, 0.6)
 script = ExtResource("1_ylctr")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=706163873]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
+anchors_preset = 4
 anchor_top = 0.5
-anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -250.0
-offset_right = 250.0
-offset_bottom = 250.0
-grow_horizontal = 2
+offset_left = 296.66666
+offset_top = -369.99997
+offset_right = 796.6666
+offset_bottom = 130.00003
 grow_vertical = 2
-texture = ExtResource("1_bfclj")
+texture = ExtResource("2_ylctr")
