@@ -1,12 +1,13 @@
 [gd_scene format=3 uid="uid://wv84o2ng5lw7"]
 
 [ext_resource type="Script" uid="uid://c3farscog4cao" path="res://CEnas/game.gd" id="1_520m1"]
-[ext_resource type="Texture2D" uid="uid://q2hny4mcimne" path="res://sprites/Background.jpg" id="2_flef2"]
+[ext_resource type="Texture2D" uid="uid://lkshj808y6q6" path="res://sprites/background2.png" id="2_su1sj"]
 [ext_resource type="Script" uid="uid://bt5keeiwqwq76" path="res://scripts/cliente_spawner.gd" id="3_flef2"]
 [ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://sprites/menu.png" id="3_pxg2w"]
 [ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://themes/pixel label.tres" id="4_xqcsl"]
 [ext_resource type="PackedScene" uid="uid://c1sfdoq13lv5c" path="res://CEnas/script_menu.tscn" id="5_82nhl"]
 [ext_resource type="PackedScene" uid="uid://1sfnkm7khnrf" path="res://CEnas/shop_menu.tscn" id="7_xqcsl"]
+[ext_resource type="Script" uid="uid://0jx5rdmb3qrl" path="res://scripts/estoque_manager.gd" id="8_su1sj"]
 
 [node name="Game" type="Control" unique_id=1523316571]
 layout_mode = 3
@@ -21,7 +22,7 @@ script = ExtResource("1_520m1")
 layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 648.0
-texture = ExtResource("2_flef2")
+texture = ExtResource("2_su1sj")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=635519515]
 layout_mode = 1
@@ -80,3 +81,22 @@ layout_mode = 1
 [node name="ShopMenu" parent="." unique_id=1226205563 instance=ExtResource("7_xqcsl")]
 layout_mode = 1
 grow_vertical = 1
+
+[node name="Button" type="Button" parent="." unique_id=361059699]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -71.0
+offset_top = -15.5
+offset_bottom = 15.5
+grow_horizontal = 0
+grow_vertical = 2
+text = "estoque"
+
+[node name="Estoque_manager" type="Node" parent="." unique_id=997970754]
+script = ExtResource("8_su1sj")
+
+[connection signal="pressed" from="Button" to="Estoque_manager" method="_on_button_pressed"]

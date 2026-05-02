@@ -4,6 +4,8 @@ class_name Executor
 var input_stack
 var id
 
+
+var interpreter
 var execution_stack = []
 var call_stack = []
 var builtins = {}

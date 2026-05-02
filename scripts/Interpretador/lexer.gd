@@ -3,6 +3,7 @@ extends Node
 
 class_name Lexer
 
+var interpreter
 var origem: String
 var posicao := 0
 var char_atual : String
@@ -112,7 +113,7 @@ func string():
 		avancar()
 
 	if char_atual == "":
-		push_error("String não fechada")
+		interpreter.registrar_erro("String não fechada",linha,coluna)
 		return Token.new(Token.TiposToken.STRING, resultado,linha,coluna)
 
 	avancar()
@@ -153,8 +154,8 @@ func comentario_multilinha():
 			return
 
 		avancar()
-
-	push_error("Comentário multilinha não fechado")
+	
+	interpreter.registrar_erro("Comentário multilinha não fechado",linha,coluna)
 
 func is_letter(c: String) -> bool:
 	return c.is_valid_ascii_identifier() and not c.is_valid_int()
@@ -223,8 +224,8 @@ func get_next_token():
 			var tipo = delimitadores[c]
 			avancar()
 			return Token.new(tipo, c,linha,coluna)
-
-		push_error("Caractere inválido: " + char_atual)
+		
+		interpreter.registrar_erro("Caractere inválido: " + char_atual,linha,coluna)
 		avancar()
 	return Token.new(Token.TiposToken.EOF, "",linha,coluna)
 

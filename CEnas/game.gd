@@ -2,6 +2,7 @@ extends Control
 
 var state_of_game :int = 1
 var money = 0
+
 @onready var dinheiro_label: Label = $VBoxContainer/ColorRect/VBoxContainer/Dinheiro
 @onready var hud = $HUD
 @onready var script_menu: VBoxContainer = $ScriptMenu
@@ -11,7 +12,6 @@ var money = 0
 func _ready() -> void:
 	Eventos.update_money.connect(update_money)
 	Eventos.update_state.connect(new_state_of_game)
-
 	
 func update_money(num):
 	money += num

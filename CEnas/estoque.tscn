@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://dpvlx3id8dhdc"]
+
+[ext_resource type="Script" uid="uid://dt0pgr0yq38yl" path="res://scripts/estoque.gd" id="1_ggvvv"]
+
+[node name="Estoque" type="Control" unique_id=726871644]
+top_level = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ggvvv")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1196120462]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.58431375)
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1531047053]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer" unique_id=642865033]
+layout_mode = 2
+theme_override_constants/h_separation = 328
+theme_override_constants/v_separation = 84
+columns = 3
+
+[node name="Button" type="Button" parent="." unique_id=842314009]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -8.0
+offset_bottom = 8.0
+grow_horizontal = 0
+text = "X"
+
+[node name="Comprar" type="Button" parent="." unique_id=2071662564]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Comprar X Itens
+Total R$ 00000"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Comprar" to="." method="_on_comprar_pressed"]

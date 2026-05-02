@@ -19,3 +19,7 @@ signal open_client_terminal()
 signal update_context(context)
 
 signal update_state(new_state)
+
+signal get_estoque()
+
+signal send_estoque(estoque)

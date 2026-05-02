@@ -2,6 +2,8 @@
 extends Node
 
 class_name Parser
+
+var interpreter
 var tokens = []
 var pos = 0
 var token_atual
@@ -47,14 +49,11 @@ func nome_token(tipo):
 #tira o token atual da lista de tokens e valida ele
 func consumir(tipo):
 	dbg_token()
-	
 	if token_atual.type == tipo:
 		avancar()
 	else:
-		push_error(
-			"Esperado: " + nome_token(tipo) +
-			" recebido: " + nome_token(token_atual.type)
-		)
+		interpreter.registrar_erro("Esperado: " + nome_token(tipo) +
+			" recebido: " + nome_token(token_atual.type),token_atual.linha,token_atual.coluna)
 
 #primeiro nivel
 func factor():
