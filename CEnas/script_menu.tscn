@@ -98,6 +98,16 @@ grow_vertical = 2
 [node name="ColorRect2" type="ColorRect" parent="ColorRect3/MarginContainer/VBoxContainer" unique_id=1881867389]
 layout_mode = 2
 size_flags_vertical = 3
-color = Color(0, 0, 0, 0.22745098)
+color = Color(0.54901963, 0.36078432, 0, 0.34509805)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="ColorRect3/MarginContainer/VBoxContainer/ColorRect2" unique_id=560404802]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme = ExtResource("3_plt3r")
 
 [connection signal="toggled" from="ColorRect2/Button" to="." method="_on_button_toggled"]

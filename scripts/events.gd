@@ -23,3 +23,5 @@ signal update_state(new_state)
 signal get_estoque()
 
 signal send_estoque(estoque)
+
+signal send_debug(text)
