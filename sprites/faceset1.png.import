@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd3pyc7p5jabb"
-path="res://.godot/imported/minerio.png-bb6ac5ad91eb5fb3a3e8c78e0c722ca8.ctex"
+uid="uid://xfrmegb2qoif"
+path="res://.godot/imported/faceset1.png-d4690c53c060f1d3cc4785f7e3bb2f98.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/minerio.png"
-dest_files=["res://.godot/imported/minerio.png-bb6ac5ad91eb5fb3a3e8c78e0c722ca8.ctex"]
+source_file="res://sprites/faceset1.png"
+dest_files=["res://.godot/imported/faceset1.png-d4690c53c060f1d3cc4785f7e3bb2f98.ctex"]
 
 [params]
 

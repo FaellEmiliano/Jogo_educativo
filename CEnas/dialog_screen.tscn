@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bn7an0kyh70cn"]
 
 [ext_resource type="Script" uid="uid://dr1ymh7s5rd2v" path="res://scripts/dialog_screen.gd" id="1_6d2ib"]
-[ext_resource type="Texture2D" uid="uid://cr1shtxlxu3vn" path="res://icon.svg" id="1_pca1l"]
+[ext_resource type="Texture2D" uid="uid://xfrmegb2qoif" path="res://sprites/faceset1.png" id="2_pca1l"]
 [ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://themes/pixel label.tres" id="3_pca1l"]
 
 [node name="DialogScreen" type="Control" unique_id=1978871622 node_paths=PackedStringArray("_name", "_dialog", "_faceset")]
@@ -17,7 +17,7 @@ grow_vertical = 0
 script = ExtResource("1_6d2ib")
 _name = NodePath("background/HContainer/VContainer/Name")
 _dialog = NodePath("background/HContainer/VContainer/Dialog")
-_faceset = NodePath("background/HContainer/Border/Faceset")
+_faceset = NodePath("background/HContainer/Faceset")
 
 [node name="background" type="ColorRect" parent="." unique_id=1379306953]
 layout_mode = 1
@@ -39,25 +39,10 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Border" type="ColorRect" parent="background/HContainer" unique_id=1486433646]
-custom_minimum_size = Vector2(135, 0)
-layout_mode = 2
-
-[node name="Faceset" type="TextureRect" parent="background/HContainer/Border" unique_id=2136549915]
+[node name="Faceset" type="TextureRect" parent="background/HContainer" unique_id=2136549915]
 custom_minimum_size = Vector2(130, 135)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -65.0
-offset_top = -67.5
-offset_right = 65.0
-offset_bottom = 67.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("1_pca1l")
+layout_mode = 2
+texture = ExtResource("2_pca1l")
 expand_mode = 1
 stretch_mode = 5
 

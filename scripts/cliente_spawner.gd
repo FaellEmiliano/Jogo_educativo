@@ -7,6 +7,7 @@ var cliente_na_tela
 func _ready() -> void:
 	Eventos.connect("end_client",end_client)
 	Eventos.open_client_terminal.connect(open_terminal)
+	
 
 func _process(delta: float) -> void:
 	if not cliente_na_tela:
@@ -41,10 +42,10 @@ func arredondar(valor, casas):
 func end_client(flag):
 	cliente_na_tela = false
 	if flag:
-		Eventos.emit_signal("update_money",10*game.state_of_game)
+		Eventos.emit_signal("update_money",1*game.state_of_game+5)
 
 func set_context():
-	if game.state_of_game == 1:
+	if game.state_of_game <= 1:
 		var args = [arredondar(randf_range(10.0, 20.0),2),arredondar(randf_range(10.0, 20.0),2)]
 		var esperado = compra_cliente(args)
 		var context = EnvContext.new(args,1,esperado)

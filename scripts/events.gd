@@ -1,5 +1,6 @@
 extends Node
 
+var dados
 var context
 
 signal send_output(id,args)

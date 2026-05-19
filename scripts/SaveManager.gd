@@ -1,0 +1,77 @@
+extends Node
+
+const SAVE_PATH = "user://save.json"
+var dados
+
+# SALVAR
+func salvar(dinheiro: int, estado: int, upgrades: Array):
+	var save_data = {
+		"dinheiro": dinheiro,
+		"estado": estado,
+		"upgrades": upgrades
+	}
+	
+	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(save_data))
+		file.close()
+		print("salvo")
+	else:
+		push_error("Erro ao salvar o jogo")
+
+
+#  CARREGAR
+func carregar() -> Dictionary:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return _save_padrao()
+	
+	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if not file:
+		push_error("Erro ao abrir save")
+		return _save_padrao()
+	
+	var texto = file.get_as_text()
+	
+	var json = JSON.new()
+	var erro = json.parse(texto)
+	print("JSON LIDO:", texto)
+	print("DADOS PARSEADOS:", json.data)
+	if erro != OK:
+		push_error("Erro ao ler JSON")
+		return _save_padrao()
+	
+	dados = json.data
+	
+	# 🔍 Validação (evita crash)
+	return _validar_dados(dados)
+
+
+#RESETAR SAVE
+func resetar():
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
+
+
+# SAVE PADRÃO
+
+func _save_padrao() -> Dictionary:
+	return {
+		"dinheiro": 0,
+		"estado": 0,
+		"upgrades": []
+	}
+
+#VALIDAÇÃO
+func _validar_dados(dados: Dictionary) -> Dictionary:
+	var resultado = _save_padrao()
+	
+	if "dinheiro" in dados and (dados["dinheiro"] is int or dados["dinheiro"] is float):
+		resultado["dinheiro"] = int(dados["dinheiro"])
+	
+	if "estado" in dados and (dados["estado"] is int or dados["estado"] is float):
+		resultado["estado"] = int(dados["estado"])
+	
+	if "upgrades" in dados and dados["upgrades"] is Array:
+		resultado["upgrades"] = dados["upgrades"]
+	
+	return resultado

@@ -41,14 +41,14 @@ func run_dialog():
 
 	# Introdução
 	dialog[0] = {
-		"faceset": "res://sprites/faceset.png",
+		"faceset": "res://sprites/faceset1.png",
 		"dialog": "Olá! Gostaria de fazer uma compra.",
 		"title": "Cliente"
 	}
 
 	# Pedido
 	dialog[1] = {
-		"faceset": "res://sprites/faceset.png",
+		"faceset": "res://sprites/faceset1.png",
 		"dialog": gerar_texto_pedido(inputs),
 		"title": "Cliente"
 	}
@@ -56,7 +56,7 @@ func run_dialog():
 	# Estado 2 (troco)
 	if context.id == 2:
 		dialog[2] = {
-			"faceset": "res://sprites/faceset.png",
+		"faceset": "res://sprites/faceset1.png",
 			"dialog": "Vou pagar com R$ " + formatar(inputs[2]) + ". Quanto devo receber de troco?",
 			"title": "Cliente"
 		}
@@ -142,7 +142,7 @@ func dialogo_acerto(valores):
 				"title": "Você"
 			},
 			1: {
-				"faceset": "res://sprites/faceset.png",
+		"faceset": "res://sprites/faceset1.png",
 				"dialog": "Perfeito, muito obrigado!",
 				"title": "Cliente"
 			}
@@ -158,7 +158,7 @@ func dialogo_acerto(valores):
 				"title": "Você"
 			},
 			1: {
-				"faceset": "res://sprites/faceset.png",
+		"faceset": "res://sprites/faceset1.png",
 				"dialog": "Perfeito! Tudo certo com o troco, obrigado!",
 				"title": "Cliente"
 			}
@@ -178,7 +178,7 @@ func dialogo_erro(valores):
 			"title": "Você"
 		},
 		1: {
-			"faceset": "res://sprites/faceset.png",
+		"faceset": "res://sprites/faceset1.png",
 			"dialog": "Hmm... acho que esse valor não está correto.",
 			"title": "Cliente"
 		}
