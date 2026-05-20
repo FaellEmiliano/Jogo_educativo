@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Jogo educativo"
+run/main_scene="uid://dkurfs68vb8e6"
+config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+EventBus="*uid://dr22qvx2pw466"
+Saves="*uid://7rgcw5hbcjqn"
+GameManager="*uid://nfomqyw4r5be"
+StockSystem="*uid://bipea4fgw2r6n"
+ChallengeSystem="*uid://cf0k2kfrha422"
+InterpreterSystem="*uid://d3u168by7ruy7"
+
+[display]
+
+window/stretch/mode="canvas_items"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+rendering_device/driver.windows="d3d12"

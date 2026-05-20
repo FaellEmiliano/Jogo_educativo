@@ -1,0 +1,139 @@
+[gd_scene format=3 uid="uid://wv84o2ng5lw7"]
+
+[ext_resource type="Script" uid="uid://c3farscog4cao" path="res://scenes/game/game.gd" id="1_520m1"]
+[ext_resource type="Texture2D" uid="uid://lkshj808y6q6" path="res://assets/sprites/background2.png" id="2_su1sj"]
+[ext_resource type="Script" uid="uid://bt5keeiwqwq76" path="res://systems/ClientSpawner.gd" id="3_flef2"]
+[ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://assets/sprites/menu.png" id="3_pxg2w"]
+[ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://assets/themes/pixel label.tres" id="4_xqcsl"]
+[ext_resource type="PackedScene" uid="uid://c1sfdoq13lv5c" path="res://scenes/game/script_menu.tscn" id="5_82nhl"]
+[ext_resource type="PackedScene" uid="uid://1sfnkm7khnrf" path="res://scenes/shop/shop_menu.tscn" id="7_xqcsl"]
+[ext_resource type="Script" uid="uid://0jx5rdmb3qrl" path="res://scenes/stock/estoque_manager.gd" id="8_su1sj"]
+[ext_resource type="Texture2D" uid="uid://b3is20c6kd31i" path="res://assets/sprites/Background.png" id="9_h34u2"]
+
+[node name="Game" type="Control" unique_id=1523316571]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_520m1")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=890729564]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_su1sj")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=635519515]
+layout_mode = 1
+offset_right = 100.0
+offset_bottom = 56.0
+
+[node name="ColorRect" type="NinePatchRect" parent="VBoxContainer" unique_id=1107853405]
+custom_minimum_size = Vector2(100, 52)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("3_pxg2w")
+region_rect = Rect2(1, 1, 48, 49)
+patch_margin_left = 7
+patch_margin_top = 7
+patch_margin_right = 7
+patch_margin_bottom = 6
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/ColorRect" unique_id=386917866]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -16.0
+offset_right = 40.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="VBoxContainer/ColorRect/VBoxContainer" unique_id=1944517888]
+layout_mode = 2
+theme = ExtResource("4_xqcsl")
+theme_override_font_sizes/font_size = 10
+text = "Dinheiro"
+horizontal_alignment = 1
+
+[node name="Dinheiro" type="Label" parent="VBoxContainer/ColorRect/VBoxContainer" unique_id=1420747364]
+layout_mode = 2
+theme = ExtResource("4_xqcsl")
+theme_override_font_sizes/font_size = 10
+text = "0"
+horizontal_alignment = 1
+
+[node name="Control" type="Control" parent="VBoxContainer" unique_id=442166389]
+custom_minimum_size = Vector2(0, 196)
+layout_mode = 2
+
+[node name="Estoque" type="NinePatchRect" parent="VBoxContainer" unique_id=630837029]
+z_index = 4
+custom_minimum_size = Vector2(104, 44)
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("4_xqcsl")
+texture = ExtResource("3_pxg2w")
+region_rect = Rect2(1, 0, 48, 50)
+patch_margin_left = 6
+patch_margin_top = 7
+patch_margin_right = 6
+patch_margin_bottom = 6
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="Estoque_button" type="Button" parent="VBoxContainer/Estoque" unique_id=361059699]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -35.5
+offset_top = -15.5
+offset_right = 35.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "estoque"
+flat = true
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1152540424]
+
+[node name="Cliente_manager" type="Node" parent="." unique_id=835778774]
+script = ExtResource("3_flef2")
+
+[node name="ScriptMenu" parent="." unique_id=912155379 instance=ExtResource("5_82nhl")]
+z_index = 4
+layout_mode = 1
+
+[node name="Estoque_manager" type="Node" parent="." unique_id=997970754]
+script = ExtResource("8_su1sj")
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=1662959713]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_h34u2")
+
+[node name="ShopMenu" parent="." unique_id=1226205563 instance=ExtResource("7_xqcsl")]
+layout_mode = 1
+offset_right = 104.0
+grow_vertical = 1
+mouse_filter = 2
+
+[connection signal="pressed" from="VBoxContainer/Estoque/Estoque_button" to="Estoque_manager" method="_on_button_pressed"]

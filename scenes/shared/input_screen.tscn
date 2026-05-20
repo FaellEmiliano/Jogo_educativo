@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://cstuebf8wi4v8"]
+
+[ext_resource type="Script" uid="uid://b77hwv1trxm2i" path="res://scenes/shared/input_screen.gd" id="1_v1xni"]
+[ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://assets/themes/pixel label.tres" id="2_qbunq"]
+
+[node name="InputScreen" type="Control" unique_id=437655158]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 1
+script = ExtResource("1_v1xni")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1946080563]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -316.0
+offset_top = -140.0
+offset_right = 319.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 1
+color = Color(0, 0, 0, 0.08627451)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=784571861]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -130.0
+offset_right = 319.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Input" type="LineEdit" parent="CenterContainer" unique_id=1062935059]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme = ExtResource("2_qbunq")
+placeholder_text = "Digite a resposta"
+alignment = 1
+
+[connection signal="text_submitted" from="CenterContainer/Input" to="." method="_on_input_text_submitted"]

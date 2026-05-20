@@ -1,0 +1,91 @@
+[gd_scene format=3 uid="uid://bgv6lghdidagw"]
+
+[ext_resource type="Script" uid="uid://dr1ymh7s5rd2v" path="res://scenes/client/dialog_screen.gd" id="1_0c7pg"]
+[ext_resource type="Texture2D" uid="uid://cr1shtxlxu3vn" path="res://icon.svg" id="2_6s0p1"]
+[ext_resource type="FontFile" uid="uid://d05vv1ixumnr0" path="res://assets/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf" id="3_v2jpd"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_i4heq"]
+line_spacing = 0.0
+font = ExtResource("3_v2jpd")
+shadow_color = Color(0, 0, 0, 0.6)
+
+[node name="Control" type="Control" unique_id=1818705991]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialogScreen" type="Control" parent="." unique_id=1978871622 node_paths=PackedStringArray("_name", "_dialog", "_faceset")]
+custom_minimum_size = Vector2(700, 150)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_0c7pg")
+_name = NodePath("background/HContainer/VContainer/Name")
+_dialog = NodePath("")
+_faceset = NodePath("background/HContainer/Border/Faceset")
+
+[node name="background" type="ColorRect" parent="DialogScreen" unique_id=1379306953]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5803922)
+
+[node name="HContainer" type="HBoxContainer" parent="DialogScreen/background" unique_id=191187682]
+custom_minimum_size = Vector2(685, 135)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Border" type="ColorRect" parent="DialogScreen/background/HContainer" unique_id=1486433646]
+custom_minimum_size = Vector2(135, 0)
+layout_mode = 2
+
+[node name="Faceset" type="TextureRect" parent="DialogScreen/background/HContainer/Border" unique_id=2136549915]
+custom_minimum_size = Vector2(130, 135)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -65.0
+offset_top = -67.5
+offset_right = 65.0
+offset_bottom = 67.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_6s0p1")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VContainer" type="VBoxContainer" parent="DialogScreen/background/HContainer" unique_id=305240026]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="DialogScreen/background/HContainer/VContainer" unique_id=26225059]
+layout_mode = 2
+text = "Cliente"
+label_settings = SubResource("LabelSettings_i4heq")
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Dialog" type="LineEdit" parent="DialogScreen/background/HContainer/VContainer" unique_id=752023306]
+layout_mode = 2
+size_flags_vertical = 3
+text = "dsadsadasdsa"

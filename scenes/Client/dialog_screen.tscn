@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://bn7an0kyh70cn"]
+
+[ext_resource type="Script" uid="uid://dr1ymh7s5rd2v" path="res://scenes/client/dialog_screen.gd" id="1_6d2ib"]
+[ext_resource type="Texture2D" uid="uid://xfrmegb2qoif" path="res://assets/sprites/faceset1.png" id="2_pca1l"]
+[ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://assets/themes/pixel label.tres" id="3_pca1l"]
+
+[node name="DialogScreen" type="Control" unique_id=1978871622 node_paths=PackedStringArray("_name", "_dialog", "_faceset")]
+custom_minimum_size = Vector2(700, 150)
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_6d2ib")
+_name = NodePath("background/HContainer/VContainer/Name")
+_dialog = NodePath("background/HContainer/VContainer/Dialog")
+_faceset = NodePath("background/HContainer/Faceset")
+
+[node name="background" type="ColorRect" parent="." unique_id=1379306953]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5803922)
+
+[node name="HContainer" type="HBoxContainer" parent="background" unique_id=191187682]
+custom_minimum_size = Vector2(685, 135)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Faceset" type="TextureRect" parent="background/HContainer" unique_id=2136549915]
+custom_minimum_size = Vector2(130, 135)
+layout_mode = 2
+texture = ExtResource("2_pca1l")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VContainer" type="VBoxContainer" parent="background/HContainer" unique_id=305240026]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Name" type="Label" parent="background/HContainer/VContainer" unique_id=26225059]
+layout_mode = 2
+theme = ExtResource("3_pca1l")
+theme_override_font_sizes/font_size = 14
+text = "Cliente"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Dialog" type="RichTextLabel" parent="background/HContainer/VContainer" unique_id=1404395910]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("3_pca1l")
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/normal_font_size = 12
+text = "dsadsadasdsa"

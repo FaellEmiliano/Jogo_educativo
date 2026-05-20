@@ -1,0 +1,7 @@
+[gd_resource type="Theme" format=3 uid="uid://drigaqmmyems"]
+
+[ext_resource type="FontFile" uid="uid://ci1x8xcnrn8m4" path="res://assets/fonts/PublicPixel-rv0pA.ttf" id="1_e5sxl"]
+
+[resource]
+default_font = ExtResource("1_e5sxl")
+default_font_size = 10
