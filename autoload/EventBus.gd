@@ -4,13 +4,11 @@ signal execution_finished(output)
 
 signal execution_failed(errors)
 
-signal send_output(id,args)
+signal send_output(args)
 
 signal catch_input(id)
 
 signal redraw_buttons()
-
-signal input_submitted(text)
 
 signal end_client(result)
 

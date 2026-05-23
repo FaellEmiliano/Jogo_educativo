@@ -1,6 +1,120 @@
 [gd_scene format=3 uid="uid://dkurfs68vb8e6"]
 
 [ext_resource type="Script" uid="uid://bu1yywkewjfny" path="res://scenes/menus/main_screen.gd" id="1_2fdxm"]
+[ext_resource type="FontFile" uid="uid://ci1x8xcnrn8m4" path="res://assets/fonts/PublicPixel-rv0pA.ttf" id="2_title"]
+[ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://assets/themes/pixel label.tres" id="3_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title_panel"]
+content_margin_left = 26.0
+content_margin_top = 18.0
+content_margin_right = 26.0
+content_margin_bottom = 20.0
+bg_color = Color(0.0352941, 0.0313726, 0.027451, 0.48)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.768627, 0.552941, 0.258824, 0.86)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.101961, 0.0784314, 0.0588235, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.756863, 0.517647, 0.215686, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.188235, 0.12549, 0.0705882, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.772549, 0.356863, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.0745098, 0.0705882, 0.0627451, 0.72)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.294118, 0.258824, 0.2, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_save_panel"]
+content_margin_left = 30.0
+content_margin_top = 26.0
+content_margin_right = 30.0
+content_margin_bottom = 26.0
+bg_color = Color(0.0588235, 0.0470588, 0.0392157, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.729412, 0.513725, 0.25098, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_save_box"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.105882, 0.0823529, 0.0627451, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.329412, 0.247059, 0.14902, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_danger"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.2, 0.0509804, 0.0392157, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.827451, 0.219608, 0.145098, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="Main_screen" type="Control" unique_id=998617584]
 layout_mode = 3
@@ -11,39 +125,188 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_2fdxm")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1573296850]
+[node name="Background" type="ColorRect" parent="." unique_id=1573296850]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.33660764, 0.3366076, 0.3366076, 1)
+mouse_filter = 2
+color = Color(0.0196078, 0.0196078, 0.0235294, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=84454530]
+[node name="TopGlow" type="ColorRect" parent="." unique_id=1165481762]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 210.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.443137, 0.262745, 0.0901961, 0.2)
+
+[node name="MainStack" type="VBoxContainer" parent="." unique_id=84454530]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -330.0
+offset_right = 330.0
+offset_bottom = 420.0
+grow_horizontal = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="TitlePanel" type="PanelContainer" parent="MainStack" unique_id=439104352]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_title_panel")
+
+[node name="TitleStack" type="VBoxContainer" parent="MainStack/TitlePanel" unique_id=671949921]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MainStack/TitlePanel/TitleStack" unique_id=1944517888]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.984314, 0.811765, 0.431373, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_fonts/font = ExtResource("2_title")
+theme_override_font_sizes/font_size = 46
+text = "Titulo"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Actions" type="VBoxContainer" parent="MainStack" unique_id=633425616]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 14
+
+[node name="Start" type="Button" parent="MainStack/Actions" unique_id=135715924]
+custom_minimum_size = Vector2(330, 56)
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(1, 0.894118, 0.580392, 1)
+theme_override_colors/font_hover_color = Color(1, 0.972549, 0.772549, 1)
+theme_override_colors/font_disabled_color = Color(0.462745, 0.419608, 0.337255, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+text = "START"
+
+[node name="Github" type="Button" parent="MainStack/Actions" unique_id=1972759734]
+custom_minimum_size = Vector2(330, 48)
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(0.784314, 0.87451, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.890196, 1, 0.976471, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+text = "GITHUB"
+
+[node name="SaveMenu" type="ColorRect" parent="." unique_id=1799395274]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.64)
+
+[node name="SavePanel" type="PanelContainer" parent="SaveMenu" unique_id=1301604908]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = -275.0
+offset_top = -190.0
+offset_right = 275.0
+offset_bottom = 190.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_save_panel")
 
-[node name="Novo_jogo" type="Button" parent="VBoxContainer" unique_id=135715924]
+[node name="SaveStack" type="VBoxContainer" parent="SaveMenu/SavePanel" unique_id=1860902553]
 layout_mode = 2
-size_flags_vertical = 3
-text = "Novo Jogo"
+theme_override_constants/separation = 14
 
-[node name="Continuar" type="Button" parent="VBoxContainer" unique_id=291802714]
+[node name="SaveTitle" type="Label" parent="SaveMenu/SavePanel/SaveStack" unique_id=782330896]
 layout_mode = 2
-size_flags_vertical = 3
-text = "Continuar"
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(1, 0.823529, 0.482353, 1)
+theme_override_font_sizes/font_size = 14
+text = "SAVE ATUAL"
+horizontal_alignment = 1
 
-[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
-[connection signal="pressed" from="VBoxContainer/Novo_jogo" to="." method="_on_novo_jogo_pressed"]
-[connection signal="pressed" from="VBoxContainer/Continuar" to="." method="_on_continuar_pressed"]
+[node name="SaveBox" type="PanelContainer" parent="SaveMenu/SavePanel/SaveStack" unique_id=1526183850]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_save_box")
+
+[node name="SaveSummary" type="Label" parent="SaveMenu/SavePanel/SaveStack/SaveBox" unique_id=786659116]
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(0.894118, 0.815686, 0.635294, 1)
+theme_override_font_sizes/font_size = 10
+text = "Nenhum save encontrado."
+vertical_alignment = 1
+
+[node name="Continue" type="Button" parent="SaveMenu/SavePanel/SaveStack" unique_id=291802714]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(1, 0.894118, 0.580392, 1)
+theme_override_colors/font_hover_color = Color(1, 0.972549, 0.772549, 1)
+theme_override_colors/font_disabled_color = Color(0.462745, 0.419608, 0.337255, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+text = "CONTINUAR"
+
+[node name="NewGame" type="Button" parent="SaveMenu/SavePanel/SaveStack" unique_id=1068807807]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(1, 0.721569, 0.611765, 1)
+theme_override_colors/font_hover_color = Color(1, 0.878431, 0.807843, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_danger")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_danger")
+theme_override_styles/hover = SubResource("StyleBoxFlat_danger")
+text = "NOVO JOGO"
+
+[node name="Back" type="Button" parent="SaveMenu/SavePanel/SaveStack" unique_id=789357152]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(0.784314, 0.87451, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.890196, 1, 0.976471, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+text = "VOLTAR"
+
+[node name="ConfirmNewGame" type="ConfirmationDialog" parent="." unique_id=819541158]
+title = "Comecar novo jogo?"
+initial_position = 2
+size = Vector2i(460, 170)
+ok_button_text = "Apagar e comecar"
+dialog_text = "Comecar um novo jogo vai apagar seus dados atuais. Deseja continuar?"
+cancel_button_text = "Cancelar"
+
+[connection signal="pressed" from="MainStack/Actions/Start" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="MainStack/Actions/Github" to="." method="_on_github_pressed"]
+[connection signal="pressed" from="SaveMenu/SavePanel/SaveStack/Continue" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="SaveMenu/SavePanel/SaveStack/NewGame" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="SaveMenu/SavePanel/SaveStack/Back" to="." method="_on_back_pressed"]
+[connection signal="confirmed" from="ConfirmNewGame" to="." method="_on_confirm_new_game_confirmed"]

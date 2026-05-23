@@ -2,7 +2,6 @@ extends Node
 class_name Interpreter
  
 @export var debug = false
- 
 var executor = Executor.new()
 var executor_flag := false
 var erros: Array = []

@@ -23,6 +23,8 @@ GameManager="*uid://nfomqyw4r5be"
 StockSystem="*uid://bipea4fgw2r6n"
 ChallengeSystem="*uid://cf0k2kfrha422"
 InterpreterSystem="*uid://d3u168by7ruy7"
+SensorSystem="*uid://ou06kkfrjtva"
+TransactionManager="*res://systems/TransactionManager.gd"
 
 [display]
 

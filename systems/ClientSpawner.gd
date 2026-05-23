@@ -11,7 +11,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not cliente_na_tela:
+	if not cliente_na_tela and not TransactionManager.has_active_transaction():
 		spawnar_cliente()
 
 
@@ -24,7 +24,9 @@ func spawnar_cliente():
 		cliente_instacia.challenge = ChallengeSystem.set_context()
 		add_child(cliente_instacia)
 		cliente_na_tela = true
-		cliente_instacia.run_dialog()
+		if not TransactionManager.start_transaction(cliente_instacia, cliente_instacia.challenge):
+			cliente_instacia.queue_free()
+			cliente_na_tela = false
 
 
 func end_client(flag: bool) -> void:

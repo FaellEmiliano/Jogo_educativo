@@ -1,7 +1,9 @@
 extends Control
 
+signal result_closed()
+
 var challenge
-var input_instance = null
+var active_dialog = null
 
 const _DIALOG_SCREEN :PackedScene = preload("res://scenes/client/dialog_screen.tscn")
 
@@ -9,44 +11,32 @@ const _DIALOG_SCREEN :PackedScene = preload("res://scenes/client/dialog_screen.t
 @export var _hud :CanvasLayer = null
 
 
-func _ready() -> void:
-	EventBus.connect("input_submitted", validate)
-	EventBus.send_output.connect(validate)
-
-
-func _dialog_first(dialog) -> void:
+func _show_dialog(dialog) -> DialogScreen:
+	if active_dialog and is_instance_valid(active_dialog):
+		active_dialog.queue_free()
 	var _new_dialog : DialogScreen = _DIALOG_SCREEN.instantiate()
 	_new_dialog.data = dialog
+	_new_dialog.auto_advance = true
 	_hud.add_child(_new_dialog)
-	_new_dialog.connect("end_dialog", await_response)
+	active_dialog = _new_dialog
+	return _new_dialog
 
 
-func _dialog_second(dialog) -> void:
-	var _new_dialog : DialogScreen = _DIALOG_SCREEN.instantiate()
-	_new_dialog.data = dialog
-	_hud.add_child(_new_dialog)
-	_new_dialog.connect("end_dialog", end)
-
-
-# =========================
-# DIÁLOGO PRINCIPAL
-# =========================
-func run_dialog():
-	if challenge == null:
+func show_request_dialog(new_challenge) -> void:
+	challenge = new_challenge
+	if challenge == null or _hud == null:
 		push_error("Context null no cliente!")
 		return
 
 	var dialog = {}
 	var inputs = challenge.values
 
-	# Introdução
 	dialog[0] = {
 		"faceset": "res://assets/sprites/faceset1.png",
 		"dialog": "Olá! Gostaria de fazer uma compra.",
 		"title": "Cliente"
 	}
 
-	# Pedido
 	dialog[1] = {
 		"faceset": "res://assets/sprites/faceset1.png",
 		"dialog": gerar_texto_pedido(inputs),
@@ -61,7 +51,7 @@ func run_dialog():
 			"title": "Cliente"
 		}
 
-	_dialog_first(dialog)
+	_show_dialog(dialog)
 
 
 # =========================
@@ -90,37 +80,7 @@ func gerar_texto_pedido(inputs):
 	return texto
 
 
-# =========================
-# INPUT DO JOGADOR
-# =========================
-func await_response():
-	var input_screen = preload("res://scenes/shared/input_screen.tscn")
-	input_instance = input_screen.instantiate()
-	_hud.add_child(input_instance)
-
-
-# =========================
-# VALIDAÇÃO
-# =========================
-func validate(text):
-	if input_instance and is_instance_valid(input_instance):
-		input_instance.queue_free()
-
-	# text já é array → converter pra float
-	var valores = []
-	for v in text:
-		var num = str(v).strip_edges().replace(",", ".")
-		valores.append(float(num))
-
-	var correto = true
-
-	if valores.size() != challenge.expected_output.size():
-		correto = false
-	else:
-		for i in range(valores.size()):
-			if abs(valores[i] - challenge.expected_output[i]) > 0.01:
-				correto = false
-
+func show_result_dialog(correto: bool, valores: Array) -> void:
 	if correto:
 		dialogo_acerto(valores)
 	else:
@@ -164,7 +124,8 @@ func dialogo_acerto(valores):
 			}
 		}
 
-	_dialog_second(dialog)
+	var dialog_screen = _show_dialog(dialog)
+	dialog_screen.end_dialog.connect(_on_result_dialog_closed)
 
 
 # =========================
@@ -183,7 +144,8 @@ func dialogo_erro(valores):
 			"title": "Cliente"
 		}
 	}
-	_dialog_second(dialog)
+	var dialog_screen = _show_dialog(dialog)
+	dialog_screen.end_dialog.connect(_on_result_dialog_closed)
 
 
 # =========================
@@ -193,9 +155,7 @@ func formatar(valor):
 	return str("%.2f" % valor)
 
 
-# =========================
-# FINALIZA CLIENTE
-# =========================
-func end():
-	EventBus.emit_signal("end_client", true)
+func _on_result_dialog_closed() -> void:
+	active_dialog = null
+	result_closed.emit()
 	queue_free()

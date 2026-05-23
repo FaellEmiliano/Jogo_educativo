@@ -172,10 +172,6 @@ class BinaryOpNode extends  ASTNodes:
 class BoolNode extends ASTNodes:
 	var value
 	var type = "bool"
+
 	func _init(v) -> void:
-		if v == "false":
-			value = false
-		elif v == "true":
-			value = true
-		else:
-			value = null
+		value = bool(v)
