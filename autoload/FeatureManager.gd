@@ -1,0 +1,77 @@
+extends Node
+
+signal feature_unlocked(feature_id)
+
+const FEATURE_IF := "if"
+const FEATURE_SENSOR := "sensor"
+const FEATURE_STOCK := "stock"
+const FEATURE_CHANGE := "change"
+
+var _features := {
+	FEATURE_IF: false,
+	FEATURE_SENSOR: false,
+	FEATURE_STOCK: false,
+	FEATURE_CHANGE: false
+}
+
+func has_feature(feature_id: String) -> bool:
+	return bool(_features.get(feature_id, false))
+
+func unlock_feature(feature_id: String) -> void:
+	if not _features.has(feature_id):
+		push_warning("Feature inexistente: %s" % feature_id)
+		return
+	if _features[feature_id]:
+		return
+	_features[feature_id] = true
+	_sync_legacy_game_state(feature_id, true)
+	feature_unlocked.emit(feature_id)
+
+func lock_feature(feature_id: String) -> void:
+	if not _features.has(feature_id):
+		return
+	_features[feature_id] = false
+	_sync_legacy_game_state(feature_id, false)
+
+func get_all_features() -> Dictionary:
+	return _features.duplicate(true)
+
+func load_legacy_features(features: Dictionary) -> void:
+	if features.has("change"):
+		_features[FEATURE_CHANGE] = bool(features["change"])
+	if features.has("stock"):
+		_features[FEATURE_STOCK] = bool(features["stock"])
+	if features.has(FEATURE_IF):
+		_features[FEATURE_IF] = bool(features[FEATURE_IF])
+	if features.has(FEATURE_SENSOR):
+		_features[FEATURE_SENSOR] = bool(features[FEATURE_SENSOR])
+
+	for feature_id in _features:
+		_sync_legacy_game_state(feature_id, _features[feature_id])
+
+func reset_progression() -> void:
+	for feature_id in _features:
+		_features[feature_id] = false
+		_sync_legacy_game_state(feature_id, false)
+
+func locked_message(feature_id: String) -> String:
+	match feature_id:
+		FEATURE_IF:
+			return "Mecânica ainda não desbloqueada: if()"
+		FEATURE_SENSOR:
+			return "Mecânica ainda não desbloqueada: sensor()"
+		FEATURE_STOCK:
+			return "Mecânica ainda não desbloqueada: estoque"
+		FEATURE_CHANGE:
+			return "Mecânica ainda não desbloqueada: troco"
+		_:
+			return "Mecânica ainda não desbloqueada: %s" % feature_id
+
+func _sync_legacy_game_state(feature_id: String, value: bool) -> void:
+	if GameManager == null:
+		return
+	match feature_id:
+		FEATURE_CHANGE:
+			GameManager.unlocked_mechanics["change"] = value
+		FEATURE_STOCK:
+			GameManager.unlocked_mechanics["stock"] = value

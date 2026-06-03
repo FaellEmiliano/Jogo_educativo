@@ -379,6 +379,13 @@ func parse_block():
 	return ASTNodes.BlockNode.new(statements_local)
 
 func parse_if():
+	if not FeatureManager.has_feature(FeatureManager.FEATURE_IF):
+		interpreter.registrar_erro(
+			FeatureManager.locked_message(FeatureManager.FEATURE_IF),
+			token_atual.linha,
+			token_atual.coluna,
+			ErroInterpretador.TipoErro.RUNTIME
+		)
 	consumir(Token.TiposToken.KW_IF)
 	consumir(Token.TiposToken.LPAREN)
 	var condicao = assignment()

@@ -64,13 +64,21 @@ func atualizar_ui():
 		total_preco += qtd * preco
 
 	botao_comprar.text = "Comprar " + str(total_itens) + " itens\nTotal R$ " + str(total_preco)
+	botao_comprar.disabled = total_itens == 0 or GameManager.money < total_preco
 
 func _on_comprar_pressed() -> void:
+	var total_preco = 0
+	for nome in carrinho:
+		total_preco += carrinho[nome] * get_preco(nome)
+
+	if total_preco <= 0 or GameManager.money < total_preco:
+		return
+
 	for nome in carrinho:
 		var qtd = carrinho[nome]
-		print("Comprou", qtd, nome)
+		StockSystem.add_item(nome, qtd)
 
-	# aqui depois você pode somar no estoque real
-
+	EventBus.emit_signal("update_money", -int(total_preco))
 	carrinho.clear()
 	atualizar_ui()
+	draw_estoque(StockSystem.get_stock())

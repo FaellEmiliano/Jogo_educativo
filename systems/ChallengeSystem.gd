@@ -19,14 +19,19 @@ func _calcular_troco(pagamento: float, total: float) -> float:
 
 func get_reward(type: String) -> int:
 	match type:
-		"soma": return 5
-		"troco": return 10
-		_: return 5
+		"soma": return 8
+		"troco": return 16
+		"estoque": return 20
+		_: return 8
 
 # ─── Entry point ─────────────────────────────────────────────────────────────
 
 func set_context() -> ChallengeData:
-	if GameManager.unlocked_mechanics["change"]:
+	if FeatureManager.has_feature(FeatureManager.FEATURE_STOCK) and randf() < 0.35:
+		var stock_challenge = generate_stock_challenge()
+		if stock_challenge != null:
+			return stock_challenge
+	if FeatureManager.has_feature(FeatureManager.FEATURE_CHANGE) and randf() < 0.55:
 		return generate_change_challenge()
 	return generate_sum_challenge()
 
@@ -44,6 +49,37 @@ func generate_sum_challenge() -> ChallengeData:
 
 	var order = ClientOrder.new()
 	order.total = challenge.expected_output[0]
+	challenge.order = order
+
+	challenge.env_context = EnvContext.new(
+		challenge.values,
+		1,
+		challenge.expected_output
+	)
+
+	GameManager.current_context = challenge
+	EventBus.emit_signal("update_context", challenge)
+	return challenge
+
+func generate_stock_challenge() -> ChallengeData:
+	var requested_items = StockSystem.pick_requestable_items(2)
+	if requested_items.is_empty():
+		return null
+
+	var challenge = ChallengeData.new()
+	challenge.type = "estoque"
+	challenge.requires_stock = true
+	challenge.requested_items = requested_items
+	challenge.values = [
+		arredondar(randf_range(14.0, 28.0), 2),
+		arredondar(randf_range(14.0, 28.0), 2)
+	]
+	challenge.expected_output = [_calcular_total(challenge.values)]
+	challenge.reward = get_reward("estoque")
+
+	var order = ClientOrder.new()
+	order.total = challenge.expected_output[0]
+	order.items = requested_items
 	challenge.order = order
 
 	challenge.env_context = EnvContext.new(

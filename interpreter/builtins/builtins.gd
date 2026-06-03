@@ -13,7 +13,7 @@ func _print(args):
 	var str_cat = ""
 	for c in args:
 		str_cat += str(c)
-	print(str_cat)
+	exec.interpreter.emitir_saida(str_cat)
 	return null
 
 func _send(args):
@@ -21,6 +21,9 @@ func _send(args):
 	return TransactionManager.submit(args)
 
 func _catch_sensor(args):
+	if not FeatureManager.has_feature(FeatureManager.FEATURE_SENSOR):
+		exec.interpreter.erro_runtime(FeatureManager.locked_message(FeatureManager.FEATURE_SENSOR))
+		return false
 	return SensorSystem.get_sensor(args[0])
 
 func _catch_input(_args):

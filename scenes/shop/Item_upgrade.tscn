@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://dbbycpdwsqoc"]
+
+[ext_resource type="Script" uid="uid://d1j5khlcgvaek" path="res://scenes/shop/item_upgrade.gd" id="1_1778y"]
+[ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="1_ixias"]
+
+[node name="MarginContainer" type="MarginContainer" unique_id=1385447326]
+custom_minimum_size = Vector2(100, 75)
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+script = ExtResource("1_1778y")
+
+[node name="Button" type="NinePatchRect" parent="." unique_id=1248320298]
+layout_mode = 2
+texture = ExtResource("1_ixias")
+region_rect = Rect2(4, 4, 41.914875, 43.015217)
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Button" unique_id=766345652]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="ColorRect" type="ColorRect" parent="Button/MarginContainer" unique_id=216082415]
+layout_mode = 2
+color = Color(0, 0, 0, 0.23921569)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Button/MarginContainer" unique_id=224524346]
+layout_mode = 2
+
+[node name="Info" type="VBoxContainer" parent="Button/MarginContainer/HBoxContainer" unique_id=1294814238]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NomeLabel" type="Label" parent="Button/MarginContainer/HBoxContainer/Info" unique_id=1705065246]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Maior Lucro"
+
+[node name="DescricaoLabel" type="Label" parent="Button/MarginContainer/HBoxContainer/Info" unique_id=1296960259]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Aumenta o dinheiro por compra feita"
+autowrap_mode = 2
+
+[node name="ComprarButton" type="Button" parent="Button/MarginContainer/HBoxContainer" unique_id=605948636]
+layout_mode = 2
+text = "20"

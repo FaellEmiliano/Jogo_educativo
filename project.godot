@@ -20,11 +20,13 @@ config/icon="res://icon.svg"
 EventBus="*uid://dr22qvx2pw466"
 Saves="*uid://7rgcw5hbcjqn"
 GameManager="*uid://nfomqyw4r5be"
+FeatureManager="*res://autoload/FeatureManager.gd"
 StockSystem="*uid://bipea4fgw2r6n"
 ChallengeSystem="*uid://cf0k2kfrha422"
 InterpreterSystem="*uid://d3u168by7ruy7"
 SensorSystem="*uid://ou06kkfrjtva"
 TransactionManager="*res://systems/TransactionManager.gd"
+UpgradeManager="*uid://c01l4yaux6hjg"
 
 [display]
 

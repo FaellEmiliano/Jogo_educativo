@@ -53,6 +53,8 @@ func submit(args: Array) -> bool:
 
 	var valores = _normalize_values(args)
 	var correto = _validate_values(valores)
+	if correto and active_challenge.requires_stock:
+		correto = StockSystem.consume_items(active_challenge.requested_items)
 	pending_result = correto
 	transaction_closing = true
 	SensorSystem.set_sensor("cliente_na_tela", false)

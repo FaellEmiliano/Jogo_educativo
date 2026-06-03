@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://rerk5wlh3yd6"]
 
-[ext_resource type="Script" uid="uid://di0s051fc53ng" path="res://scenes/client/cliente.gd" id="1_ylctr"]
+[ext_resource type="Script" uid="uid://di0s051fc53ng" path="res://scenes/Client/cliente.gd" id="1_ylctr"]
 [ext_resource type="Texture2D" uid="uid://b0s6vv2stb2nb" path="res://assets/sprites/cliente.png" id="2_ylctr"]
 
 [node name="Cliente" type="Control" unique_id=1025457365]

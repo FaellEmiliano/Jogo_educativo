@@ -43,9 +43,16 @@ func show_request_dialog(new_challenge) -> void:
 		"title": "Cliente"
 	}
 
+	if challenge.requires_stock:
+		dialog[2] = {
+			"faceset": "res://assets/sprites/faceset1.png",
+			"dialog": "Também vou precisar de: " + gerar_texto_ingredientes(challenge.requested_items) + ".",
+			"title": "Cliente"
+		}
+
 	# Estado 2 (troco)
 	if challenge.type == "troco":
-		dialog[2] = {
+		dialog[dialog.size()] = {
 		"faceset": "res://assets/sprites/faceset1.png",
 			"dialog": "Vou pagar com R$ " + formatar(challenge.order.payment) + ". Quanto devo receber de troco?",
 			"title": "Cliente"
@@ -79,6 +86,12 @@ func gerar_texto_pedido(inputs):
 
 	return texto
 
+func gerar_texto_ingredientes(items: Array) -> String:
+	var partes = []
+	for item in items:
+		partes.append("%dx %s" % [int(item.get("quantity", 0)), str(item.get("name", ""))])
+	return ", ".join(partes)
+
 
 func show_result_dialog(correto: bool, valores: Array) -> void:
 	if correto:
@@ -94,7 +107,7 @@ func dialogo_acerto(valores):
 	var dialog = {}
 
 	# Estado 1 → só total
-	if challenge.type == "soma":
+	if challenge.type == "soma" or challenge.type == "estoque":
 		dialog = {
 			0: {
 				"faceset": "res://assets/sprites/faceset.png",
