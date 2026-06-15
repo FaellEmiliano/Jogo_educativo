@@ -49,6 +49,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Maior Lucro"
+autowrap_mode = 2
 
 [node name="DescricaoLabel" type="Label" parent="Button/MarginContainer/HBoxContainer/Info" unique_id=1296960259]
 layout_mode = 2
@@ -57,5 +58,7 @@ text = "Aumenta o dinheiro por compra feita"
 autowrap_mode = 2
 
 [node name="ComprarButton" type="Button" parent="Button/MarginContainer/HBoxContainer" unique_id=605948636]
+custom_minimum_size = Vector2(82, 44)
 layout_mode = 2
+size_flags_vertical = 4
 text = "20"

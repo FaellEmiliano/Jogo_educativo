@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bu1yywkewjfny" path="res://scenes/menus/main_screen.gd" id="1_2fdxm"]
 [ext_resource type="FontFile" uid="uid://ci1x8xcnrn8m4" path="res://assets/fonts/PublicPixel-rv0pA.ttf" id="2_title"]
 [ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://assets/themes/pixel label.tres" id="3_theme"]
+[ext_resource type="PackedScene" path="res://scenes/help/help_menu.tscn" id="4_help"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title_panel"]
 content_margin_left = 26.0
@@ -208,6 +209,18 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 text = "GITHUB"
 
+[node name="Help" type="Button" parent="MainStack/Actions"]
+custom_minimum_size = Vector2(330, 48)
+layout_mode = 2
+theme = ExtResource("3_theme")
+theme_override_colors/font_color = Color(0.784314, 0.87451, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.890196, 1, 0.976471, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+text = "AJUDA"
+
 [node name="SaveMenu" type="ColorRect" parent="." unique_id=1799395274]
 visible = false
 layout_mode = 1
@@ -304,8 +317,11 @@ ok_button_text = "Apagar e comecar"
 dialog_text = "Comecar um novo jogo vai apagar seus dados atuais. Deseja continuar?"
 cancel_button_text = "Cancelar"
 
+[node name="HelpMenu" parent="." instance=ExtResource("4_help")]
+
 [connection signal="pressed" from="MainStack/Actions/Start" to="." method="_on_start_pressed"]
 [connection signal="pressed" from="MainStack/Actions/Github" to="." method="_on_github_pressed"]
+[connection signal="pressed" from="MainStack/Actions/Help" to="HelpMenu" method="open_menu"]
 [connection signal="pressed" from="SaveMenu/SavePanel/SaveStack/Continue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="SaveMenu/SavePanel/SaveStack/NewGame" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="SaveMenu/SavePanel/SaveStack/Back" to="." method="_on_back_pressed"]

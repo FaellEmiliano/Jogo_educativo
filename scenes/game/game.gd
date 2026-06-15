@@ -22,6 +22,8 @@ func _ready() -> void:
 	dinheiro_label.text = str(GameManager.money)
 	EventBus.update_money.connect(update_money)
 	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
+	UpgradeManager.verificar_desbloqueios()
+	EventBus.emit_signal("update_money", 0)
 	_atualizar_estado_estoque()
 	_instanciar_tutorial_se_necessario()
 

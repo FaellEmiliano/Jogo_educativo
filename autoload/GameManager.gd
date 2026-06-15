@@ -10,6 +10,8 @@ var upgrades: Array = []
 # Mecânicas desbloqueadas (substitui state_of_game)
 var unlocked_mechanics = {
 	"sum": true,
+	"cart": false,
+	"discount": false,
 	"change": false,
 	"stock": false,
 	"if": false,

@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://1sfnkm7khnrf" path="res://scenes/shop/shop_menu.tscn" id="7_xqcsl"]
 [ext_resource type="Script" uid="uid://0jx5rdmb3qrl" path="res://scenes/stock/estoque_manager.gd" id="8_su1sj"]
 [ext_resource type="Texture2D" uid="uid://b3is20c6kd31i" path="res://assets/sprites/Background.png" id="9_h34u2"]
+[ext_resource type="PackedScene" path="res://scenes/help/help_menu.tscn" id="10_help"]
 
 [node name="Game" type="Control" unique_id=1523316571]
 layout_mode = 3
@@ -108,6 +109,21 @@ flat = true
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1152540424]
 
+[node name="HelpButton" type="Button" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -124.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = 54.0
+grow_horizontal = 0
+theme = ExtResource("4_xqcsl")
+theme_override_font_sizes/font_size = 10
+text = "AJUDA"
+
+[node name="HelpMenu" parent="HUD" instance=ExtResource("10_help")]
+
 [node name="Cliente_manager" type="Node" parent="." unique_id=835778774]
 script = ExtResource("3_flef2")
 
@@ -138,3 +154,4 @@ grow_vertical = 1
 mouse_filter = 2
 
 [connection signal="pressed" from="VBoxContainer/Estoque/Estoque_button" to="Estoque_manager" method="_on_button_pressed"]
+[connection signal="pressed" from="HUD/HelpButton" to="HUD/HelpMenu" method="open_menu"]

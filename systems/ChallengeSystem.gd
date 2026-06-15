@@ -15,11 +15,18 @@ func _calcular_total(args) -> float:
 func _calcular_troco(pagamento: float, total: float) -> float:
 	return pagamento - total
 
+func _aplicar_desconto_carrinho(total: float) -> float:
+	if total > 50.0:
+		return total * 0.9
+	return total
+
 # ─── Recompensa por tipo de desafio ──────────────────────────────────────────
 
 func get_reward(type: String) -> int:
 	match type:
 		"soma": return 8
+		"cliente_ouro": return 16
+		"compra_variavel": return 12
 		"troco": return 16
 		"estoque": return 20
 		_: return 8
@@ -27,12 +34,18 @@ func get_reward(type: String) -> int:
 # ─── Entry point ─────────────────────────────────────────────────────────────
 
 func set_context() -> ChallengeData:
+	if FeatureManager.has_feature(FeatureManager.FEATURE_DISCOUNT) and randf() < 0.10:
+		return generate_golden_challenge()
 	if FeatureManager.has_feature(FeatureManager.FEATURE_STOCK) and randf() < 0.35:
 		var stock_challenge = generate_stock_challenge()
 		if stock_challenge != null:
 			return stock_challenge
 	if FeatureManager.has_feature(FeatureManager.FEATURE_CHANGE) and randf() < 0.55:
 		return generate_change_challenge()
+	if FeatureManager.has_feature(FeatureManager.FEATURE_CART) and FeatureManager.has_feature(FeatureManager.FEATURE_DISCOUNT) and randf() < 0.50:
+		return generate_variable_purchase_challenge([], true)
+	if FeatureManager.has_feature(FeatureManager.FEATURE_CART) and randf() < 0.50:
+		return generate_variable_purchase_challenge()
 	return generate_sum_challenge()
 
 # ─── Gerador: soma ────────────────────────────────────────────────────────────
@@ -53,6 +66,75 @@ func generate_sum_challenge() -> ChallengeData:
 
 	challenge.env_context = EnvContext.new(
 		challenge.values,
+		1,
+		challenge.expected_output
+	)
+
+	GameManager.current_context = challenge
+	EventBus.emit_signal("update_context", challenge)
+	return challenge
+
+# ─── Gerador: cliente de ouro ────────────────────────────────────────────────
+
+func generate_golden_challenge(item_values: Array = []) -> ChallengeData:
+	var challenge = ChallengeData.new()
+	challenge.type = "cliente_ouro"
+	challenge.is_golden = true
+	challenge.applies_discount = true
+	challenge.values = item_values.duplicate()
+	if challenge.values.is_empty():
+		challenge.values = [
+			arredondar(randf_range(26.0, 40.0), 2),
+			arredondar(randf_range(26.0, 40.0), 2)
+		]
+
+	var total = _calcular_total(challenge.values)
+	var total_com_desconto = arredondar(_aplicar_desconto_carrinho(total), 2)
+	challenge.expected_output = [total_com_desconto]
+	challenge.reward = get_reward("cliente_ouro")
+
+	var order = ClientOrder.new()
+	order.items = challenge.values.duplicate()
+	order.total = total_com_desconto
+	challenge.order = order
+
+	challenge.env_context = EnvContext.new(
+		challenge.values,
+		1,
+		challenge.expected_output
+	)
+
+	GameManager.current_context = challenge
+	EventBus.emit_signal("update_context", challenge)
+	return challenge
+
+# ─── Gerador: compra variável com sentinela ──────────────────────────────────
+
+func generate_variable_purchase_challenge(item_values: Array = [], apply_discount := false) -> ChallengeData:
+	var challenge = ChallengeData.new()
+	challenge.type = "compra_variavel"
+	challenge.applies_discount = apply_discount
+	challenge.values = item_values.duplicate()
+	if challenge.values.is_empty():
+		var item_count = randi_range(2, 5)
+		for _i in range(item_count):
+			challenge.values.append(arredondar(randf_range(8.0, 28.0), 2))
+
+	var total = _calcular_total(challenge.values)
+	var total_esperado = _aplicar_desconto_carrinho(total) if apply_discount else total
+	total_esperado = arredondar(total_esperado, 2)
+	challenge.expected_output = [total_esperado]
+	challenge.reward = get_reward("compra_variavel")
+
+	var order = ClientOrder.new()
+	order.items = challenge.values.duplicate()
+	order.total = total_esperado
+	challenge.order = order
+
+	var inputs = challenge.values.duplicate()
+	inputs.append(-1)
+	challenge.env_context = EnvContext.new(
+		inputs,
 		1,
 		challenge.expected_output
 	)

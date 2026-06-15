@@ -125,6 +125,8 @@ func _save_padrao() -> Dictionary:
 			"dinheiro": 0,
 			"unlocked_mechanics": {
 				"sum": true,
+				"cart": false,
+				"discount": false,
 				"change": false,
 				"stock": false,
 				"if": false,

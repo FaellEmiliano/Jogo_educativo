@@ -1,0 +1,253 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scenes/help/help_menu.gd" id="1_help"]
+[ext_resource type="Theme" path="res://assets/themes/pixel label.tres" id="2_theme"]
+[ext_resource type="FontFile" path="res://assets/fonts/JetBrainsMono-VariableFont_wght.ttf" id="3_mono"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+bg_color = Color(0.0470588, 0.0392157, 0.0313726, 0.99)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.76, 0.52, 0.22, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sidebar"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.0745098, 0.0627451, 0.0509804, 1)
+border_width_right = 1
+border_color = Color(0.3, 0.23, 0.14, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_content"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+bg_color = Color(0.0352941, 0.0352941, 0.0392157, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(0.07, 0.075, 0.065, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.48, 0.55, 0.34, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.16, 0.1, 0.06, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76, 0.52, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="HelpMenu" type="Control"]
+visible = false
+z_index = 100
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_help")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.78)
+
+[node name="Window" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 42.0
+offset_top = 34.0
+offset_right = -42.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_window")
+
+[node name="Layout" type="VBoxContainer" parent="Window"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Window/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MenuTitle" type="Label" parent="Window/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_theme")
+theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
+theme_override_font_sizes/font_size = 17
+text = "GUIA DA LOJA"
+vertical_alignment = 1
+
+[node name="Hint" type="Label" parent="Window/Layout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.59, 1)
+theme_override_font_sizes/font_size = 12
+text = "Novos tópicos aparecem com seus upgrades"
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Window/Layout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 40)
+layout_mode = 2
+theme = ExtResource("2_theme")
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_close")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_close")
+theme_override_styles/hover = SubResource("StyleBoxFlat_close")
+text = "VOLTAR"
+
+[node name="Separator" type="HSeparator" parent="Window/Layout"]
+layout_mode = 2
+
+[node name="Pages" type="HSplitContainer" parent="Window/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 270
+collapsed = false
+
+[node name="Sidebar" type="PanelContainer" parent="Window/Layout/Pages"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sidebar")
+
+[node name="TopicsScroll" type="ScrollContainer" parent="Window/Layout/Pages/Sidebar"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="TopicsContainer" type="VBoxContainer" parent="Window/Layout/Pages/Sidebar/TopicsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Content" type="PanelContainer" parent="Window/Layout/Pages"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_content")
+
+[node name="ContentLayout" type="VBoxContainer" parent="Window/Layout/Pages/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CategoryLabel" type="Label" parent="Window/Layout/Pages/Content/ContentLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.78, 0.72, 1)
+theme_override_font_sizes/font_size = 12
+text = "CATEGORIA"
+
+[node name="TitleLabel" type="Label" parent="Window/Layout/Pages/Content/ContentLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_theme")
+theme_override_colors/font_color = Color(1, 0.86, 0.58, 1)
+theme_override_font_sizes/font_size = 16
+text = "Título"
+autowrap_mode = 2
+
+[node name="ContentSeparator" type="HSeparator" parent="Window/Layout/Pages/Content/ContentLayout"]
+layout_mode = 2
+
+[node name="ArticleScroll" type="ScrollContainer" parent="Window/Layout/Pages/Content/ContentLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Article" type="VBoxContainer" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BodyLabel" type="RichTextLabel" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.9, 0.87, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 1
+theme_override_fonts/normal_font = ExtResource("3_mono")
+theme_override_fonts/bold_font = ExtResource("3_mono")
+theme_override_fonts/mono_font = ExtResource("3_mono")
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/bold_font_size = 14
+theme_override_font_sizes/mono_font_size = 14
+text = "Conteúdo"
+
+[node name="SpoilerButton" type="Button" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+theme = ExtResource("2_theme")
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxFlat_close")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_close")
+theme_override_styles/hover = SubResource("StyleBoxFlat_close")
+text = "MOSTRAR DICA"
+
+[node name="HintPanel" type="PanelContainer" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hint")
+
+[node name="HintLabel" type="RichTextLabel" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article/HintPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.84, 0.9, 0.72, 1)
+theme_override_fonts/normal_font = ExtResource("3_mono")
+theme_override_fonts/mono_font = ExtResource("3_mono")
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/mono_font_size = 14
+text = "Dica"

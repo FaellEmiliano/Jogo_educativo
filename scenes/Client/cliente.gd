@@ -10,6 +10,11 @@ const _DIALOG_SCREEN :PackedScene = preload("res://scenes/client/dialog_screen.t
 @export_category("Objects")
 @export var _hud :CanvasLayer = null
 
+@onready var client_texture: TextureRect = $TextureRect
+
+func _ready() -> void:
+	if challenge != null and challenge.is_golden:
+		client_texture.modulate = Color(1.0, 0.82, 0.12)
 
 func _show_dialog(dialog) -> DialogScreen:
 	if active_dialog and is_instance_valid(active_dialog):
@@ -68,6 +73,15 @@ func gerar_texto_pedido(inputs):
 	if inputs.size() < 2:
 		return "Tenho um pedido."
 
+	if challenge.type == "compra_variavel":
+		var partes = []
+		for value in inputs:
+			partes.append("R$ " + formatar(value))
+		var texto_carrinho = "Comprei varios itens: " + ", ".join(partes) + ". Some tudo ate receber -1"
+		if challenge.applies_discount:
+			texto_carrinho += ". Se passar de R$ 50, aplique 10% de desconto"
+		return texto_carrinho + " e envie o valor final."
+
 	var texto = "Gostaria de comprar dois itens: "
 
 	for i in range(inputs.size()):
@@ -107,7 +121,7 @@ func dialogo_acerto(valores):
 	var dialog = {}
 
 	# Estado 1 → só total
-	if challenge.type == "soma" or challenge.type == "estoque":
+	if challenge.type == "soma" or challenge.type == "estoque" or challenge.type == "compra_variavel" or challenge.type == "cliente_ouro":
 		dialog = {
 			0: {
 				"faceset": "res://assets/sprites/faceset.png",

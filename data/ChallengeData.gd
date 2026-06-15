@@ -14,6 +14,10 @@ var requested_items = []
 
 var requires_stock : bool = false
 
+var applies_discount : bool = false
+
+var is_golden : bool = false
+
 var difficulty : int = 1
 
 # Recompensa em dinheiro ao completar o desafio
