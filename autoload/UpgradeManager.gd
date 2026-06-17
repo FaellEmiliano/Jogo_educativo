@@ -19,10 +19,9 @@ func _ready() -> void:
 func verificar_desbloqueios() -> void:
 	for id in UpgradeData.UPGRADES:
 		var data = UpgradeData.UPGRADES[id]
-		var dinheiro_minimo = data.get("dinheiro_minimo", 0)
 		var requisitos = data.get("requer", [])
 
-		if GameManager.money >= dinheiro_minimo and _requisitos_comprados(requisitos) and not upgrades_liberados.has(id):
+		if _requisitos_comprados(requisitos) and not upgrades_liberados.has(id):
 			upgrades_liberados.append(id)
 			upgrade_liberado.emit(id, data)
 	upgrades_atualizados.emit()
@@ -38,6 +37,8 @@ func get_upgrades_visiveis() -> Array:
 
 	for id in upgrades_liberados:
 		if not UpgradeData.UPGRADES.has(id):
+			continue
+		if upgrades_comprados.has(id):
 			continue
 
 		upgrades_visiveis.append({

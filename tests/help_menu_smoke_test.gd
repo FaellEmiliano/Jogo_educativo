@@ -12,6 +12,7 @@ func _ready() -> void:
 	for required_id in ["terminal", "input", "send", "print", "simple_client"]:
 		assert(initial_ids.has(required_id), "Tópico básico ausente: %s" % required_id)
 	assert(not initial_ids.has("sentinel_client"), "Sentinela apareceu antes do desbloqueio")
+	assert(not initial_ids.has("stock"), "Estoque apareceu antes do desbloqueio")
 
 	var help_menu := HelpMenuScene.instantiate()
 	add_child(help_menu)
@@ -29,6 +30,7 @@ func _ready() -> void:
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_CHANGE)
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_STOCK)
 	var all_ids := _topic_ids(help_menu.get("_visible_topics"))
+	assert(all_ids.has("stock"), "Tópico de estoque não foi desbloqueado")
 	assert(all_ids.size() == HelpTopicsData.TOPICS.size(), "Nem todos os tópicos foram liberados")
 
 	help_menu.call("_show_topic", "sentinel_client")

@@ -1,0 +1,152 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/debug/debug_menu.gd" id="1_debug"]
+
+[sub_resource type="StyleBoxFlat" id="StylePanel"]
+bg_color = Color(0.055, 0.063, 0.09, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.85, 0.75, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="DebugMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_debug")
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -235.0
+offset_right = 260.0
+offset_bottom = 235.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="Content" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 0.95, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "DEBUG / GOD MODE"
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "X"
+
+[node name="Separator" type="HSeparator" parent="Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="InfiniteMoney" type="CheckButton" parent="Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Dinheiro infinito"
+
+[node name="MoneyRow" type="HBoxContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="AddMoney" type="Button" parent="Panel/Margin/Content/MoneyRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "+1000 dinheiro"
+
+[node name="UnlockFeatures" type="Button" parent="Panel/Margin/Content/MoneyRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Liberar features"
+
+[node name="Restock" type="Button" parent="Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Adicionar 10 de cada produto"
+
+[node name="ClientsTitle" type="Label" parent="Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.25, 1)
+theme_override_font_sizes/font_size = 16
+text = "SPAWNAR CLIENTE"
+
+[node name="ClientGrid" type="GridContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+columns = 2
+
+[node name="SpawnSum" type="Button" parent="Panel/Margin/Content/ClientGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Soma"
+
+[node name="SpawnCart" type="Button" parent="Panel/Margin/Content/ClientGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Carrinho"
+
+[node name="SpawnGolden" type="Button" parent="Panel/Margin/Content/ClientGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cliente de ouro"
+
+[node name="SpawnChange" type="Button" parent="Panel/Margin/Content/ClientGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Troco"
+
+[node name="SpawnStock" type="Button" parent="Panel/Margin/Content/ClientGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Estoque"
+
+[node name="Status" type="Label" parent="Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+text = "Ferramentas de teste ativas."
+autowrap_mode = 2

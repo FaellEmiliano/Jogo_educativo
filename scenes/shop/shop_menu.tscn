@@ -28,13 +28,18 @@ patch_margin_bottom = 3
 axis_stretch_horizontal = 2
 axis_stretch_vertical = 2
 
-[node name="Upgrade_table" type="VBoxContainer" parent="ColorRect3" unique_id=293331418]
+[node name="UpgradeScroll" type="ScrollContainer" parent="ColorRect3"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Upgrade_table" type="VBoxContainer" parent="ColorRect3/UpgradeScroll" unique_id=293331418]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="ColorRect2" type="NinePatchRect" parent="." unique_id=325175098]
 custom_minimum_size = Vector2(104, 46)

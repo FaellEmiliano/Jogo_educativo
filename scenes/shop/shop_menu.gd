@@ -3,7 +3,7 @@ extends HBoxContainer
 const UpgradeItemScene = preload("res://scenes/shop/Item_upgrade.tscn")
 const UpgradeData = preload("res://data/UpgradeData.gd")
 
-@onready var upgrades_container: VBoxContainer = $ColorRect3/Upgrade_table
+@onready var upgrades_container: VBoxContainer = $ColorRect3/UpgradeScroll/Upgrade_table
 @onready var toggle_button: Button = $ColorRect2/Button
 @onready var tooltip_panel: NinePatchRect = $TooltipLayer/UpgradeTooltip
 @onready var tooltip_nome_label: Label = $TooltipLayer/UpgradeTooltip/MarginContainer/VBoxContainer/NomeLabel
@@ -66,13 +66,12 @@ func adicionar_upgrade(id: String, data: Dictionary, comprado := false) -> void:
 	itens_por_upgrade[id] = item
 
 func _on_upgrade_liberado(id: String, data: Dictionary) -> void:
+	if UpgradeManager.upgrades_comprados.has(id):
+		return
 	adicionar_upgrade(id, data)
 
 func _on_upgrade_comprado(id: String) -> void:
-	if itens_por_upgrade.has(id):
-		itens_por_upgrade[id].toogle_state(true)
-	if _tooltip_upgrade_id == id and itens_por_upgrade.has(id):
-		_show_upgrade_tooltip(id, itens_por_upgrade[id].upgrade_data, itens_por_upgrade[id].global_position, _tooltip_fixado)
+	carregar_upgrades_visiveis()
 
 func _on_money_changed(_num: int) -> void:
 	call_deferred("_refresh_after_money_changed")

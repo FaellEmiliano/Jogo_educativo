@@ -5,7 +5,7 @@ signal result_closed()
 var challenge
 var active_dialog = null
 
-const _DIALOG_SCREEN :PackedScene = preload("res://scenes/client/dialog_screen.tscn")
+const _DIALOG_SCREEN :PackedScene = preload("res://scenes/Client/dialog_screen.tscn")
 
 @export_category("Objects")
 @export var _hud :CanvasLayer = null
@@ -48,18 +48,10 @@ func show_request_dialog(new_challenge) -> void:
 		"title": "Cliente"
 	}
 
-	if challenge.requires_stock:
-		dialog[2] = {
-			"faceset": "res://assets/sprites/faceset1.png",
-			"dialog": "Também vou precisar de: " + gerar_texto_ingredientes(challenge.requested_items) + ".",
-			"title": "Cliente"
-		}
-
-	# Estado 2 (troco)
-	if challenge.type == "troco":
+	if _tem_troco():
 		dialog[dialog.size()] = {
 		"faceset": "res://assets/sprites/faceset1.png",
-			"dialog": "Vou pagar com R$ " + formatar(challenge.order.payment) + ". Quanto devo receber de troco?",
+			"dialog": "Vou pagar com R$ " + formatar(challenge.order.payment) + ". Envie o total da compra e o troco.",
 			"title": "Cliente"
 		}
 
@@ -73,6 +65,14 @@ func gerar_texto_pedido(inputs):
 	if inputs.size() < 2:
 		return "Tenho um pedido."
 
+	if challenge.requires_stock:
+		var texto_estoque = gerar_texto_ingredientes(challenge.requested_items, inputs)
+		if challenge.applies_discount:
+			texto_estoque += "\nSe passar de R$ 50, aplique 10% de desconto."
+		if _tem_troco():
+			texto_estoque += "\nDepois leia o pagamento e calcule o troco."
+		return texto_estoque
+
 	if challenge.type == "compra_variavel":
 		var partes = []
 		for value in inputs:
@@ -80,15 +80,13 @@ func gerar_texto_pedido(inputs):
 		var texto_carrinho = "Comprei varios itens: " + ", ".join(partes) + ". Some tudo ate receber -1"
 		if challenge.applies_discount:
 			texto_carrinho += ". Se passar de R$ 50, aplique 10% de desconto"
+		if _tem_troco():
+			return texto_carrinho + ". Depois leia o valor do pagamento, calcule o troco e envie total e troco."
 		return texto_carrinho + " e envie o valor final."
 
 	var texto = "Gostaria de comprar dois itens: "
 
 	for i in range(inputs.size()):
-		# ignora o último se for dinheiro (estado 2)
-		if challenge.type == "troco" and i == inputs.size() - 1:
-			break
-
 		texto += "R$ " + formatar(inputs[i])
 
 		if i == inputs.size() - 2:
@@ -96,15 +94,28 @@ func gerar_texto_pedido(inputs):
 		elif i < inputs.size() - 2:
 			texto += ", "
 
-	texto += ". Qual o valor total?"
+	if challenge.applies_discount:
+		texto += ". Se passar de R$ 50, aplique 10% de desconto"
+	if _tem_troco():
+		texto += ". Depois leia o pagamento, calcule o troco e envie total e troco"
+	else:
+		texto += ". Qual o valor total?"
 
 	return texto
 
-func gerar_texto_ingredientes(items: Array) -> String:
-	var partes = []
-	for item in items:
-		partes.append("%dx %s" % [int(item.get("quantity", 0)), str(item.get("name", ""))])
-	return ", ".join(partes)
+func gerar_texto_ingredientes(items: Array, inputs: Array) -> String:
+	var linhas = ["Quero comprar:"]
+	for i in range(items.size()):
+		var item = items[i]
+		var price_index = i * 2
+		var price = inputs[price_index] if price_index < inputs.size() else 0.0
+		linhas.append("%dx %s - R$ %s cada" % [
+			int(item.get("quantity", 0)),
+			str(item.get("name", "")),
+			formatar(price)
+		])
+	linhas.append("Calcule o total da compra.")
+	return "\n".join(linhas)
 
 
 func show_result_dialog(correto: bool, valores: Array) -> void:
@@ -120,8 +131,7 @@ func show_result_dialog(correto: bool, valores: Array) -> void:
 func dialogo_acerto(valores):
 	var dialog = {}
 
-	# Estado 1 → só total
-	if challenge.type == "soma" or challenge.type == "estoque" or challenge.type == "compra_variavel" or challenge.type == "cliente_ouro":
+	if not _tem_troco():
 		dialog = {
 			0: {
 				"faceset": "res://assets/sprites/faceset.png",
@@ -135,8 +145,7 @@ func dialogo_acerto(valores):
 			}
 		}
 
-	# Estado 2 → total + troco
-	elif challenge.type == "troco":
+	else:
 		dialog = {
 			0: {
 				"faceset": "res://assets/sprites/faceset.png",
@@ -159,10 +168,19 @@ func dialogo_acerto(valores):
 # DIÁLOGO DE ERRO
 # =========================
 func dialogo_erro(valores):
+	var resposta = "nenhum valor"
+	if valores.size() == 1:
+		resposta = formatar(valores[0])
+	elif valores.size() > 1:
+		var partes = []
+		for valor in valores:
+			partes.append(formatar(valor))
+		resposta = ", ".join(partes)
+
 	var dialog = {
 		0: {
 			"faceset": "res://assets/sprites/faceset.png",
-			"dialog": "O total é R$ " + str(valores),
+			"dialog": "Minha resposta foi: " + resposta + ".",
 			"title": "Você"
 		},
 		1: {
@@ -180,6 +198,9 @@ func dialogo_erro(valores):
 # =========================
 func formatar(valor):
 	return str("%.2f" % valor)
+
+func _tem_troco() -> bool:
+	return challenge != null and challenge.expected_output.size() > 1
 
 
 func _on_result_dialog_closed() -> void:

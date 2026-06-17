@@ -98,17 +98,17 @@ Enviar os dois preços separadamente ou ler apenas um deles não corresponde à 
 		"category": "Clientes",
 		"requirement": "troco",
 		"text": """[b]O que é[/b]
-Esse cliente envia dois preços e, depois, o valor usado para pagar. Ele espera o total da compra e o troco.
+Esse cliente envia os preços da compra até a sentinela [code]-1[/code] e, depois, o valor usado para pagar. Ele espera o total da compra e o troco.
 
 [b]Quando aparece[/b]
 Passa a aparecer depois que a mecânica de troco é comprada.
 
 [b]Como pensar[/b]
-Some os dois produtos. Em seguida, subtraia o total do pagamento. Envie primeiro o total e depois o troco.
+Some os produtos até receber [code]-1[/code]. Depois, faça mais uma chamada a [code]input()[/code] para ler o pagamento. Calcule [code]pagamento - total[/code] e envie primeiro o total e depois o troco.
 
 [b]Erros comuns[/b]
 Troco é [code]pagamento - total[/code], não o contrário. A ordem em [code]send(total, troco)[/code] também importa.""",
-		"hint": "Leia três valores: dois preços e o pagamento. Calcule o total, depois calcule [code]pagamento - total[/code]. O cliente espera duas respostas nessa ordem."
+		"hint": "O pagamento vem somente depois de [code]-1[/code]. Saia do laço, leia mais um valor, calcule o troco e use [code]send(total, troco)[/code]."
 	},
 	{
 		"id": "sentinel_client",
@@ -152,17 +152,23 @@ O desconto vale para valores [b]acima[/b] de 50, não exatamente 50. Aplicar o d
 		"category": "Mecânicas da loja",
 		"requirement": "estoque",
 		"text": """[b]O que é[/b]
-Alguns pedidos precisam de itens do estoque além do cálculo correto.
+O estoque guarda os produtos disponíveis para atender pedidos específicos. Comprar unidades tem custo, e clientes de estoque consomem os produtos solicitados.
 
 [b]Quando aparece[/b]
 O botão de estoque e esses clientes são liberados pelo upgrade de estoque.
 
 [b]Como pensar[/b]
-Compre os ingredientes pelo botão Estoque e mantenha quantidades disponíveis. O script calcula e envia o total normalmente; ao acertar, o jogo consome automaticamente os itens pedidos.
+Abra o menu Estoque, escolha quantas unidades deseja repor e confirme a compra. No atendimento, cada produto envia seu preço e sua quantidade. Calcule cada subtotal com [code]preço * quantidade[/code], some os subtotais e envie o total.
+
+Cada produto tem um limite máximo e aparece como quantidade atual/máximo, por exemplo [code]4/10[/code]. Não é possível comprar acima desse limite.
+
+Os produtos só são consumidos quando a resposta está correta. Se não houver produtos disponíveis, novos clientes de estoque ficam limitados até que você faça a reposição.
+
+Quando todos os produtos estão cheios, o bônus de prateleira cheia fica ativo: as recompensas dos clientes são multiplicadas por 1.5x. Ao atender clientes, produtos podem ser consumidos e o bônus pode deixar de valer até você reabastecer tudo novamente.
 
 [b]Erros comuns[/b]
-Mesmo um código correto falha se faltar algum ingrediente. Comprar estoque custa dinheiro, então confira as quantidades antes de atender.""",
-		"hint": "O código do atendimento continua calculando o total normalmente. A parte diferente acontece fora do script: confira se há ingredientes suficientes no menu Estoque."
+Somar apenas os preços ignora as quantidades. Também é importante conferir o saldo antes de atender: comprar estoque custa dinheiro, cada produto tem limite máximo, e um pedido só pode usar produtos disponíveis.""",
+		"hint": "Leia os valores em pares: primeiro o preço, depois a quantidade. Multiplique cada par, acumule os subtotais e envie apenas o total final."
 	},
 	{
 		"id": "if",

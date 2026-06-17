@@ -9,7 +9,7 @@ var spawn_bloqueado := false
 
 @onready var game: Control = $".."
 
-var _cliente_scene: PackedScene = preload("res://scenes/client/cliente.tscn")
+var _cliente_scene: PackedScene = preload("res://scenes/Client/cliente.tscn")
 var _spawn_timer: Timer
 
 func _ready() -> void:
@@ -67,13 +67,53 @@ func spawnar_cliente() -> void:
 	if cliente_na_tela or TransactionManager.has_active_transaction():
 		return
 
-	_criar_cliente_com_challenge(ChallengeSystem.set_context())
+	var challenge = ChallengeSystem.set_context()
+	if challenge == null:
+		if FeatureManager.has_feature(FeatureManager.FEATURE_STOCK):
+			if StockSystem.try_emergency_restock():
+				EventBus.emit_signal("send_debug", "Reposição emergencial: 1 produto adicionado para evitar travamento.")
+				EventBus.emit_signal("get_estoque")
+				iniciar_fluxo_cliente()
+			else:
+				_pausar_por_estoque_vazio()
+			return
+		iniciar_fluxo_cliente()
+		return
+	_criar_cliente_com_challenge(challenge)
 
 func spawnar_cliente_tutorial() -> void:
 	if cliente_na_tela or TransactionManager.has_active_transaction():
 		return
 
 	_criar_cliente_com_challenge(ChallengeSystem.generate_sum_challenge())
+
+func spawnar_cliente_debug(type: String) -> bool:
+	if cliente_na_tela or TransactionManager.has_active_transaction():
+		return false
+
+	if _spawn_timer != null:
+		_spawn_timer.stop()
+	aguardando_proximo_cliente = false
+
+	var challenge: ChallengeData
+	match type:
+		"soma":
+			challenge = ChallengeSystem.generate_sum_challenge()
+		"compra_variavel":
+			challenge = ChallengeSystem.generate_variable_purchase_challenge()
+		"cliente_ouro":
+			challenge = ChallengeSystem.generate_golden_challenge()
+		"troco":
+			challenge = ChallengeSystem.generate_change_challenge()
+		"estoque":
+			challenge = ChallengeSystem.generate_stock_challenge()
+		_:
+			return false
+
+	if challenge == null:
+		return false
+	_criar_cliente_com_challenge(challenge)
+	return true
 
 func bloquear_spawn() -> void:
 	spawn_bloqueado = true
@@ -85,9 +125,14 @@ func liberar_spawn() -> void:
 	spawn_bloqueado = false
 	iniciar_fluxo_cliente()
 
+func _pausar_por_estoque_vazio() -> void:
+	var mensagem = "Clientes pausados: estoque vazio. Reponha produtos para voltar a atender."
+	EventBus.emit_signal("send_debug", mensagem)
+	push_warning(mensagem)
+	bloquear_spawn()
+
 func _criar_cliente_com_challenge(challenge: ChallengeData) -> void:
 	if challenge == null:
-		push_error("ClientSpawner: desafio invalido para criar cliente")
 		return
 
 	var cliente_instacia = _cliente_scene.instantiate()
@@ -109,6 +154,8 @@ func end_client(flag: bool) -> void:
 		if GameManager.current_context != null:
 			reward = GameManager.current_context.reward
 		reward = UpgradeManager.calcular_recompensa(reward)
+		if GameManager.current_context != null and GameManager.current_context.stock_bonus_active:
+			reward = max(1, int(round(reward * GameManager.current_context.stock_bonus_multiplier)))
 		EventBus.emit_signal("update_money", reward)
 	iniciar_fluxo_cliente()
 

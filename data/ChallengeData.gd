@@ -23,4 +23,8 @@ var difficulty : int = 1
 # Recompensa em dinheiro ao completar o desafio
 var reward : int = 5
 
+var stock_bonus_active : bool = false
+
+var stock_bonus_multiplier : float = 1.0
+
 var env_context = null

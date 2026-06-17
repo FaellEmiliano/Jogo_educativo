@@ -3,12 +3,22 @@ extends Control
 # game.gd — controlador de UI da tela principal
 # Estado real (money, upgrades, unlocked_mechanics) vive em GameManager
 const TutorialOverlayScene = preload("res://scenes/tutorial/tutorial_overlay.tscn")
+const DebugMenuScene = preload("res://scenes/debug/debug_menu.tscn")
 
 @onready var dinheiro_label: Label = $VBoxContainer/ColorRect/VBoxContainer/Dinheiro
+@onready var dinheiro_panel: NinePatchRect = $VBoxContainer/ColorRect
 @onready var hud = $HUD
 @onready var script_menu: VBoxContainer = $ScriptMenu
 @onready var shop_menu: HBoxContainer = $ShopMenu
 @onready var estoque_panel: NinePatchRect = $VBoxContainer/Estoque
+@onready var client_spawner: Node = $Cliente_manager
+
+var debug_infinite_money := false
+var _debug_click_count := 0
+var _last_debug_click_ms := 0
+var _debug_menu = null
+var _status_label: Label = null
+var _status_timer: Timer = null
 
 
 func _ready() -> void:
@@ -21,17 +31,77 @@ func _ready() -> void:
 
 	dinheiro_label.text = str(GameManager.money)
 	EventBus.update_money.connect(update_money)
+	EventBus.send_debug.connect(_on_send_debug)
 	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
+	dinheiro_panel.gui_input.connect(_on_dinheiro_panel_gui_input)
 	UpgradeManager.verificar_desbloqueios()
 	EventBus.emit_signal("update_money", 0)
+	_criar_status_debug()
 	_atualizar_estado_estoque()
 	_instanciar_tutorial_se_necessario()
 
 
 func update_money(num: int) -> void:
+	if debug_infinite_money and num < 0:
+		dinheiro_label.text = str(GameManager.money)
+		Saves.salvar(GameManager.money, GameManager.unlocked_mechanics, GameManager.upgrades)
+		return
 	GameManager.money += num
 	dinheiro_label.text = str(GameManager.money)
 	Saves.salvar(GameManager.money, GameManager.unlocked_mechanics, GameManager.upgrades)
+
+func set_debug_infinite_money(enabled: bool) -> void:
+	debug_infinite_money = enabled
+	if enabled and GameManager.money < 999999:
+		EventBus.emit_signal("update_money", 999999 - GameManager.money)
+
+func _on_dinheiro_panel_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	if event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
+		return
+
+	var now := Time.get_ticks_msec()
+	if now - _last_debug_click_ms > 1200:
+		_debug_click_count = 0
+	_last_debug_click_ms = now
+	_debug_click_count += 1
+	if _debug_click_count < 3:
+		return
+
+	_debug_click_count = 0
+	_open_debug_menu()
+
+func _open_debug_menu() -> void:
+	if _debug_menu == null or not is_instance_valid(_debug_menu):
+		_debug_menu = DebugMenuScene.instantiate()
+		hud.add_child(_debug_menu)
+		_debug_menu.setup(self, client_spawner)
+	_debug_menu.open_menu()
+
+func _criar_status_debug() -> void:
+	_status_label = Label.new()
+	_status_label.visible = false
+	_status_label.position = Vector2(140, 14)
+	_status_label.size = Vector2(760, 32)
+	_status_label.text = ""
+	hud.add_child(_status_label)
+
+	_status_timer = Timer.new()
+	_status_timer.one_shot = true
+	_status_timer.timeout.connect(func():
+		if _status_label != null:
+			_status_label.hide()
+	)
+	add_child(_status_timer)
+
+func _on_send_debug(text: String) -> void:
+	if _status_label == null:
+		return
+	_status_label.text = text
+	_status_label.show()
+	if _status_timer != null:
+		_status_timer.start(4.0)
 
 func _on_feature_unlocked(_feature_id: String) -> void:
 	_atualizar_estado_estoque()
