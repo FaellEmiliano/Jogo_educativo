@@ -4,11 +4,11 @@
 [ext_resource type="Texture2D" uid="uid://cr1shtxlxu3vn" path="res://icon.svg" id="1_jafm8"]
 
 [node name="item" type="Control" unique_id=264029291]
-custom_minimum_size = Vector2(148, 210)
+custom_minimum_size = Vector2(190, 240)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 148.0
-offset_bottom = 175.0
+offset_right = 190.0
+offset_bottom = 240.0
 script = ExtResource("1_8wggg")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1151381774]
@@ -22,51 +22,66 @@ color = Color(0, 0, 0, 0.43137255)
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1978239793]
 layout_mode = 1
-offset_right = 148.0
-offset_bottom = 210.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="HBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1301197663]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1301197663]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="Texture" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=1797071651]
+[node name="Texture" type="TextureRect" parent="MarginContainer/VBoxContainer" unique_id=1797071651]
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
+stretch_mode = 5
 texture = ExtResource("1_jafm8")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=855225216]
+[node name="InfoRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1670462520]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1670462520]
+[node name="Nome" type="Label" parent="MarginContainer/VBoxContainer/InfoRow" unique_id=1695298616]
 layout_mode = 2
-
-[node name="Nome" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=1695298616]
-layout_mode = 2
+size_flags_horizontal = 3
 text = "Nome"
+text_overrun_behavior = 3
 
-[node name="preco" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=446799311]
+[node name="Preco" type="Label" parent="MarginContainer/VBoxContainer/InfoRow" unique_id=446799311]
 layout_mode = 2
-size_flags_horizontal = 10
 text = "R$"
+horizontal_alignment = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1333861701]
+[node name="QuantityControls" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1333861701]
 layout_mode = 2
+theme_override_constants/separation = 8
 
-[node name="Minus" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer2" unique_id=963014766]
+[node name="Minus" type="Button" parent="MarginContainer/VBoxContainer/QuantityControls" unique_id=963014766]
+custom_minimum_size = Vector2(42, 36)
 layout_mode = 2
 text = "-"
 
-[node name="Qtd" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer2" unique_id=1634696017]
+[node name="SelectedQuantity" type="Label" parent="MarginContainer/VBoxContainer/QuantityControls" unique_id=1634696017]
 layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 0
-text = "qtd"
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Add" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer2" unique_id=1543958516]
+[node name="Add" type="Button" parent="MarginContainer/VBoxContainer/QuantityControls" unique_id=1543958516]
+custom_minimum_size = Vector2(42, 36)
 layout_mode = 2
 text = "+"
 
-[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer2/Minus" to="." method="_on_minus_pressed"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer2/Add" to="." method="_on_add_pressed"]
+[node name="StockQuantity" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2029287833]
+layout_mode = 2
+text = "0/10"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/QuantityControls/Minus" to="." method="_on_minus_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/QuantityControls/Add" to="." method="_on_add_pressed"]
