@@ -12,6 +12,7 @@ var saidas: Array[String] = []
 var _tem_erro_fatal := false
 var _tempo_inicio: int = 0
 var _execution_active := false
+var source_name := ""
  
 # ─── Registro de erros ────────────────────────────────────────────────────────
  
@@ -39,11 +40,17 @@ func erro_fatal(msg: String, linha: int = -1, coluna: int = -1,
  
 func tem_erros() -> bool:
 	return erros.size() > 0
+
+func set_source_name(display_name: String) -> void:
+	source_name = display_name.strip_edges()
  
 func _formatar_erros() -> String:
 	var linhas := []
 	for e in erros:
-		linhas.append(e.formatar())
+		var texto: String = e.formatar()
+		if not source_name.is_empty():
+			texto = "Erro no script \"%s\": %s" % [source_name, texto]
+		linhas.append(texto)
 	return "\n".join(linhas)
 
 func emitir_saida(texto: String) -> void:

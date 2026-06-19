@@ -17,8 +17,6 @@ var debug_infinite_money := false
 var _debug_click_count := 0
 var _last_debug_click_ms := 0
 var _debug_menu = null
-var _status_label: Label = null
-var _status_timer: Timer = null
 
 
 func _ready() -> void:
@@ -31,12 +29,10 @@ func _ready() -> void:
 
 	dinheiro_label.text = str(GameManager.money)
 	EventBus.update_money.connect(update_money)
-	EventBus.send_debug.connect(_on_send_debug)
 	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
 	dinheiro_panel.gui_input.connect(_on_dinheiro_panel_gui_input)
 	UpgradeManager.verificar_desbloqueios()
 	EventBus.emit_signal("update_money", 0)
-	_criar_status_debug()
 	_atualizar_estado_estoque()
 	_instanciar_tutorial_se_necessario()
 
@@ -78,30 +74,6 @@ func _open_debug_menu() -> void:
 		hud.add_child(_debug_menu)
 		_debug_menu.setup(self, client_spawner)
 	_debug_menu.open_menu()
-
-func _criar_status_debug() -> void:
-	_status_label = Label.new()
-	_status_label.visible = false
-	_status_label.position = Vector2(140, 14)
-	_status_label.size = Vector2(760, 32)
-	_status_label.text = ""
-	hud.add_child(_status_label)
-
-	_status_timer = Timer.new()
-	_status_timer.one_shot = true
-	_status_timer.timeout.connect(func():
-		if _status_label != null:
-			_status_label.hide()
-	)
-	add_child(_status_timer)
-
-func _on_send_debug(text: String) -> void:
-	if _status_label == null:
-		return
-	_status_label.text = text
-	_status_label.show()
-	if _status_timer != null:
-		_status_timer.start(4.0)
 
 func _on_feature_unlocked(_feature_id: String) -> void:
 	_atualizar_estado_estoque()

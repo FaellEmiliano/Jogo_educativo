@@ -1,68 +1,190 @@
 extends Node
 
-const SAVE_PATH = "user://save.json"
-const SAVE_VERSION = 1
+const LEGACY_SAVE_PATH = "user://save.json"
+const SAVE_SLOT_PATH = "user://save_slot_%d.json"
+const SAVE_VERSION = 2
+const SLOT_COUNT = 3
+const ScriptWorkspace = preload("res://systems/ScriptWorkspace.gd")
 
 var dados: Dictionary = {}
+var current_slot: int = 0
+
+func _ready() -> void:
+	migrate_legacy_save_if_needed()
+
+func set_current_slot(slot: int) -> void:
+	if not _is_valid_slot(slot):
+		push_warning("Slot de save invalido: %d" % slot)
+		return
+	current_slot = slot
+
+func get_current_slot() -> int:
+	return current_slot
+
+func get_save_path(slot: int) -> String:
+	if not _is_valid_slot(slot):
+		push_warning("Slot de save invalido: %d" % slot)
+		return ""
+	return SAVE_SLOT_PATH % slot
+
+func has_save(slot: int) -> bool:
+	var path := get_save_path(slot)
+	return not path.is_empty() and FileAccess.file_exists(path)
+
+func delete_save(slot: int) -> void:
+	var path := get_save_path(slot)
+	if path.is_empty() or not FileAccess.file_exists(path):
+		return
+	DirAccess.remove_absolute(path)
+	if current_slot == slot:
+		current_slot = 0
+		dados.clear()
 
 func salvar(dinheiro: int = -1, mechanics: Dictionary = {}, upgrades: Array = []) -> void:
 	_atualizar_estado_legacy(dinheiro, mechanics, upgrades)
+	save_game()
+
+func save_game(slot: int = 0) -> void:
+	var target_slot := _resolve_slot(slot)
+	if target_slot == 0:
+		push_warning("Tentativa de salvar sem slot ativo.")
+		return
 
 	var save_data = _montar_save_data()
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	save_data["meta"]["last_saved_unix"] = Time.get_unix_time_from_system()
+	var path := get_save_path(target_slot)
+	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
-		push_error("Erro ao salvar o jogo")
+		push_error("Erro ao salvar o jogo no Slot %d" % target_slot)
 		return
 
 	file.store_string(JSON.stringify(save_data, "\t"))
 	file.close()
-	print("salvo")
+	dados = save_data
+	current_slot = target_slot
+	print("salvo slot %d" % target_slot)
 
 func carregar() -> Dictionary:
-	if not FileAccess.file_exists(SAVE_PATH):
-		dados = _save_padrao()
+	return load_game()
+
+func load_game(slot: int = 0) -> Dictionary:
+	var target_slot := _resolve_slot(slot)
+	if target_slot == 0:
+		push_warning("Tentativa de carregar sem slot ativo.")
+		dados = create_new_save_data()
 		_carregar_sistemas(dados)
 		return _dados_compatibilidade(dados)
 
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if file == null:
-		push_error("Erro ao abrir save")
-		dados = _save_padrao()
+	current_slot = target_slot
+	var path := get_save_path(target_slot)
+	if not FileAccess.file_exists(path):
+		dados = create_new_save_data()
+		_carregar_sistemas(dados)
+		save_game(target_slot)
+		return _dados_compatibilidade(dados)
+
+	var loaded_data := _read_save_file(path)
+	if loaded_data.is_empty():
+		push_error("Save do Slot %d corrompido ou invalido" % target_slot)
+		dados = create_new_save_data()
 		_carregar_sistemas(dados)
 		return _dados_compatibilidade(dados)
 
-	var texto = file.get_as_text()
-	file.close()
-
-	var json = JSON.new()
-	var erro = json.parse(texto)
-	if erro != OK or not (json.data is Dictionary):
-		push_error("Save corrompido ou JSON invalido")
-		dados = _save_padrao()
-		_carregar_sistemas(dados)
-		return _dados_compatibilidade(dados)
-
-	dados = _validar_dados(json.data)
+	dados = _validar_dados(loaded_data)
 	_carregar_sistemas(dados)
 	return _dados_compatibilidade(dados)
 
 func resetar() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(SAVE_PATH)
-	dados = _save_padrao()
+	var target_slot := _resolve_slot(0)
+	if target_slot == 0:
+		push_warning("Tentativa de criar novo jogo sem slot ativo.")
+		return
+	dados = create_new_save_data()
 	_carregar_sistemas(dados)
+	save_game(target_slot)
+
+func create_new_save_data() -> Dictionary:
+	return _save_padrao()
+
+func get_slot_info(slot: int) -> Dictionary:
+	var info := {
+		"slot": slot,
+		"exists": false,
+		"corrupted": false,
+		"money": 0,
+		"last_saved_unix": 0,
+		"last_saved_text": "",
+		"summary": "Slot vazio"
+	}
+	if not _is_valid_slot(slot):
+		info["summary"] = "Slot invalido"
+		return info
+
+	var path := get_save_path(slot)
+	if not FileAccess.file_exists(path):
+		return info
+
+	var loaded_data := _read_save_file(path)
+	if loaded_data.is_empty():
+		info["exists"] = true
+		info["corrupted"] = true
+		info["summary"] = "Save corrompido"
+		return info
+
+	var valid_data := _validar_dados(loaded_data)
+	var game: Dictionary = valid_data.get("game", {})
+	var meta: Dictionary = valid_data.get("meta", {})
+	var upgrades: Dictionary = valid_data.get("shop", {}).get("comprados", {})
+	var last_saved := int(meta.get("last_saved_unix", 0))
+	var money := int(game.get("dinheiro", 0))
+
+	info["exists"] = true
+	info["money"] = money
+	info["last_saved_unix"] = last_saved
+	info["last_saved_text"] = _format_timestamp(last_saved)
+	info["summary"] = "Dinheiro: R$ %d\nUpgrades: %d" % [money, upgrades.size()]
+	if last_saved > 0:
+		info["summary"] += "\nUltimo save: " + str(info["last_saved_text"])
+	return info
+
+func migrate_legacy_save_if_needed() -> void:
+	if not FileAccess.file_exists(LEGACY_SAVE_PATH):
+		return
+	for slot in range(1, SLOT_COUNT + 1):
+		if has_save(slot):
+			return
+
+	var loaded_data := _read_save_file(LEGACY_SAVE_PATH)
+	if loaded_data.is_empty():
+		push_warning("Save antigo encontrado, mas nao foi possivel migrar.")
+		return
+
+	var migrated_data := _validar_dados(loaded_data)
+	migrated_data["meta"]["last_saved_unix"] = Time.get_unix_time_from_system()
+	var file = FileAccess.open(get_save_path(1), FileAccess.WRITE)
+	if file == null:
+		push_error("Erro ao migrar save antigo para Slot 1")
+		return
+
+	file.store_string(JSON.stringify(migrated_data, "\t"))
+	file.close()
+	print("Save antigo migrado para Slot 1")
 
 func solicitar_save(_motivo := "") -> void:
 	salvar()
 
 func get_tutorial_data() -> Dictionary:
 	if dados.is_empty():
+		if current_slot == 0:
+			return create_new_save_data().get("tutorial", {}).duplicate(true)
 		carregar()
 	dados = _validar_dados(dados)
 	return dados.get("tutorial", {}).duplicate(true)
 
 func set_tutorial_step(step: int) -> void:
 	if dados.is_empty():
+		if current_slot == 0:
+			return
 		carregar()
 	dados = _validar_dados(dados)
 	dados["tutorial"]["step"] = max(0, step)
@@ -70,10 +192,46 @@ func set_tutorial_step(step: int) -> void:
 
 func complete_tutorial() -> void:
 	if dados.is_empty():
+		if current_slot == 0:
+			return
 		carregar()
 	dados = _validar_dados(dados)
 	dados["tutorial"]["completed"] = true
 	salvar()
+
+func _read_save_file(path: String) -> Dictionary:
+	var file = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var texto = file.get_as_text()
+	file.close()
+	var json = JSON.new()
+	var erro = json.parse(texto)
+	if erro != OK or not (json.data is Dictionary):
+		return {}
+	return json.data
+
+func _resolve_slot(slot: int) -> int:
+	if slot == 0:
+		slot = current_slot
+	if not _is_valid_slot(slot):
+		return 0
+	return slot
+
+func _is_valid_slot(slot: int) -> bool:
+	return slot >= 1 and slot <= SLOT_COUNT
+
+func _format_timestamp(unix_time: int) -> String:
+	if unix_time <= 0:
+		return ""
+	var date := Time.get_datetime_dict_from_unix_time(unix_time)
+	return "%02d/%02d/%04d %02d:%02d" % [
+		int(date.get("day", 1)),
+		int(date.get("month", 1)),
+		int(date.get("year", 1970)),
+		int(date.get("hour", 0)),
+		int(date.get("minute", 0))
+	]
 
 func _montar_save_data() -> Dictionary:
 	return _validar_dados({
@@ -117,9 +275,11 @@ func _atualizar_estado_legacy(dinheiro: int, mechanics: Dictionary, upgrades: Ar
 		GameManager.upgrades = upgrades.duplicate()
 
 func _save_padrao() -> Dictionary:
+	var default_workspace := ScriptWorkspace.new().serialize()
 	return {
 		"meta": {
-			"save_version": SAVE_VERSION
+			"save_version": SAVE_VERSION,
+			"last_saved_unix": 0
 		},
 		"game": {
 			"dinheiro": 0,
@@ -141,7 +301,8 @@ func _save_padrao() -> Dictionary:
 			"quantities": {}
 		},
 		"interpreter": {
-			"script_text": ""
+			"script_text": "",
+			"script_workspace": default_workspace
 		},
 		"tutorial": {
 			"completed": false,
@@ -157,6 +318,8 @@ func _validar_dados(data: Dictionary) -> Dictionary:
 		var meta = normalizado["meta"]
 		if meta.has("save_version") and (meta["save_version"] is int or meta["save_version"] is float):
 			resultado["meta"]["save_version"] = int(meta["save_version"])
+		if meta.has("last_saved_unix") and (meta["last_saved_unix"] is int or meta["last_saved_unix"] is float):
+			resultado["meta"]["last_saved_unix"] = int(meta["last_saved_unix"])
 
 	if normalizado.has("game") and normalizado["game"] is Dictionary:
 		resultado["game"] = _validar_game(normalizado["game"])
@@ -183,6 +346,8 @@ func _normalizar_formato(data: Dictionary) -> Dictionary:
 	convertido["game"]["dinheiro"] = data.get("dinheiro", convertido["game"]["dinheiro"])
 	convertido["game"]["unlocked_mechanics"] = data.get("unlocked_mechanics", convertido["game"]["unlocked_mechanics"])
 	convertido["game"]["upgrades"] = data.get("upgrades", convertido["game"]["upgrades"])
+	if data.has("script_text") and data["script_text"] is String:
+		convertido["interpreter"]["script_text"] = data["script_text"]
 	return convertido
 
 func _validar_game(data: Dictionary) -> Dictionary:
@@ -216,9 +381,25 @@ func _validar_shop(data: Dictionary) -> Dictionary:
 
 func _validar_interpreter(data: Dictionary) -> Dictionary:
 	var resultado = _save_padrao()["interpreter"]
+	var workspace := ScriptWorkspace.new()
 
-	if data.has("script_text") and data["script_text"] is String:
-		resultado["script_text"] = data["script_text"]
+	if data.has("script_workspace") and data["script_workspace"] is Dictionary:
+		var workspace_data: Dictionary = data["script_workspace"]
+		if workspace_data.has("scripts") and workspace_data["scripts"] is Array and not workspace_data["scripts"].is_empty():
+			workspace.deserialize(workspace_data)
+		elif data.has("script_text") and data["script_text"] is String:
+			workspace.migrate_old_save_if_needed(data)
+		else:
+			workspace.deserialize(workspace_data)
+	elif data.has("scripts") and data["scripts"] is Array:
+		workspace.deserialize(data)
+	elif data.has("script_text") and data["script_text"] is String:
+		workspace.migrate_old_save_if_needed(data)
+	else:
+		workspace.deserialize({})
+
+	resultado["script_workspace"] = workspace.serialize()
+	resultado["script_text"] = workspace.get_active_source()
 
 	return resultado
 

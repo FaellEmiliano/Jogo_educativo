@@ -1,9 +1,11 @@
 [gd_scene format=3 uid="uid://dpvlx3id8dhdc"]
 
 [ext_resource type="Script" uid="uid://dt0pgr0yq38yl" path="res://scenes/stock/estoque.gd" id="1_ggvvv"]
+[ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="2_menu2"]
 
 [node name="Estoque" type="Control" unique_id=726871644]
 top_level = true
+z_index = 20
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,14 +14,21 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ggvvv")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1196120462]
+[node name="ColorRect" type="NinePatchRect" parent="." unique_id=1196120462]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.58431375)
+texture = ExtResource("2_menu2")
+region_rect = Rect2(4, 4, 42, 43)
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1531047053]
 layout_mode = 1

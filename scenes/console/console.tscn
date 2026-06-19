@@ -82,6 +82,43 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 11
 text = "PARAR"
 
+[node name="TabsRow" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=220000003]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="NewTab" type="Button" parent="Panel/VBoxContainer/TabsRow" unique_id=220000004]
+custom_minimum_size = Vector2(28, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_fonts/font = ExtResource("1_y2upi")
+theme_override_font_sizes/font_size = 12
+text = "+"
+
+[node name="TabBar" type="TabBar" parent="Panel/VBoxContainer/TabsRow" unique_id=220000005]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_y2upi")
+theme_override_font_sizes/font_size = 10
+clip_tabs = true
+
+[node name="RenameTab" type="Button" parent="Panel/VBoxContainer/TabsRow" unique_id=220000006]
+custom_minimum_size = Vector2(42, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_fonts/font = ExtResource("1_y2upi")
+theme_override_font_sizes/font_size = 10
+text = "REN"
+
+[node name="DeleteTab" type="Button" parent="Panel/VBoxContainer/TabsRow" unique_id=220000007]
+custom_minimum_size = Vector2(42, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_fonts/font = ExtResource("1_y2upi")
+theme_override_font_sizes/font_size = 10
+text = "DEL"
+
 [node name="EditorFrame" type="PanelContainer" parent="Panel/VBoxContainer" unique_id=210000004]
 layout_mode = 2
 size_flags_vertical = 3

@@ -1,0 +1,93 @@
+extends Node
+
+var _backups := {}
+var _failures: Array[String] = []
+
+func _ready() -> void:
+	_backup_slot_files()
+	_run_tests()
+	_restore_slot_files()
+
+	if _failures.is_empty():
+		print("SAVE_SLOTS_SMOKE_TEST_OK")
+	else:
+		push_error("\n".join(_failures))
+
+	await get_tree().process_frame
+	get_tree().quit()
+
+func _run_tests() -> void:
+	for slot in range(1, Saves.SLOT_COUNT + 1):
+		Saves.delete_save(slot)
+	_check(not Saves.has_save(1), "Slot 1 deve iniciar vazio no teste.")
+	_check(not Saves.has_save(2), "Slot 2 deve iniciar vazio no teste.")
+	_check(not Saves.has_save(3), "Slot 3 deve iniciar vazio no teste.")
+
+	_create_slot_with_money(1, 10)
+	_create_slot_with_money(2, 20)
+	_create_slot_with_money(3, 30)
+
+	Saves.load_game(1)
+	_check(GameManager.money == 10, "Slot 1 deve carregar dinheiro proprio.")
+
+	Saves.load_game(2)
+	_check(GameManager.money == 20, "Slot 2 deve carregar dinheiro proprio.")
+	GameManager.money = 25
+	Saves.solicitar_save("teste_slot_2")
+
+	Saves.load_game(1)
+	_check(GameManager.money == 10, "Salvar Slot 2 nao pode alterar Slot 1.")
+
+	Saves.load_game(3)
+	_check(GameManager.money == 30, "Slot 3 deve carregar dinheiro proprio.")
+	GameManager.money = 35
+	Saves.solicitar_save("teste_slot_3")
+
+	Saves.load_game(3)
+	_check(GameManager.money == 35, "Autosave deve alterar apenas o slot ativo.")
+
+	Saves.delete_save(2)
+	_check(not Saves.has_save(2), "Apagar Slot 2 deve deixar o slot vazio.")
+	_check(Saves.has_save(1), "Apagar Slot 2 nao pode apagar Slot 1.")
+	_check(Saves.has_save(3), "Apagar Slot 2 nao pode apagar Slot 3.")
+
+func _create_slot_with_money(slot: int, money: int) -> void:
+	Saves.set_current_slot(slot)
+	Saves.resetar()
+	GameManager.money = money
+	Saves.solicitar_save("teste_slot_%d" % slot)
+	_check(Saves.has_save(slot), "Slot %d deve existir apos salvar." % slot)
+
+func _check(condition: bool, message: String) -> void:
+	if not condition:
+		_failures.append(message)
+
+func _backup_slot_files() -> void:
+	for slot in range(1, Saves.SLOT_COUNT + 1):
+		var path := Saves.get_save_path(slot)
+		_backups[path] = _read_file_bytes(path)
+
+func _restore_slot_files() -> void:
+	for path in _backups:
+		var bytes: PackedByteArray = _backups[path]
+		if bytes.is_empty():
+			if FileAccess.file_exists(path):
+				DirAccess.remove_absolute(path)
+			continue
+
+		var file := FileAccess.open(path, FileAccess.WRITE)
+		if file != null:
+			file.store_buffer(bytes)
+			file.close()
+	Saves.current_slot = 0
+	Saves.dados.clear()
+
+func _read_file_bytes(path: String) -> PackedByteArray:
+	if not FileAccess.file_exists(path):
+		return PackedByteArray()
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return PackedByteArray()
+	var bytes := file.get_buffer(file.get_length())
+	file.close()
+	return bytes
