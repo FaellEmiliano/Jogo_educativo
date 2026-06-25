@@ -4,6 +4,7 @@ var context
 @onready var status_label: Label = $Panel/VBoxContainer/Header/StatusLabel
 @onready var run_button: Button = $Panel/VBoxContainer/Header/Run
 @onready var stop_button: Button = $Panel/VBoxContainer/Header/Stop
+@onready var stop_all_button: Button = $Panel/VBoxContainer/Header/StopAll
 @onready var new_tab_button: Button = $Panel/VBoxContainer/TabsRow/NewTab
 @onready var tab_bar: TabBar = $Panel/VBoxContainer/TabsRow/TabBar
 @onready var rename_tab_button: Button = $Panel/VBoxContainer/TabsRow/RenameTab
@@ -26,7 +27,7 @@ func _ready() -> void:
 	code_edit.text_changed.connect(_on_code_text_changed)
 	code_edit.focus_exited.connect(_on_code_focus_exited)
 	_connect_execution_signals()
-	_update_status(InterpreterSystem.is_running())
+	_update_status()
 
 func _setup_tab_controls() -> void:
 	new_tab_button.pressed.connect(_on_new_tab_pressed)
@@ -50,14 +51,11 @@ func _setup_dialogs() -> void:
 	add_child(_delete_dialog)
 
 func _connect_execution_signals() -> void:
-	var started := Callable(self, "_on_execution_started")
-	var finished := Callable(self, "_on_execution_finished")
-	if not InterpreterSystem.interpretador.is_connected("execution_started", started):
-		InterpreterSystem.interpretador.connect("execution_started", started)
-	if not InterpreterSystem.interpretador.is_connected("execution_finished", finished):
-		InterpreterSystem.interpretador.connect("execution_finished", finished)
-	if not InterpreterSystem.is_connected("execution_stopped", finished):
-		InterpreterSystem.connect("execution_stopped", finished)
+	var changed := Callable(self, "_on_runtimes_changed")
+	if not InterpreterSystem.runtime_manager.is_connected("runtimes_changed", changed):
+		InterpreterSystem.runtime_manager.connect("runtimes_changed", changed)
+	if not InterpreterSystem.is_connected("execution_stopped", changed):
+		InterpreterSystem.connect("execution_stopped", changed)
 
 func _on_fechar_pressed() -> void:
 	get_window().hide()
@@ -70,37 +68,55 @@ func _on_minimizar_toggled(toggled_on: bool) -> void:
 
 
 func _on_run_pressed() -> void:
-	if InterpreterSystem.is_running():
+	var active_id := str(InterpreterSystem.get_active_script().get("id", ""))
+	if InterpreterSystem.is_script_running(active_id):
 		return
 	_save_editor_to_active_script()
-	InterpreterSystem.execute_active(context)
+	var runtime_id := InterpreterSystem.start_active_script(context)
+	if runtime_id.is_empty():
+		return
 	Saves.solicitar_save("script_executado")
 	code_edit.release_focus()
 
 
 func _on_stop_pressed() -> void:
-	InterpreterSystem.stop()
+	InterpreterSystem.stop_active_script()
+
+func _on_stop_all_pressed() -> void:
+	InterpreterSystem.stop_all()
 
 func context_updt(ctx):
 	context = ctx.env_context
 
-func _on_execution_started() -> void:
-	_update_status(true)
+func _on_runtimes_changed() -> void:
+	_refresh_tabs()
+	_update_status()
 
-func _on_execution_finished() -> void:
-	_update_status(false)
-
-func _update_status(is_active: bool) -> void:
+func _update_status() -> void:
+	var active_id := str(InterpreterSystem.get_active_script().get("id", ""))
+	var is_active := InterpreterSystem.is_script_running(active_id)
+	var has_running := not InterpreterSystem.get_running_runtimes().is_empty()
 	if is_active:
-		status_label.text = "RODANDO"
-		status_label.add_theme_color_override("font_color", Color(0.45, 1.0, 0.55))
+		var runtime := InterpreterSystem.get_runtime_by_script_id(active_id)
+		if str(runtime.get("status", "")) == "sleeping":
+			status_label.text = "DORMINDO"
+			status_label.add_theme_color_override("font_color", Color(0.45, 0.75, 1.0))
+		else:
+			status_label.text = "RODANDO"
+			status_label.add_theme_color_override("font_color", Color(0.45, 1.0, 0.55))
 		run_button.disabled = true
 		stop_button.disabled = false
 	else:
-		status_label.text = "PARADO"
-		status_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.35))
+		var runtime := InterpreterSystem.get_runtime_by_script_id(active_id)
+		if str(runtime.get("status", "")) == "error":
+			status_label.text = "ERRO"
+			status_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35))
+		else:
+			status_label.text = "PARADO"
+			status_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.35))
 		run_button.disabled = false
 		stop_button.disabled = true
+	stop_all_button.disabled = not has_running
 
 func _on_code_text_changed() -> void:
 	if _is_loading_source:
@@ -143,8 +159,19 @@ func _refresh_tabs() -> void:
 	for index in range(scripts.size()):
 		var script: Dictionary = scripts[index]
 		var id := str(script.get("id", ""))
+		var title := str(script.get("title", "Sem nome"))
 		_script_ids_by_tab.append(id)
-		tab_bar.add_tab(str(script.get("title", "Sem nome")))
+		if InterpreterSystem.is_script_running(id):
+			var runtime := InterpreterSystem.get_runtime_by_script_id(id)
+			if str(runtime.get("status", "")) == "sleeping":
+				title += " ~"
+			else:
+				title += " *"
+		else:
+			var runtime := InterpreterSystem.get_runtime_by_script_id(id)
+			if str(runtime.get("status", "")) == "error":
+				title += " !"
+		tab_bar.add_tab(title)
 		if id == active_id:
 			active_index = index
 
@@ -162,6 +189,7 @@ func _on_tab_changed(tab: int) -> void:
 	_save_editor_to_active_script()
 	InterpreterSystem.set_active_script(_script_ids_by_tab[tab])
 	_load_active_script_into_editor()
+	_update_status()
 
 func _on_new_tab_pressed() -> void:
 	_save_editor_to_active_script()

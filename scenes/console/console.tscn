@@ -72,7 +72,7 @@ custom_minimum_size = Vector2(58, 24)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 11
-text = "INICIAR"
+text = "RODAR"
 
 [node name="Stop" type="Button" parent="Panel/VBoxContainer/Header" unique_id=210000003]
 custom_minimum_size = Vector2(48, 24)
@@ -81,6 +81,14 @@ disabled = true
 focus_mode = 0
 theme_override_font_sizes/font_size = 11
 text = "PARAR"
+
+[node name="StopAll" type="Button" parent="Panel/VBoxContainer/Header" unique_id=210000005]
+custom_minimum_size = Vector2(82, 24)
+layout_mode = 2
+disabled = true
+focus_mode = 0
+theme_override_font_sizes/font_size = 11
+text = "PARAR TODOS"
 
 [node name="TabsRow" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=220000003]
 custom_minimum_size = Vector2(0, 28)
@@ -139,3 +147,4 @@ script = ExtResource("2_i0nem")
 
 [connection signal="pressed" from="Panel/VBoxContainer/Header/Run" to="." method="_on_run_pressed"]
 [connection signal="pressed" from="Panel/VBoxContainer/Header/Stop" to="." method="_on_stop_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/Header/StopAll" to="." method="_on_stop_all_pressed"]

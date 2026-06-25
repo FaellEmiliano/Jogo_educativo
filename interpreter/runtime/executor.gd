@@ -8,6 +8,7 @@ var interpreter
 var execution_stack = []
 var call_stack = []
 var builtins = {}
+var runtime_id := ""
 
 var is_finished = false
 

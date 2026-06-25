@@ -152,20 +152,19 @@ func confirm_purchase() -> void:
 		refresh_stock_ui()
 		return
 
-	if GameManager.money < total_preco:
-		_show_message("Dinheiro insuficiente. Total: R$ %d, saldo: R$ %d." % [total_preco, GameManager.money])
+	var purchase := []
+	for item in estoque:
+		purchase.append(get_selected_quantity(str(item.name)))
+
+	var result := StockSystem.try_buy_stock_from_script(purchase)
+	if not result.get("success", false):
+		_show_message(str(result.get("error", "Compra cancelada.")))
 		refresh_stock_ui()
 		return
 
-	for nome in selected_quantities:
-		var qtd = int(selected_quantities[nome])
-		StockSystem.add_item(nome, qtd)
-
-	EventBus.emit_signal("update_money", -int(total_preco))
 	selected_quantities.clear()
 	_show_message("Compra realizada com sucesso.")
 	draw_estoque(StockSystem.get_stock())
-	EventBus.emit_signal("get_estoque")
 	refresh_purchase_summary()
 
 func _sanitize_selected_quantities() -> Dictionary:

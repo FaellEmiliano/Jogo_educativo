@@ -27,7 +27,7 @@ func _configure_syntax_highlighter() -> void:
 	for type_name in ["int", "float", "char", "void", "bool", "string"]:
 		highlighter.add_keyword_color(type_name, COLOR_TYPE)
 
-	for function_name in ["main", "print", "input", "send", "sensor"]:
+	for function_name in ["main", "print", "input", "send", "sensor", "get_stock", "buy_stock", "wait"]:
 		highlighter.add_keyword_color(function_name, COLOR_FUNCTION)
 
 	highlighter.add_color_region("//", "", COLOR_COMMENT, true)

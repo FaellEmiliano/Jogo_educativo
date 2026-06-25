@@ -3,8 +3,10 @@ extends Node
 signal execution_stopped
 
 const ScriptWorkspace = preload("res://systems/ScriptWorkspace.gd")
+const ScriptRuntimeManagerScript = preload("res://systems/ScriptRuntimeManager.gd")
 
 var interpretador := Interpreter.new()
+var runtime_manager := ScriptRuntimeManagerScript.new()
 var current_execution_context = null
 var script_text = ""
 var script_workspace := ScriptWorkspace.new()
@@ -12,6 +14,7 @@ var script_workspace := ScriptWorkspace.new()
 
 func _ready():
 	add_child(interpretador)
+	add_child(runtime_manager)
 
 
 func execute(code, context):
@@ -19,25 +22,77 @@ func execute(code, context):
 	if context == null:
 		context = EnvContext.new([], 0, [])
 	current_execution_context = context
-	interpretador.set_source_name(script_workspace.get_active_title())
-	interpretador.run(code, context)
+	var script := script_workspace.get_active_script()
+	runtime_manager.start_script(
+		str(script.get("id", "")),
+		str(code),
+		str(script.get("title", "Sem nome")),
+		context
+	)
 
 func execute_active(context) -> void:
 	execute(script_workspace.get_active_source(), context)
 
+func start_script(script_id: String, source: String, script_name: String, context = null) -> String:
+	if context == null:
+		context = current_execution_context
+	if context == null:
+		context = EnvContext.new([], 0, [])
+	current_execution_context = context
+	return runtime_manager.start_script(script_id, source, script_name, context)
+
+func start_active_script(context = null) -> String:
+	if context == null:
+		context = current_execution_context
+	if context == null:
+		context = EnvContext.new([], 0, [])
+	current_execution_context = context
+	var script := script_workspace.get_active_script()
+	return runtime_manager.start_script(
+		str(script.get("id", "")),
+		str(script.get("source", "")),
+		str(script.get("title", "Sem nome")),
+		context
+	)
+
 
 func stop() -> void:
-	if interpretador == null:
-		return
-	var was_running := is_running()
-	interpretador.stop_execution()
-	if was_running:
-		EventBus.emit_signal("send_debug", "Automação parada")
-		emit_signal("execution_stopped")
+	stop_active_script()
+
+func stop_runtime(runtime_id: String) -> void:
+	runtime_manager.stop_runtime(runtime_id)
+	emit_signal("execution_stopped")
+
+func stop_script(script_id: String) -> void:
+	runtime_manager.stop_script(script_id)
+	emit_signal("execution_stopped")
+
+func stop_active_script() -> void:
+	var active_id := str(script_workspace.get_active_script().get("id", ""))
+	runtime_manager.stop_script(active_id)
+	emit_signal("execution_stopped")
+
+func stop_all() -> void:
+	runtime_manager.stop_all()
+	emit_signal("execution_stopped")
 
 
-func is_running() -> bool:
-	return interpretador != null and interpretador.executor_flag
+func is_running(script_id: String = "") -> bool:
+	if script_id.is_empty():
+		script_id = str(script_workspace.get_active_script().get("id", ""))
+	return runtime_manager.is_script_running(script_id)
+
+func is_script_running(script_id: String) -> bool:
+	return runtime_manager.is_script_running(script_id)
+
+func get_runtime_by_script_id(script_id: String) -> Dictionary:
+	return runtime_manager.get_runtime_by_script_id(script_id)
+
+func get_all_runtimes() -> Array:
+	return runtime_manager.get_all_runtimes()
+
+func get_running_runtimes() -> Array:
+	return runtime_manager.get_running_runtimes()
 
 func set_script_text(text: String) -> void:
 	script_text = text
@@ -51,6 +106,7 @@ func create_script(title: String = "") -> String:
 	return script_workspace.create_script(title)
 
 func delete_script(id: String) -> bool:
+	runtime_manager.stop_script(id)
 	var deleted := script_workspace.delete_script(id)
 	script_text = script_workspace.get_active_source()
 	return deleted
@@ -88,5 +144,6 @@ func get_save_data() -> Dictionary:
 	}
 
 func load_save_data(data: Dictionary) -> void:
+	runtime_manager.reset()
 	script_workspace.deserialize(data)
 	script_text = script_workspace.get_active_source()

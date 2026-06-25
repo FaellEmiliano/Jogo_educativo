@@ -9,6 +9,10 @@ func register(executor):
 	executor.register_builtin("send", _send)
 	executor.register_builtin("input", _catch_input)
 	executor.register_builtin("sensor", _catch_sensor)
+	executor.register_builtin("get_stock", _get_stock)
+	executor.register_builtin("buy_stock", _buy_stock)
+	executor.register_builtin("wait", _wait)
+
 func _print(args):
 	var str_cat = ""
 	for c in args:
@@ -19,6 +23,49 @@ func _print(args):
 func _send(args):
 	EventBus.emit_signal("send_output", args)
 	return TransactionManager.submit(args)
+
+func _get_stock(args):
+	if args.size() != 0:
+		exec.interpreter.erro_runtime("get_stock(): nao recebe argumentos.")
+		return null
+
+	var snapshot := StockSystem.get_stock_snapshot()
+	return {
+		"element_type": "int",
+		"dimensions": [snapshot.size()],
+		"data": snapshot.duplicate()
+	}
+
+func _buy_stock(args):
+	if args.size() != 1:
+		exec.interpreter.erro_runtime("buy_stock(): esperado 1 argumento.")
+		return null
+
+	var compra = args[0]
+	if not _is_language_array(compra):
+		exec.interpreter.erro_runtime("buy_stock(): esperado array de tamanho %d." % StockSystem.get_script_stock_size())
+		return null
+
+	var expected_size := StockSystem.get_script_stock_size()
+	if compra["dimensions"].size() != 1 or int(compra["dimensions"][0]) != expected_size or compra["data"].size() != expected_size:
+		exec.interpreter.erro_runtime("buy_stock(): esperado array de tamanho %d." % expected_size)
+		return null
+
+	var result := StockSystem.try_buy_stock_from_script(compra["data"].duplicate())
+	if not result.get("success", false):
+		exec.interpreter.erro_runtime(str(result.get("error", "buy_stock(): compra cancelada.")))
+	return null
+
+func _wait(args):
+	if args.size() != 1:
+		exec.interpreter.erro_runtime("wait(): esperado 1 argumento.")
+		return null
+	var seconds := maxf(0.0, float(args[0]))
+	exec.interpreter.request_sleep(seconds)
+	return null
+
+func _is_language_array(value) -> bool:
+	return typeof(value) == TYPE_DICTIONARY and value.has("dimensions") and value.has("data") and value["dimensions"] is Array and value["data"] is Array
 
 func _catch_sensor(args):
 	if not FeatureManager.has_feature(FeatureManager.FEATURE_SENSOR):
