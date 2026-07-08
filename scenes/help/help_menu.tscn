@@ -1,47 +1,28 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene format=3 uid="uid://co1ilpr2xmmvn"]
 
-[ext_resource type="Script" path="res://scenes/help/help_menu.gd" id="1_help"]
-[ext_resource type="Theme" path="res://assets/themes/pixel label.tres" id="2_theme"]
-[ext_resource type="FontFile" path="res://assets/fonts/JetBrainsMono-VariableFont_wght.ttf" id="3_mono"]
+[ext_resource type="Script" uid="uid://dvdm51yyflm5b" path="res://scenes/help/help_menu.gd" id="1_help"]
+[ext_resource type="Theme" uid="uid://bulhc5d7i3fnr" path="res://assets/themes/help_manual_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="3_menu2"]
+[ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://assets/sprites/menu.png" id="4_menu"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
-content_margin_left = 18.0
-content_margin_top = 18.0
-content_margin_right = 18.0
-content_margin_bottom = 18.0
-bg_color = Color(0.0470588, 0.0392157, 0.0313726, 0.99)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.76, 0.52, 0.22, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sidebar"]
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-bg_color = Color(0.0745098, 0.0627451, 0.0509804, 1)
-border_width_right = 1
-border_color = Color(0.3, 0.23, 0.14, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_content"]
-content_margin_left = 22.0
-content_margin_top = 18.0
-content_margin_right = 22.0
-content_margin_bottom = 18.0
-bg_color = Color(0.0352941, 0.0352941, 0.0392157, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_article"]
 content_margin_left = 14.0
 content_margin_top = 12.0
 content_margin_right = 14.0
 content_margin_bottom = 12.0
-bg_color = Color(0.07, 0.075, 0.065, 1)
+bg_color = Color(0.0588235, 0.0470588, 0.0313726, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.21, 0.11, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(0.07, 0.075, 0.05, 0.96)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -52,23 +33,7 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close"]
-content_margin_left = 14.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0.16, 0.1, 0.06, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.76, 0.52, 0.22, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[node name="HelpMenu" type="Control"]
+[node name="HelpMenu" type="Control" unique_id=1373795401]
 visible = false
 z_index = 100
 layout_mode = 3
@@ -77,177 +42,263 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
+theme = ExtResource("2_theme")
 script = ExtResource("1_help")
 
-[node name="Backdrop" type="ColorRect" parent="."]
+[node name="Backdrop" type="ColorRect" parent="." unique_id=1296580232]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
-color = Color(0, 0, 0, 0.78)
+color = Color(0, 0, 0, 0.62)
 
-[node name="Window" type="PanelContainer" parent="."]
+[node name="WindowFrame" type="NinePatchRect" parent="." unique_id=1135644988]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 42.0
-offset_top = 34.0
-offset_right = -42.0
-offset_bottom = -34.0
+offset_left = 34.0
+offset_top = 28.0
+offset_right = -34.0
+offset_bottom = -28.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_window")
+texture = ExtResource("3_menu2")
+region_rect = Rect2(4, 4, 42, 43)
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
 
-[node name="Layout" type="VBoxContainer" parent="Window"]
+[node name="OuterMargin" type="MarginContainer" parent="WindowFrame" unique_id=934622604]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Layout" type="VBoxContainer" parent="WindowFrame/OuterMargin" unique_id=1524923763]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
-[node name="Header" type="HBoxContainer" parent="Window/Layout"]
-custom_minimum_size = Vector2(0, 48)
+[node name="Header" type="HBoxContainer" parent="WindowFrame/OuterMargin/Layout" unique_id=152028249]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
-[node name="MenuTitle" type="Label" parent="Window/Layout/Header"]
+[node name="TitleBlock" type="VBoxContainer" parent="WindowFrame/OuterMargin/Layout/Header" unique_id=290332959]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("2_theme")
+theme_override_constants/separation = 2
+
+[node name="MenuTitle" type="Label" parent="WindowFrame/OuterMargin/Layout/Header/TitleBlock" unique_id=206695914]
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
-theme_override_font_sizes/font_size = 17
-text = "GUIA DA LOJA"
-vertical_alignment = 1
+theme_override_font_sizes/font_size = 15
+text = "CADERNO DA LOJA"
 
-[node name="Hint" type="Label" parent="Window/Layout/Header"]
+[node name="MenuSubtitle" type="Label" parent="WindowFrame/OuterMargin/Layout/Header/TitleBlock" unique_id=2037320683]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.59, 1)
-theme_override_font_sizes/font_size = 12
-text = "Novos tópicos aparecem com seus upgrades"
-vertical_alignment = 1
+theme_override_colors/font_color = Color(0.67, 0.62, 0.5, 1)
+theme_override_font_sizes/font_size = 8
+text = "Anotações rápidas para atender melhor"
 
-[node name="CloseButton" type="Button" parent="Window/Layout/Header"]
+[node name="ProgressLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Header" unique_id=882165054]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(92, 40)
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
-theme = ExtResource("2_theme")
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_close")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_close")
-theme_override_styles/hover = SubResource("StyleBoxFlat_close")
+theme_override_colors/font_color = Color(0.84, 0.72, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "0/0 páginas abertas"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="WindowFrame/OuterMargin/Layout/Header" unique_id=373531399]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
 text = "VOLTAR"
 
-[node name="Separator" type="HSeparator" parent="Window/Layout"]
+[node name="Separator" type="HSeparator" parent="WindowFrame/OuterMargin/Layout" unique_id=1569163821]
 layout_mode = 2
 
-[node name="Pages" type="HSplitContainer" parent="Window/Layout"]
+[node name="Pages" type="HBoxContainer" parent="WindowFrame/OuterMargin/Layout" unique_id=1916931317]
 layout_mode = 2
 size_flags_vertical = 3
-split_offset = 270
-collapsed = false
+theme_override_constants/separation = 10
 
-[node name="Sidebar" type="PanelContainer" parent="Window/Layout/Pages"]
-custom_minimum_size = Vector2(260, 0)
+[node name="SidebarFrame" type="NinePatchRect" parent="WindowFrame/OuterMargin/Layout/Pages" unique_id=862777845]
+custom_minimum_size = Vector2(315, 0)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_sidebar")
+size_flags_horizontal = 0
+texture = ExtResource("4_menu")
+region_rect = Rect2(1, 1, 48, 49)
+patch_margin_left = 7
+patch_margin_top = 7
+patch_margin_right = 7
+patch_margin_bottom = 6
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
 
-[node name="TopicsScroll" type="ScrollContainer" parent="Window/Layout/Pages/Sidebar"]
+[node name="SidebarMargin" type="MarginContainer" parent="WindowFrame/OuterMargin/Layout/Pages/SidebarFrame" unique_id=1729786207]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 9
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 9
+theme_override_constants/margin_bottom = 9
+
+[node name="SidebarLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin/Layout/Pages/SidebarFrame/SidebarMargin" unique_id=1209539718]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="TopicsTitle" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/SidebarFrame/SidebarMargin/SidebarLayout" unique_id=1398053771]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
+theme_override_font_sizes/font_size = 10
+text = "ASSUNTOS"
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="TopicsScroll" type="ScrollContainer" parent="WindowFrame/OuterMargin/Layout/Pages/SidebarFrame/SidebarMargin/SidebarLayout" unique_id=241482389]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="TopicsContainer" type="VBoxContainer" parent="Window/Layout/Pages/Sidebar/TopicsScroll"]
+[node name="TopicsContainer" type="VBoxContainer" parent="WindowFrame/OuterMargin/Layout/Pages/SidebarFrame/SidebarMargin/SidebarLayout/TopicsScroll" unique_id=1533353801]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="Content" type="PanelContainer" parent="Window/Layout/Pages"]
+[node name="PageFrame" type="NinePatchRect" parent="WindowFrame/OuterMargin/Layout/Pages" unique_id=1976861664]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_content")
+texture = ExtResource("3_menu2")
+region_rect = Rect2(4, 4, 42, 43)
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
 
-[node name="ContentLayout" type="VBoxContainer" parent="Window/Layout/Pages/Content"]
+[node name="PageMargin" type="MarginContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame" unique_id=2034102836]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="ContentLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin" unique_id=184778799]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="CategoryLabel" type="Label" parent="Window/Layout/Pages/Content/ContentLayout"]
+[node name="ArticleHeader" type="HBoxContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout" unique_id=1819326807]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleColumn" type="VBoxContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticleHeader" unique_id=1061323093]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="CategoryLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticleHeader/TitleColumn" unique_id=1197076726]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.78, 0.72, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 8
 text = "CATEGORIA"
 
-[node name="TitleLabel" type="Label" parent="Window/Layout/Pages/Content/ContentLayout"]
+[node name="TitleLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticleHeader/TitleColumn" unique_id=1813187166]
 unique_name_in_owner = true
 layout_mode = 2
-theme = ExtResource("2_theme")
 theme_override_colors/font_color = Color(1, 0.86, 0.58, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "Título"
 autowrap_mode = 2
 
-[node name="ContentSeparator" type="HSeparator" parent="Window/Layout/Pages/Content/ContentLayout"]
+[node name="StatusLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticleHeader" unique_id=166017091]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.86, 0.62, 1)
+theme_override_font_sizes/font_size = 8
+text = "ABERTO"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ContentSeparator" type="HSeparator" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout" unique_id=1309589987]
 layout_mode = 2
 
-[node name="ArticleScroll" type="ScrollContainer" parent="Window/Layout/Pages/Content/ContentLayout"]
+[node name="ArticlePanel" type="PanelContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout" unique_id=794666730]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_article")
+
+[node name="ArticleScroll" type="ScrollContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel" unique_id=363869086]
+layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="Article" type="VBoxContainer" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll"]
+[node name="Article" type="VBoxContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll" unique_id=1175919151]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="BodyLabel" type="RichTextLabel" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article"]
+[node name="BodyLabel" type="RichTextLabel" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll/Article" unique_id=1409692777]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 240)
+custom_minimum_size = Vector2(0, 250)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 1
 bbcode_enabled = true
+text = "Conteúdo"
 fit_content = true
 scroll_active = false
-theme_override_colors/default_color = Color(0.9, 0.87, 0.78, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
-theme_override_constants/outline_size = 1
-theme_override_fonts/normal_font = ExtResource("3_mono")
-theme_override_fonts/bold_font = ExtResource("3_mono")
-theme_override_fonts/mono_font = ExtResource("3_mono")
-theme_override_font_sizes/normal_font_size = 14
-theme_override_font_sizes/bold_font_size = 14
-theme_override_font_sizes/mono_font_size = 14
-text = "Conteúdo"
 
-[node name="SpoilerButton" type="Button" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article"]
+[node name="SpoilerButton" type="Button" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll/Article" unique_id=1624780868]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 40)
+custom_minimum_size = Vector2(178, 36)
 layout_mode = 2
 size_flags_horizontal = 0
-theme = ExtResource("2_theme")
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_close")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_close")
-theme_override_styles/hover = SubResource("StyleBoxFlat_close")
-text = "MOSTRAR DICA"
+theme_override_font_sizes/font_size = 9
+text = "ABRIR ANOTAÇÃO"
 
-[node name="HintPanel" type="PanelContainer" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article"]
+[node name="HintPanel" type="PanelContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll/Article" unique_id=1751739575]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hint")
 
-[node name="HintLabel" type="RichTextLabel" parent="Window/Layout/Pages/Content/ContentLayout/ArticleScroll/Article/HintPanel"]
+[node name="HintLabel" type="RichTextLabel" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll/Article/HintPanel" unique_id=162569750]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
+theme_override_colors/default_color = Color(0.84, 0.9, 0.72, 1)
 bbcode_enabled = true
+text = "Anotação"
 fit_content = true
 scroll_active = false
-theme_override_colors/default_color = Color(0.84, 0.9, 0.72, 1)
-theme_override_fonts/normal_font = ExtResource("3_mono")
-theme_override_fonts/mono_font = ExtResource("3_mono")
-theme_override_font_sizes/normal_font_size = 14
-theme_override_font_sizes/mono_font_size = 14
-text = "Dica"
