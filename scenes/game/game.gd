@@ -14,6 +14,7 @@ const DebugMenuScene = preload("res://scenes/debug/debug_menu.tscn")
 @onready var client_spawner: Node = $Cliente_manager
 @onready var help_menu: Control = $HUD/HelpMenu
 @onready var pause_menu: Control = $HUD/PauseMenu
+@onready var debug_hotspot: Button = $HUD/DebugHotspot
 
 var debug_infinite_money := false
 var _debug_click_count := 0
@@ -31,8 +32,10 @@ func _ready() -> void:
 
 	dinheiro_label.text = _format_money(GameManager.money)
 	EventBus.update_money.connect(update_money)
+	EventBus.secret_menu_unlocked.connect(_on_secret_menu_unlocked)
 	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
 	dinheiro_panel.gui_input.connect(_on_dinheiro_panel_gui_input)
+	_update_debug_hotspot()
 	UpgradeManager.verificar_desbloqueios()
 	EventBus.emit_signal("update_money", 0)
 	_atualizar_estado_estoque()
@@ -58,6 +61,8 @@ func set_debug_infinite_money(enabled: bool) -> void:
 		EventBus.emit_signal("update_money", 999999 - GameManager.money)
 
 func _on_dinheiro_panel_gui_input(event: InputEvent) -> void:
+	if not GameManager.secret_menu_unlocked:
+		return
 	if not (event is InputEventMouseButton):
 		return
 	if event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
@@ -75,11 +80,19 @@ func _on_dinheiro_panel_gui_input(event: InputEvent) -> void:
 	_open_debug_menu()
 
 func _open_debug_menu() -> void:
+	if not GameManager.secret_menu_unlocked:
+		return
 	if _debug_menu == null or not is_instance_valid(_debug_menu):
 		_debug_menu = DebugMenuScene.instantiate()
 		hud.add_child(_debug_menu)
 		_debug_menu.setup(self, client_spawner)
 	_debug_menu.open_menu()
+
+func _on_secret_menu_unlocked() -> void:
+	_update_debug_hotspot()
+
+func _update_debug_hotspot() -> void:
+	debug_hotspot.visible = GameManager.secret_menu_unlocked
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):

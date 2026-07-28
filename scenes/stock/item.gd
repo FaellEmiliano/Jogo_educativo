@@ -4,7 +4,7 @@ extends Control
 @onready var preco: Label = %Preco
 @onready var selected_quantity_label: Label = %SelectedQuantity
 @onready var stock_quantity_label: Label = %StockQuantity
-@onready var product_initial: Label = %ProductInitial
+@onready var product_image: TextureRect = %ProductImage
 @onready var minus_button: Button = %Minus
 @onready var add_button: Button = %Add
 
@@ -17,7 +17,7 @@ func setup(data, amount := 0):
 	local_data = data
 	nome.text = data.name
 	preco.text = "R$ " + str(data.price)
-	product_initial.text = str(data.name).substr(0, 1).to_upper()
+	product_image.texture = load(data.icon_path)
 	stock_quantity_label.text = "ESTOQUE %d/%d" % [data.quantity, data.max_quantity]
 	set_selected_quantity(amount)
 

@@ -203,6 +203,7 @@ func eval(node) -> Variant:
 		"identifier":   return get_variable(node.name)
 		"bool":         return node.value
 		"array_access": return get_array_value(node)
+		"array_literal": return build_array_literal_value(_eval_array_literal_elements(node))
 		"string":       return node.value
 		_:
 			interpreter.erro_runtime("Não sei calcular esse tipo de valor: " + node.type)
@@ -553,6 +554,11 @@ func has_function_call(node) -> bool:
 		return true
 	if node.type == "array_access":
 		return has_function_call(node.indexes[0])
+	if node.type == "array_literal":
+		for element in node.elements:
+			if has_function_call(element):
+				return true
+		return false
 	if node.type == "binary":
 		return has_function_call(node.left) or has_function_call(node.right)
 	return false
@@ -578,6 +584,26 @@ func process_expression(frame):
 			var value = get_array_value(node)
 			deliver_result_to_parent(value)
 			pop_frame()
+		"array_literal":
+			match frame.index:
+				0:
+					frame.state["values"] = []
+					frame.state["element_index"] = 0
+					frame.index = 1
+				1:
+					var elements = node.elements
+					var i = int(frame.state["element_index"])
+					if i >= elements.size():
+						deliver_result_to_parent(build_array_literal_value(frame.state["values"]))
+						pop_frame()
+						return
+					push_frame("expression", elements[i])
+					frame.index = 2
+				2:
+					frame.state["values"].append(frame.state.get("value"))
+					frame.state.erase("value")
+					frame.state["element_index"] += 1
+					frame.index = 1
 		"identifier":
 			var value = get_variable(node.name)
 			deliver_result_to_parent(value)
@@ -712,6 +738,31 @@ func apply_op(op, left, right) -> Variant:
 
 	interpreter.erro_runtime("Não reconheci o operador: " + str(op))
 	return null
+
+func _eval_array_literal_elements(node) -> Array:
+	var values := []
+	for element in node.elements:
+		values.append(eval(element))
+	return values
+
+func build_array_literal_value(values: Array) -> Dictionary:
+	return {
+		"element_type": _infer_array_literal_element_type(values),
+		"dimensions": [values.size()],
+		"data": values.duplicate()
+	}
+
+func _infer_array_literal_element_type(values: Array) -> String:
+	for value in values:
+		if value is String:
+			return "string"
+	for value in values:
+		if value is float:
+			return "float"
+	for value in values:
+		if value is bool:
+			return "bool"
+	return "int"
 
 # ─── For ───────────────────────────────────────────────────────────────────────
 

@@ -4,6 +4,7 @@ var estoque = []
 @onready var grid_container: GridContainer = %GridContainer
 @onready var botao_comprar: Button = %Comprar
 @onready var limpar_button: Button = %Limpar
+@onready var purchase_summary_panel: TextureRect = %PurchaseSummaryPanel
 @onready var purchase_summary_label: Label = %PurchaseSummaryLabel
 @onready var money_label: Label = %MoneyLabel
 @onready var bonus_banner: PanelContainer = %BonusBanner
@@ -21,6 +22,7 @@ func _on_button_pressed() -> void:
 func _ready() -> void:
 	EventBus.send_estoque.connect(draw_estoque)
 	EventBus.update_money.connect(_on_money_changed)
+	_load_receipt_note_texture()
 	bonus_label.text = "ESTOQUE CHEIO: clientes pagam 1.5x"
 	_clear_message()
 	_refresh_money_label()
@@ -119,7 +121,7 @@ func build_purchase_list_text() -> String:
 	if lines.is_empty():
 		return "Nada selecionado ainda."
 
-	return "Vai comprar:\n\n%s\n\nTotal: R$ %d" % ["\n".join(lines), total]
+	return "%s\n\nTotal: R$ %d" % ["\n".join(lines), total]
 
 func atualizar_ui():
 	refresh_stock_ui()
@@ -219,3 +221,12 @@ func _refresh_money_label() -> void:
 	if money_label == null:
 		return
 	money_label.text = "GRANA: R$ %d" % int(GameManager.money)
+
+func _load_receipt_note_texture() -> void:
+	if purchase_summary_panel == null:
+		return
+	var note_image := Image.new()
+	if note_image.load("res://assets/sprites/nota.png") != OK:
+		push_warning("Nao foi possivel carregar a textura da nota do estoque.")
+		return
+	purchase_summary_panel.texture = ImageTexture.create_from_image(note_image)

@@ -44,6 +44,13 @@ class ArrayAccessNode extends ASTNodes:
 	func _init(a,i):
 		array = a
 		indexes = i
+
+class ArrayLiteralNode extends ASTNodes:
+	var type = "array_literal"
+	var elements
+
+	func _init(e):
+		elements = e
 	
 class IfNode extends  ASTNodes:
 	var type = "if"

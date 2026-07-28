@@ -175,17 +175,32 @@ func _create_options_button() -> Button:
 	button.offset_top = 6.0
 	button.offset_right = -6.0
 	button.offset_bottom = 34.0
-	button.text = "⋮"
+	button.text = ""
 	button.flat = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.add_theme_color_override("font_color", Color(0, 0, 0, 0.86))
-	button.add_theme_color_override("font_hover_color", Color.BLACK)
-	button.add_theme_color_override("font_pressed_color", Color.BLACK)
-	button.add_theme_color_override("font_focus_color", Color(0, 0, 0, 0.86))
-	button.add_theme_color_override("font_disabled_color", Color(0, 0, 0, 0.35))
-	button.add_theme_font_size_override("font_size", 18)
+	_add_options_dots(button)
 	return button
+
+
+func _add_options_dots(button: Button) -> void:
+	var dots := VBoxContainer.new()
+	dots.set_anchors_preset(Control.PRESET_CENTER)
+	dots.offset_left = -2.0
+	dots.offset_top = -8.0
+	dots.offset_right = 2.0
+	dots.offset_bottom = 8.0
+	dots.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dots.add_theme_constant_override("separation", 2)
+	button.add_child(dots)
+
+	for _i in range(3):
+		var dot := ColorRect.new()
+		dot.custom_minimum_size = Vector2(3, 3)
+		dot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		dot.color = Color(0, 0, 0, 0.86)
+		dots.add_child(dot)
 
 
 func _create_slot_actions_popup() -> void:

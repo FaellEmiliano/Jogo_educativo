@@ -16,11 +16,13 @@ func _ready() -> void:
 	await _test_buy_stock_over_capacity()
 	await _test_buy_stock_insufficient_money()
 	await _test_buy_stock_zero_purchase()
+	await _test_buy_stock_array_literal()
 	await _test_full_restock_script()
 	await _test_compound_assignment_variable()
 	await _test_compound_assignment_array()
 	await _test_invalid_compound_assignment_reports_error()
 	await _test_print_array_formats_values()
+	await _test_print_array_literal_formats_values()
 
 	if _failures.is_empty():
 		print("STOCK_BUILTINS_TEST_OK")
@@ -135,7 +137,7 @@ int main() {
 
 func _test_buy_stock_insufficient_money() -> void:
 	_reset_stock()
-	GameManager.money = 1
+	GameManager.money = 11
 	await _run_code("""
 int main() {
 	int compra[6];
@@ -144,14 +146,15 @@ int main() {
 		compra[i] = 0;
 	}
 
-	compra[5] = 2;
+	compra[0] = 3;
+	compra[1] = 1;
 
 	buy_stock(compra);
 }
 """)
-	_check(_stock_quantities() == [0, 0, 0, 0, 0, 0], "Dinheiro insuficiente nao deve alterar estoque.")
-	_check(GameManager.money == 1, "Dinheiro insuficiente nao deve alterar dinheiro.")
-	_check(_debug_text.contains("buy_stock(): dinheiro insuficiente para realizar a compra."), "Dinheiro insuficiente deve mostrar erro no output.")
+	_check(_stock_quantities() == [3, 0, 0, 0, 0, 0], "Dinheiro insuficiente deve comprar o que der na ordem dos indices.")
+	_check(GameManager.money == 2, "Dinheiro insuficiente deve descontar apenas o que foi comprado.")
+	_check(_debug_text.contains("compra incompleta! dinheiro insuficiente"), "Dinheiro insuficiente deve mostrar aviso no output.")
 
 func _test_buy_stock_zero_purchase() -> void:
 	_reset_stock()
@@ -169,6 +172,17 @@ int main() {
 """)
 	_check(_stock_quantities() == [0, 0, 0, 0, 0, 0], "Compra zerada nao deve alterar estoque.")
 	_check(GameManager.money == 100, "Compra zerada nao deve alterar dinheiro.")
+
+func _test_buy_stock_array_literal() -> void:
+	_reset_stock()
+	GameManager.money = 200
+	await _run_code("""
+int main() {
+	buy_stock([1, 2, 3, 4, 5, 6]);
+}
+""")
+	_check(_stock_quantities() == [1, 2, 3, 4, 5, 6], "buy_stock() deve aceitar array literal.")
+	_check(GameManager.money == 96, "Array literal deve descontar o custo total correto.")
 
 func _test_full_restock_script() -> void:
 	_reset_stock()
@@ -239,6 +253,14 @@ int main() {
 }
 """)
 	_check(_debug_text == "[2, 4, 6]", "print(array) deve mostrar todos os valores do array.")
+
+func _test_print_array_literal_formats_values() -> void:
+	await _run_code("""
+int main() {
+	print([2, 4, 6]);
+}
+""")
+	_check(_debug_text == "[2, 4, 6]", "print(array literal) deve mostrar todos os valores do array.")
 
 func _run_code(code: String) -> void:
 	_debug_text = ""

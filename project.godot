@@ -13,7 +13,7 @@ config_version=5
 config/name="Jogo educativo"
 run/main_scene="uid://dkurfs68vb8e6"
 config/features=PackedStringArray("4.7", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="uid://c7thpvikx0idd"
 
 [autoload]
 

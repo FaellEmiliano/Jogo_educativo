@@ -60,20 +60,25 @@ func _rebuild_topic_list() -> void:
 		child.free()
 	_topic_buttons.clear()
 
-	var current_category := ""
+	var topics_by_category := {}
+	var category_order := []
 	for topic in HelpTopicsData.TOPICS:
 		var topic_category := str(topic.get("category", "Outros"))
-		if topic_category != current_category:
-			current_category = topic_category
-			topics_container.add_child(_create_category_label(current_category))
+		if not topics_by_category.has(topic_category):
+			topics_by_category[topic_category] = []
+			category_order.append(topic_category)
+		topics_by_category[topic_category].append(topic)
 
-		var topic_id := str(topic.get("id", ""))
-		var unlocked := HelpProgressData.is_requirement_met(topic.get("requirement", ""))
-		var topic_button := HelpTopicButton.new()
-		topic_button.setup(topic, unlocked, topic_id == _selected_topic_id, _get_locked_reason(topic))
-		topic_button.topic_selected.connect(_show_topic)
-		topics_container.add_child(topic_button)
-		_topic_buttons[topic_id] = topic_button
+	for category_name in category_order:
+		topics_container.add_child(_create_category_label(category_name))
+		for topic in topics_by_category[category_name]:
+			var topic_id := str(topic.get("id", ""))
+			var unlocked := HelpProgressData.is_requirement_met(topic.get("requirement", ""))
+			var topic_button := HelpTopicButton.new()
+			topic_button.setup(topic, unlocked, topic_id == _selected_topic_id, _get_locked_reason(topic))
+			topic_button.topic_selected.connect(_show_topic)
+			topics_container.add_child(topic_button)
+			_topic_buttons[topic_id] = topic_button
 
 func _create_category_label(category_name: String) -> Label:
 	var label := Label.new()

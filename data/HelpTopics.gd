@@ -8,14 +8,14 @@ const TOPICS = [
 		"category": "Primeiros passos",
 		"requirement": "start",
 		"text": """[b]Onde o jogo começa de verdade[/b]
-O painel de script é onde você escreve o código que atende os clientes. Quase tudo vai ficar dentro da função [code]main()[/code].
+O painel de script é o lugar onde você prepara o atendimento automático da loja. Quando o cliente chega, o jogo entrega os dados no terminal e espera a resposta do seu script.
 
-[b]O ciclo básico[/b]
-Use [code]input()[/code] para pegar valores do cliente, faça a conta e responda com [code]send()[/code]. O botão RODAR liga o script. A saída aparece embaixo do editor.
+[b]Rodar e observar[/b]
+O botão RODAR testa o que você escreveu. O retorno aparece embaixo do editor, junto com mensagens que ajudam a entender se o script conseguiu atender o pedido.
 
 [b]Quando der ruim[/b]
-Antes de desconfiar da lógica, confere ponto e vírgula, parênteses e chaves. No começo, o erro quase sempre está nisso.""",
-		"hint": "Faça uma [code]main()[/code] pequena com um [code]print()[/code] e rode. Se aparecer no retorno, o painel está ok."
+Antes de desconfiar da ideia, confira detalhes pequenos: ponto e vírgula, parênteses, chaves e nomes escritos igualzinho.""",
+		"hint": "Comece pequeno e rode cedo. Se o retorno aparecer, o painel já está conversando com o seu script."
 	},
 	{
 		"id": "input",
@@ -23,14 +23,14 @@ Antes de desconfiar da lógica, confere ponto e vírgula, parênteses e chaves. 
 		"category": "Funções básicas",
 		"requirement": "start",
 		"text": """[b]Pegar o próximo número[/b]
-[code]input()[/code] pega o próximo valor da fila do cliente.
+[code]input()[/code] lê uma informação que o cliente enviou para a loja. Cada cliente pode mandar preços, quantidades, pagamentos ou sinais especiais, dependendo do desafio.
 
-[b]Como usar[/b]
-Cada chamada pega um valor e passa para o próximo. Dois preços? Chame duas vezes. Teve pagamento depois? Mais um [code]input()[/code].
+[b]Fila de dados[/b]
+Os valores chegam em ordem. Depois que um valor é lido, o próximo [code]input()[/code] olha para o próximo item da fila.
 
 [b]Cuidado[/b]
-Se chamar demais, você puxa coisa que ainda não era para usar. Se chamar de menos, parte do pedido fica de fora.""",
-		"hint": "Guarde o [code]input()[/code] numa variável e dê um [code]print()[/code]. É o jeito mais rápido de ver o que chegou."
+Ler dados demais pode misturar partes do pedido. Ler de menos deixa informação importante parada.""",
+		"hint": "Quando estiver perdido, mostre no retorno o valor que acabou de chegar e compare com a fala do cliente."
 	},
 	{
 		"id": "send",
@@ -38,14 +38,14 @@ Se chamar demais, você puxa coisa que ainda não era para usar. Se chamar de me
 		"category": "Funções básicas",
 		"requirement": "start",
 		"text": """[b]Responder o cliente[/b]
-[code]send()[/code] manda sua resposta final.
+[code]send()[/code] entrega a resposta que vale para o atendimento. É isso que o cliente usa para decidir se o pedido foi resolvido.
 
-[b]Antes de mandar[/b]
-Calcule tudo antes. Alguns clientes esperam só o total. Outros querem total e troco, nessa ordem.
+[b]O que ele espera[/b]
+Alguns pedidos aceitam uma resposta simples. Outros esperam mais de um valor, como quando aparece pagamento ou troco.
 
 [b]Cuidado[/b]
-[code]print()[/code] é só para você enxergar. Quem fecha a venda é [code]send()[/code]. Valor extra ou fora de ordem conta como erro.""",
-		"hint": "Calcule em uma variável e passe essa variável no [code]send()[/code]. Fica mais fácil de conferir."
+[code]print()[/code] só mostra algo para você. Quem fecha a venda é [code]send()[/code].""",
+		"hint": "Antes de enviar, pense no que o cliente realmente pediu como resposta final."
 	},
 	{
 		"id": "print",
@@ -56,11 +56,11 @@ Calcule tudo antes. Alguns clientes esperam só o total. Outros querem total e t
 [code]print()[/code] escreve no retorno do sistema.
 
 [b]Quando usar[/b]
-Use quando uma conta parece certa, mas o cliente discorda. Imprima total parcial, pagamento, troco ou qualquer variável suspeita.
+Use quando o script roda, mas o resultado não combina com o pedido. Ele serve para enxergar valores intermediários sem mudar a resposta enviada ao cliente.
 
 [b]Cuidado[/b]
 Imprimir não responde o cliente. Depois de olhar, ainda precisa usar [code]send()[/code].""",
-		"hint": "Dê [code]print()[/code] no resultado antes do [code]send()[/code]. Se o número já sai errado ali, o problema está antes."
+		"hint": "Mostre uma coisa por vez. Assim fica mais fácil descobrir em que momento o número deixou de fazer sentido."
 	},
 	{
 		"id": "simple_client",
@@ -68,14 +68,14 @@ Imprimir não responde o cliente. Depois de olhar, ainda precisa usar [code]send
 		"category": "Clientes",
 		"requirement": "start",
 		"text": """[b]O primeiro tipo de cliente[/b]
-Ele manda dois preços e quer saber o total.
+Esse cliente traz uma compra pequena, com poucos valores, e espera uma resposta objetiva da loja.
 
-[b]Caminho simples[/b]
-Leia o primeiro preço, leia o segundo, some os dois e mande só a soma.
+[b]O que observar[/b]
+Preste atenção na fala do cliente: ela indica quais números fazem parte da compra e qual tipo de resposta ele espera receber.
 
 [b]Cuidado[/b]
-Não envie os preços separados. O cliente pediu o total.""",
-		"hint": "Dois [code]input()[/code], uma soma, um [code]send()[/code]."
+Responder partes soltas da compra pode parecer útil, mas o atendimento só conta quando a resposta combina com o pedido.""",
+		"hint": "Procure transformar os valores do pedido em uma única informação final."
 	},
 	{
 		"id": "change_client",
@@ -83,14 +83,14 @@ Não envie os preços separados. O cliente pediu o total.""",
 		"category": "Clientes",
 		"requirement": "troco",
 		"text": """[b]Compra com pagamento[/b]
-Esse cliente manda uma lista de preços, termina com [code]-1[/code] e depois informa quanto pagou.
+Esse cliente informa os itens da compra e também quanto pagou. A loja precisa responder considerando a compra e o dinheiro entregue.
 
-[b]Ordem certa[/b]
-Some os produtos até chegar no [code]-1[/code]. Depois leia o pagamento, faça [code]pagamento - total[/code] e envie [code]send(total, troco)[/code].
+[b]Fim dos produtos[/b]
+Alguns pedidos usam [code]-1[/code] para avisar que a lista de produtos acabou. Depois disso, ainda pode existir outra informação importante.
 
 [b]Cuidado[/b]
-Troco é pagamento menos total. E a ordem no [code]send()[/code] importa.""",
-		"hint": "Quando sair do laço do [code]-1[/code], leia mais um valor. Esse valor é o pagamento."
+O [code]-1[/code] não é produto. Ele só marca uma mudança de parte no pedido.""",
+		"hint": "Depois do marcador de fim, veja se ainda existe um valor que muda o significado da resposta."
 	},
 	{
 		"id": "sentinel_client",
@@ -98,14 +98,14 @@ Troco é pagamento menos total. E a ordem no [code]send()[/code] importa.""",
 		"category": "Clientes",
 		"requirement": "sentinela",
 		"text": """[b]Pedido sem tamanho fixo[/b]
-Alguns clientes mandam vários preços e só avisam que acabou com [code]-1[/code].
+Alguns clientes não dizem antes quantos produtos vão comprar. Eles continuam mandando valores até aparecer um marcador de fim.
 
-[b]Como ler[/b]
-Leia o primeiro valor antes do laço. Enquanto ele não for [code]-1[/code], some e leia o próximo.
+[b]O marcador[/b]
+O [code]-1[/code] serve como aviso de parada. Ele separa os produtos do que vem depois, ou simplesmente indica que o pedido acabou.
 
 [b]Cuidado[/b]
-O [code]-1[/code] não entra na soma. E se você esquecer o [code]input()[/code] dentro do laço, o código fica preso no mesmo número.""",
-		"hint": "Leia antes do [code]while[/code], some dentro dele e leia de novo no final do bloco."
+Se o script fica preso, provavelmente ele está olhando sempre para a mesma informação.""",
+		"hint": "Quando o tamanho do pedido varia, o [code]while[/code] ajuda a repetir enquanto o marcador de fim ainda não apareceu."
 	},
 	{
 		"id": "discount",
@@ -113,14 +113,14 @@ O [code]-1[/code] não entra na soma. E se você esquecer o [code]input()[/code]
 		"category": "Mecânicas da loja",
 		"requirement": "desconto",
 		"text": """[b]Regra fixa da loja[/b]
-Passou de R$50, tem 10% de desconto. Não é sorteio.
+Algumas compras recebem desconto quando passam de um valor mínimo. O cliente não precisa pedir: é uma regra da loja.
 
-[b]Como aplicar[/b]
-Primeiro some tudo. Se o total for maior que 50, multiplique por [code]0.9[/code].
+[b]Quando observar[/b]
+Confira o total da compra antes de pensar no desconto. O limite só faz sentido depois que a compra inteira foi considerada.
 
 [b]Cuidado[/b]
-R$50 exatos não desconta. E deixe para aplicar depois da soma, senão você pode descontar mais de uma vez.""",
-		"hint": "Some tudo primeiro. Depois use [code]if (total > 50)[/code] e aplique [code]total *= 0.9[/code]."
+O desconto pertence à compra inteira, não a cada produto separado.""",
+		"hint": "Compare o total final com o limite da regra antes de alterar o valor."
 	},
 	{
 		"id": "stock",
@@ -134,14 +134,33 @@ O estoque guarda produtos para pedidos mais específicos. Repor custa dinheiro. 
 Abra o Estoque, escolha quantas unidades comprar e confirme. Cada item mostra atual e limite, tipo [code]4/10[/code].
 
 [b]Atender pedido[/b]
-O cliente manda pares: preço e quantidade. Multiplique cada par e some tudo.
+Clientes de estoque mandam as informações em pares: primeiro vem o preço, depois a quantidade daquele produto. Nesses casos, o preço sozinho não conta a compra inteira.
 
 [b]Bônus de prateleira cheia[/b]
 Com tudo cheio, cada cliente paga 1.5x. Se vender algum item, o bônus cai até você repor de novo.
 
 [b]Cuidado[/b]
-Somar só os preços ignora as quantidades. Também olha o dinheiro antes de comprar, porque reposição custa.""",
-		"hint": "Leia em pares: preço, quantidade. Cada subtotal é [code]preço * quantidade[/code]."
+Também olhe o dinheiro antes de comprar, porque reposição custa.""",
+		"hint": "Quando aparecer quantidade, pense no valor de uma unidade e no tamanho do pedido como duas informações separadas."
+	},
+	{
+		"id": "stock_commands",
+		"title": "Comandos do estoque",
+		"category": "Funções da loja",
+		"requirement": "estoque",
+		"text": """[b]Ver o estoque pelo código[/b]
+[code]get_stock()[/code] devolve um array com as quantidades atuais, na ordem: arroz, feijão, farinha, morango, uva e chocolate.
+
+[b]Comprar pelo código[/b]
+[code]buy_stock(compra)[/code] recebe um array com 6 posições e compra essas quantidades para o estoque.
+Cada posição representa um produto da prateleira.
+
+[b]Quando buy_stock() não completa[/b]
+Se o pedido de compra tiver formato estranho, passar do limite do item ou faltar dinheiro, o terminal avisa que algo não completou.
+
+[b]Cuidado[/b]
+A ordem do array é a ordem da prateleira. Se uma posição estiver errada, você compra o produto errado.""",
+		"hint": "Compare o que já tem com o limite da prateleira antes de escolher quanto comprar."
 	},
 	{
 		"id": "if",
@@ -149,14 +168,14 @@ Somar só os preços ignora as quantidades. Também olha o dinheiro antes de com
 		"category": "Controle de fluxo",
 		"requirement": "if",
 		"text": """[b]Tomar decisão no código[/b]
-[code]if[/code] roda um bloco só quando a condição é verdadeira.
+[code]if[/code] serve para o script escolher entre agir ou não agir em uma situação.
 
-[b]Formato[/b]
-A pergunta fica entre parênteses. O que deve acontecer fica entre chaves. Para comparar, use [code]>[/code], [code]<[/code], [code]==[/code] ou [code]!=[/code].
+[b]Pergunta de sim ou não[/b]
+Ele combina com regras do tipo: tem desconto? tem cliente? o valor passou do limite? Quando a resposta é sim, o bloco acontece.
 
 [b]Cuidado[/b]
 [code]==[/code] compara. [code]=[/code] guarda valor. Confundir os dois quebra muita coisa.""",
-		"hint": "Pense no [code]if[/code] como uma pergunta de sim ou não. Se der sim, ele entra nas chaves."
+		"hint": "Transforme a regra em uma pergunta curta antes de escrever a condição."
 	},
 	{
 		"id": "sensor",
@@ -166,12 +185,12 @@ A pergunta fica entre parênteses. O que deve acontecer fica entre chaves. Para 
 		"text": """[b]Olhar a loja pelo código[/b]
 [code]sensor("cliente_na_tela")[/code] diz se tem cliente esperando.
 
-[b]Como usar[/b]
-Use como condição no [code]if[/code] ou no [code]while[/code]. Se retornar verdadeiro, tem cliente na tela.
+[b]Quando ajuda[/b]
+Ele é útil para automatizar o script e não precisar ficar apertando RODAR manualmente a cada cliente.
 
 [b]Cuidado[/b]
 O nome do sensor é texto, então vai entre aspas. Se escrever o nome errado, ele retorna falso.""",
-		"hint": "Use [code]sensor(\"cliente_na_tela\")[/code] na condição e só atenda quando ele der verdadeiro."
+		"hint": "Pense no sensor como uma pergunta sobre a cena antes de decidir atender."
 	},
 	{
 		"id": "while",
@@ -179,14 +198,14 @@ O nome do sensor é texto, então vai entre aspas. Se escrever o nome errado, el
 		"category": "Controle de fluxo",
 		"requirement": "loops",
 		"text": """[b]Repetir até parar[/b]
-[code]while[/code] repete um bloco enquanto a condição continuar verdadeira.
+[code]while[/code] repete um trecho enquanto uma situação continuar valendo.
 
 [b]Bom para sentinela[/b]
-Ele serve muito bem para pedidos que acabam em [code]-1[/code], porque você não sabe quantos valores vão chegar.
+Ele combina com pedidos que não têm tamanho fixo, especialmente quando existe um marcador avisando que chegou ao fim.
 
 [b]Cuidado[/b]
-Alguma coisa dentro do bloco precisa mudar. Se nada muda, o script fica rodando para sempre.""",
-		"hint": "Tenha uma variável de controle. Leia antes do [code]while[/code] e atualize dentro dele."
+Alguma coisa dentro da repetição precisa mudar. Se nada muda, o script fica rodando para sempre.""",
+		"hint": "Observe qual informação faz a repetição continuar e qual informação faz ela parar."
 	},
 	{
 		"id": "for",
@@ -194,13 +213,13 @@ Alguma coisa dentro do bloco precisa mudar. Se nada muda, o script fica rodando 
 		"category": "Controle de fluxo",
 		"requirement": "loops",
 		"text": """[b]Repetir com contador[/b]
-[code]for[/code] é para quando você já sabe quantas voltas quer dar.
+[code]for[/code] é uma repetição com contador. Ele é útil quando o número de voltas já está claro.
 
 [b]Cabeçalho[/b]
-Ele junta três partes: onde começa, quando para e como muda depois de cada volta.
+O cabeçalho concentra as informações do contador: começo, limite e mudança a cada volta.
 
 [b]Cuidado[/b]
 Olhe bem a condição e o incremento. Um sinal errado pode fazer uma volta a mais ou não parar.""",
-		"hint": "Use um contador inteiro e confira início, parada e incremento no cabeçalho do [code]for[/code]."
+		"hint": "Antes de escrever, conte mentalmente a primeira e a última volta esperadas."
 	}
 ]

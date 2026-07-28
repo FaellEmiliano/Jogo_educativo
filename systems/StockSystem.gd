@@ -2,12 +2,12 @@ extends Node
 const SCRIPT_STOCK_SIZE := 6
 
 var estoque = [
-	StockItem.new("Arroz", 0, 3, 10),
-	StockItem.new("Feijao", 0, 4, 10),
-	StockItem.new("Farinha", 0, 4, 10),
-	StockItem.new("Morango", 0, 5, 10),
-	StockItem.new("Uva", 0, 5, 10),
-	StockItem.new("Chocolate", 0, 6, 10)
+	StockItem.new("Arroz", 0, 3, 10, "res://assets/sprites/stock/arroz.png"),
+	StockItem.new("Feijao", 0, 4, 10, "res://assets/sprites/stock/feijao.png"),
+	StockItem.new("Farinha", 0, 4, 10, "res://assets/sprites/stock/farinha.png"),
+	StockItem.new("Morango", 0, 5, 10, "res://assets/sprites/stock/morango.png"),
+	StockItem.new("Uva", 0, 5, 10, "res://assets/sprites/stock/uva.png"),
+	StockItem.new("Chocolate", 0, 6, 10, "res://assets/sprites/stock/chocolate.png")
 	]
 
 func get_stock():
@@ -28,14 +28,27 @@ func try_buy_stock_from_script(compra: Array) -> Dictionary:
 		return validation
 
 	var quantities: Array = validation["quantities"]
-	var total_cost := int(validation["total_cost"])
+	var spent := 0
+	var incomplete := false
 	for i in range(quantities.size()):
-		estoque[i].quantity += int(quantities[i])
+		var item = estoque[i]
+		var price := int(item.price)
+		for _unit in range(int(quantities[i])):
+			if price > GameManager.money - spent:
+				incomplete = true
+				break
+			item.quantity += 1
+			spent += price
+		if incomplete:
+			break
 
-	if total_cost > 0:
-		EventBus.emit_signal("update_money", -total_cost)
+	if spent > 0:
+		EventBus.emit_signal("update_money", -spent)
 	EventBus.emit_signal("get_estoque")
-	return {"success": true, "error": ""}
+
+	if incomplete:
+		return {"success": true, "warning": "compra incompleta! dinheiro insuficiente"}
+	return {"success": true, "warning": ""}
 
 func add_item(item_name: String, amount: int) -> int:
 	for item in estoque:
@@ -123,7 +136,6 @@ func _validate_stock_purchase(compra: Array) -> Dictionary:
 		return _stock_purchase_error("A lista de compra precisa ter %d posições." % SCRIPT_STOCK_SIZE)
 
 	var quantities := []
-	var total_cost := 0
 	for i in range(SCRIPT_STOCK_SIZE):
 		var value = compra[i]
 		if not (value is int or value is float):
@@ -138,16 +150,11 @@ func _validate_stock_purchase(compra: Array) -> Dictionary:
 			return _stock_purchase_error("A posição %d passa do limite do estoque." % i)
 
 		quantities.append(amount)
-		total_cost += amount * int(estoque[i].price)
-
-	if GameManager.money < total_cost:
-		return _stock_purchase_error("Não tem dinheiro suficiente para essa compra.")
 
 	return {
 		"success": true,
 		"error": "",
-		"quantities": quantities,
-		"total_cost": total_cost
+		"quantities": quantities
 	}
 
 func _stock_purchase_error(message: String) -> Dictionary:

@@ -6,6 +6,9 @@ var challenge
 var active_dialog = null
 
 const _DIALOG_SCREEN :PackedScene = preload("res://scenes/Client/dialog_screen.tscn")
+const PLAYER_HAPPY_FACESET := "res://assets/sprites/feliz.png"
+const PLAYER_ANXIOUS_FACESET := "res://assets/sprites/ansioso.png"
+const CUSTOMER_FACESET := "res://assets/sprites/faceset1.png"
 
 @export_category("Objects")
 @export var _hud :CanvasLayer = null
@@ -34,20 +37,20 @@ func show_request_dialog(new_challenge) -> void:
 	var inputs = challenge.values
 
 	dialog[0] = {
-		"faceset": "res://assets/sprites/faceset1.png",
-		"dialog": "Oi, vou levar umas coisas.",
+		"faceset": CUSTOMER_FACESET,
+		"dialog": "Oi, queria comprar essas coisas:",
 		"title": "Cliente"
 	}
 
 	dialog[1] = {
-		"faceset": "res://assets/sprites/faceset1.png",
+		"faceset": CUSTOMER_FACESET,
 		"dialog": gerar_texto_pedido(inputs),
 		"title": "Cliente"
 	}
 
 	if _tem_troco():
 		dialog[dialog.size()] = {
-		"faceset": "res://assets/sprites/faceset1.png",
+		"faceset": CUSTOMER_FACESET,
 			"dialog": "Vou pagar com R$ " + formatar(challenge.order.payment) + ".",
 			"title": "Cliente"
 		}
@@ -118,12 +121,12 @@ func dialogo_acerto(valores):
 	if not _tem_troco():
 		dialog = {
 			0: {
-				"faceset": "res://assets/sprites/faceset.png",
+				"faceset": PLAYER_HAPPY_FACESET,
 				"dialog": "Ficou R$ " + formatar(valores[0]) + ".",
 				"title": "Você"
 			},
 			1: {
-		"faceset": "res://assets/sprites/faceset1.png",
+				"faceset": CUSTOMER_FACESET,
 				"dialog": "Fechou, valeu!",
 				"title": "Cliente"
 			}
@@ -132,13 +135,13 @@ func dialogo_acerto(valores):
 	else:
 		dialog = {
 			0: {
-				"faceset": "res://assets/sprites/faceset.png",
+				"faceset": PLAYER_HAPPY_FACESET,
 				"dialog": "Ficou R$ " + formatar(valores[0]) +
 						  " e seu troco é R$ " + formatar(valores[1]) + ".",
 				"title": "Você"
 			},
 			1: {
-		"faceset": "res://assets/sprites/faceset1.png",
+				"faceset": CUSTOMER_FACESET,
 				"dialog": "Boa, era isso mesmo.",
 				"title": "Cliente"
 			}
@@ -152,23 +155,15 @@ func dialogo_acerto(valores):
 # DIÁLOGO DE ERRO
 # =========================
 func dialogo_erro(valores):
-	var resposta = "nenhum valor"
-	if valores.size() == 1:
-		resposta = formatar(valores[0])
-	elif valores.size() > 1:
-		var partes = []
-		for valor in valores:
-			partes.append(formatar(valor))
-		resposta = ", ".join(partes)
-
+	var resposta = _formatar_resposta(valores)
 	var dialog = {
 		0: {
-			"faceset": "res://assets/sprites/faceset.png",
-			"dialog": "Eu respondi: " + resposta + ".",
+			"faceset": PLAYER_ANXIOUS_FACESET,
+			"dialog": _gerar_texto_resposta_insegura(resposta),
 			"title": "Você"
 		},
 		1: {
-		"faceset": "res://assets/sprites/faceset1.png",
+			"faceset": CUSTOMER_FACESET,
 			"dialog": "Acho que essa conta não bateu.",
 			"title": "Cliente"
 		}
@@ -182,6 +177,27 @@ func dialogo_erro(valores):
 # =========================
 func formatar(valor):
 	return str("%.2f" % valor)
+
+func _formatar_resposta(valores: Array) -> String:
+	if valores.size() == 1:
+		return "R$ " + formatar(valores[0])
+	if valores.size() > 1:
+		var partes = []
+		for valor in valores:
+			partes.append("R$ " + formatar(valor))
+		return ", ".join(partes)
+	return "nenhum valor"
+
+func _gerar_texto_resposta_insegura(resposta: String) -> String:
+	if challenge == null:
+		return "Eh... Acho que é " + resposta + "."
+	if _tem_troco():
+		return "Eh... Acho que ficou " + resposta + "."
+	if challenge.requires_stock:
+		return "Eh... Somando esses produtos, acho que é " + resposta + "."
+	if challenge.type == "compra_variavel":
+		return "Eh... Pelo carrinho todo, acho que é " + resposta + "."
+	return "Eh... Acho que é " + resposta + "."
 
 func _tem_troco() -> bool:
 	return challenge != null and challenge.expected_output.size() > 1

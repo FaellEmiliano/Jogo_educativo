@@ -71,6 +71,14 @@ func ast_to_string(node, indent := "", is_last := true) -> String:
 
 		return out
 
+	if node is ASTNodes.ArrayLiteralNode:
+		out += indent + branch + "ArrayLiteral\n"
+
+		for i in node.elements.size():
+			out += ast_to_string(node.elements[i], next_indent, i == node.elements.size()-1)
+
+		return out
+
 
 	# ---------- IF ----------
 	if node is ASTNodes.IfNode:

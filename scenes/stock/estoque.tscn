@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="2_menu2"]
 [ext_resource type="Theme" uid="uid://cjki0ylh8wyek" path="res://assets/themes/game_ui_theme.tres" id="3_theme"]
 [ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://assets/sprites/menu.png" id="4_menu"]
+[ext_resource type="FontFile" uid="uid://d05vv1ixumnr0" path="res://assets/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf" id="6_note_font"]
 
 [node name="Estoque" type="Control"]
 top_level = true
@@ -22,10 +23,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 18.0
-offset_top = 16.0
-offset_right = -18.0
-offset_bottom = -16.0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = -12.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_menu2")
@@ -44,19 +45,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
 [node name="RootLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="TopBar" type="HBoxContainer" parent="WindowFrame/OuterMargin/RootLayout"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="TitleBlock" type="VBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/TopBar"]
 layout_mode = 2
@@ -116,7 +117,7 @@ autowrap_mode = 3
 [node name="Body" type="HBoxContainer" parent="WindowFrame/OuterMargin/RootLayout"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="ProductsFrame" type="NinePatchRect" parent="WindowFrame/OuterMargin/RootLayout/Body"]
 layout_mode = 2
@@ -138,14 +139,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
 
 [node name="ProductsLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="ProductsTitle" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin/ProductsLayout"]
 layout_mode = 2
@@ -156,17 +157,18 @@ text = "PRODUTOS"
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 0
 
 [node name="GridContainer" type="GridContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin/ProductsLayout/ProductsScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 14
-theme_override_constants/v_separation = 14
+theme_override_constants/h_separation = 48
+theme_override_constants/v_separation = 12
 columns = 3
 
 [node name="ReceiptFrame" type="NinePatchRect" parent="WindowFrame/OuterMargin/RootLayout/Body"]
-custom_minimum_size = Vector2(322, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_vertical = 3
 texture = ExtResource("2_menu2")
@@ -188,34 +190,53 @@ grow_vertical = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 18
 
 [node name="ReceiptLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="ReceiptTitle" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+visible = false
 layout_mode = 2
 theme_type_variation = &"TitleLabel"
 text = "COMPRA"
 horizontal_alignment = 1
 
 [node name="ReceiptHint" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+visible = false
 layout_mode = 2
 theme_type_variation = &"SubtitleLabel"
 text = "O que você separou"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="PurchaseSummaryPanel" type="PanelContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+[node name="PurchaseSummaryPanel" type="TextureRect" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_type_variation = &"InsetPanel"
+expand_mode = 1
+stretch_mode = 5
 
-[node name="PurchaseSummaryLabel" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/PurchaseSummaryPanel"]
+[node name="NoteTextMargin" type="MarginContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/PurchaseSummaryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 92
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 46
+
+[node name="PurchaseSummaryLabel" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/PurchaseSummaryPanel/NoteTextMargin"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"BodyText"
+theme_override_colors/font_color = Color(0.2, 0.17, 0.13, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_fonts/font = ExtResource("6_note_font")
 text = "Nada selecionado ainda."
 autowrap_mode = 3
 
@@ -225,13 +246,13 @@ theme_override_constants/separation = 8
 
 [node name="Limpar" type="Button" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/ReceiptActions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(112, 44)
+custom_minimum_size = Vector2(104, 42)
 layout_mode = 2
 text = "LIMPAR"
 
 [node name="Comprar" type="Button" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/ReceiptActions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 44)
+custom_minimum_size = Vector2(156, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "COMPRAR"

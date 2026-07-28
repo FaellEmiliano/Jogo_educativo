@@ -422,6 +422,7 @@ func _save_padrao() -> Dictionary:
 		},
 		"game": {
 			"dinheiro": 0,
+			"secret_menu_unlocked": false,
 			"unlocked_mechanics": {
 				"sum": true,
 				"cart": false,
@@ -494,6 +495,9 @@ func _validar_game(data: Dictionary) -> Dictionary:
 
 	if data.has("dinheiro") and (data["dinheiro"] is int or data["dinheiro"] is float):
 		resultado["dinheiro"] = int(data["dinheiro"])
+
+	if data.has("secret_menu_unlocked"):
+		resultado["secret_menu_unlocked"] = bool(data["secret_menu_unlocked"])
 
 	if data.has("unlocked_mechanics") and data["unlocked_mechanics"] is Dictionary:
 		for key in resultado["unlocked_mechanics"]:

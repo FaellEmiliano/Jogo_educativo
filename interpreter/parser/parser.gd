@@ -138,6 +138,11 @@ func factor():
 		dbg_exit("factor")
 		return node
 
+	if token.type == Token.TiposToken.LBRACKET:
+		var node = parse_array_literal()
+		dbg_exit("factor")
+		return node
+
 	# Token inválido — registra erro e retorna nó nulo seguro
 	interpreter.registrar_erro(
 		"Essa parte da expressão não fechou: '%s' ('%s')." % [nome_token(token.type), str(token.value)],
@@ -148,6 +153,23 @@ func factor():
 	avancar() # consome o token problemático para não travar
 	dbg_exit("factor")
 	return ASTNodes.NumberNode.new(0) # nó neutro para não crashar
+
+func parse_array_literal():
+	consumir(Token.TiposToken.LBRACKET)
+	var elements = []
+
+	if token_atual.type != Token.TiposToken.RBRACKET:
+		elements.append(assignment())
+		var _guard = 0
+		while token_atual.type == Token.TiposToken.COMMA and _guard < 1024:
+			_guard += 1
+			consumir(Token.TiposToken.COMMA)
+			if token_atual.type == Token.TiposToken.RBRACKET:
+				break
+			elements.append(assignment())
+
+	consumir(Token.TiposToken.RBRACKET)
+	return ASTNodes.ArrayLiteralNode.new(elements)
 
 func unary():
 	if token_atual.type in [

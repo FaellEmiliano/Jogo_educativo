@@ -5,11 +5,11 @@
 [ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="3_menu2"]
 
 [node name="item" type="Control"]
-custom_minimum_size = Vector2(196, 236)
+custom_minimum_size = Vector2(220, 256)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 196.0
-offset_bottom = 236.0
+offset_right = 220.0
+offset_bottom = 256.0
 theme = ExtResource("2_theme")
 script = ExtResource("1_8wggg")
 
@@ -36,27 +36,27 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CardFrame/CardMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="ProductFrame" type="PanelContainer" parent="CardFrame/CardMargin/VBoxContainer"]
-custom_minimum_size = Vector2(0, 82)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+clip_contents = true
 theme_type_variation = &"InsetPanel"
 
-[node name="ProductInitial" type="Label" parent="CardFrame/CardMargin/VBoxContainer/ProductFrame"]
+[node name="ProductImage" type="TextureRect" parent="CardFrame/CardMargin/VBoxContainer/ProductFrame"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HeroTitle"
-text = "?"
-horizontal_alignment = 1
-vertical_alignment = 1
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 6
 
 [node name="Nome" type="Label" parent="CardFrame/CardMargin/VBoxContainer"]
 unique_name_in_owner = true
@@ -76,18 +76,18 @@ horizontal_alignment = 1
 
 [node name="QuantityControls" type="HBoxContainer" parent="CardFrame/CardMargin/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 alignment = 1
 
 [node name="Minus" type="Button" parent="CardFrame/CardMargin/VBoxContainer/QuantityControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 36)
+custom_minimum_size = Vector2(38, 32)
 layout_mode = 2
 text = "-"
 
 [node name="SelectedQuantity" type="Label" parent="CardFrame/CardMargin/VBoxContainer/QuantityControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(44, 36)
+custom_minimum_size = Vector2(40, 32)
 layout_mode = 2
 theme_type_variation = &"TitleLabel"
 text = "0"
@@ -96,7 +96,7 @@ vertical_alignment = 1
 
 [node name="Add" type="Button" parent="CardFrame/CardMargin/VBoxContainer/QuantityControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 36)
+custom_minimum_size = Vector2(38, 32)
 layout_mode = 2
 text = "+"
 

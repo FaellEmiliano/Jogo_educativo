@@ -6,6 +6,7 @@ var current_context = null
 # Estado financeiro do jogador
 var money: int = 0
 var upgrades: Array = []
+var secret_menu_unlocked := false
 
 # Mecânicas desbloqueadas (substitui state_of_game)
 var unlocked_mechanics = {
@@ -22,7 +23,8 @@ func get_save_data() -> Dictionary:
 	return {
 		"dinheiro": money,
 		"unlocked_mechanics": unlocked_mechanics.duplicate(true),
-		"upgrades": upgrades.duplicate()
+		"upgrades": upgrades.duplicate(),
+		"secret_menu_unlocked": secret_menu_unlocked
 	}
 
 func load_save_data(data: Dictionary) -> void:
@@ -32,8 +34,17 @@ func load_save_data(data: Dictionary) -> void:
 	if data.has("upgrades") and data["upgrades"] is Array:
 		upgrades = data["upgrades"].duplicate()
 
+	secret_menu_unlocked = bool(data.get("secret_menu_unlocked", false))
+
 	if data.has("unlocked_mechanics") and data["unlocked_mechanics"] is Dictionary:
 		for key in unlocked_mechanics:
 			if data["unlocked_mechanics"].has(key):
 				unlocked_mechanics[key] = bool(data["unlocked_mechanics"][key])
 		FeatureManager.load_legacy_features(unlocked_mechanics)
+
+func unlock_secret_menu() -> bool:
+	if secret_menu_unlocked:
+		return false
+	secret_menu_unlocked = true
+	EventBus.emit_signal("secret_menu_unlocked")
+	return true

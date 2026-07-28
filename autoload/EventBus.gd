@@ -23,3 +23,5 @@ signal get_estoque()
 signal send_estoque(estoque)
 
 signal send_debug(text)
+
+signal secret_menu_unlocked()

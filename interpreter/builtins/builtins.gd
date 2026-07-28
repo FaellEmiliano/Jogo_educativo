@@ -54,6 +54,10 @@ func _buy_stock(args):
 	var result := StockSystem.try_buy_stock_from_script(compra["data"].duplicate())
 	if not result.get("success", false):
 		exec.interpreter.erro_runtime(str(result.get("error", "Compra cancelada.")))
+		return null
+	var warning := str(result.get("warning", ""))
+	if not warning.is_empty():
+		exec.interpreter.emitir_saida(warning)
 	return null
 
 func _wait(args):

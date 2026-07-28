@@ -51,8 +51,13 @@ func submit(args: Array) -> bool:
 	if not has_active_transaction() or transaction_closing:
 		return false
 
+	var secret_menu_cheat := _is_secret_menu_cheat(args)
+	if secret_menu_cheat and GameManager.unlock_secret_menu():
+		Saves.solicitar_save("secret_menu_unlocked")
+		EventBus.emit_signal("send_debug", "Menu secreto liberado.")
+
 	var valores = _normalize_values(args)
-	var correto = _validate_values(valores)
+	var correto = false if secret_menu_cheat else _validate_values(valores)
 	if correto and active_challenge.requires_stock:
 		correto = StockSystem.consume_items(active_challenge.requested_items)
 	pending_result = correto
@@ -65,6 +70,9 @@ func submit(args: Array) -> bool:
 		_finish_transaction()
 
 	return correto
+
+func _is_secret_menu_cheat(args: Array) -> bool:
+	return args.size() == 1 and args[0] is String and str(args[0]) == "cheat"
 
 
 func _finish_transaction() -> void:
