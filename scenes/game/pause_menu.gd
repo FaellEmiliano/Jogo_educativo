@@ -1,12 +1,12 @@
 extends Control
 
 @onready var continue_button: Button = %ContinueButton
-@onready var exit_button: Button = %ExitButton
+@onready var main_menu_button: Button = %MainMenuButton
 
 
 func _ready() -> void:
 	continue_button.pressed.connect(close_menu)
-	exit_button.pressed.connect(_on_exit_pressed)
+	main_menu_button.pressed.connect(_on_main_menu_pressed)
 	hide()
 
 
@@ -28,7 +28,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _on_exit_pressed() -> void:
-	Saves.solicitar_save("pause_exit")
+func _on_main_menu_pressed() -> void:
+	Saves.solicitar_save("pause_main_menu")
 	get_tree().paused = false
-	get_tree().quit()
+	get_tree().change_scene_to_file("res://scenes/menus/main_screen.tscn")
