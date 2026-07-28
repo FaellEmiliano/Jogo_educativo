@@ -147,7 +147,7 @@ func process_program(frame):
 		1:
 			var main_fn = get_variable("main")
 			if main_fn == null:
-				interpreter.erro_fatal("Função 'main' não encontrada")
+				interpreter.erro_fatal("Não achei a função main(). O script precisa começar por ela.")
 				pop_frame()
 				return
 			push_frame("function_call", ASTNodes.FunctionCallNode.new("main", []))
@@ -205,7 +205,7 @@ func eval(node) -> Variant:
 		"array_access": return get_array_value(node)
 		"string":       return node.value
 		_:
-			interpreter.erro_runtime("Tipo não suportado em eval: " + node.type)
+			interpreter.erro_runtime("Não sei calcular esse tipo de valor: " + node.type)
 			return null
 
 func eval_binary(node) -> Variant:
@@ -223,7 +223,7 @@ func get_variable(name) -> Variant:
 			if name in scopes[i]:
 				return scopes[i][name]["value"]
 		env = env["parent"]
-	interpreter.erro_runtime("Variável não definida: '" + str(name) + "'")
+	interpreter.erro_runtime("A variável '" + str(name) + "' ainda não tem valor.")
 	return null
 
 func set_variable(name, value):
@@ -236,7 +236,7 @@ func set_variable(name, value):
 				var_data["value"] = coerce_value(value, var_data["type"])
 				return
 		env = env["parent"]
-	interpreter.erro_runtime("Variável não declarada: '" + name + "'")
+	interpreter.erro_runtime("A variável '" + name + "' não foi declarada.")
 
 func get_variable_wrapper(name) -> Variant:
 	var env = current_env()
@@ -246,7 +246,7 @@ func get_variable_wrapper(name) -> Variant:
 			if name in scopes[i]:
 				return scopes[i][name]
 		env = env["parent"]
-	interpreter.erro_runtime("Variável não definida: '" + str(name) + "'")
+	interpreter.erro_runtime("A variável '" + str(name) + "' ainda não existe.")
 	return null
 
 func declare_variable(name, value, type):
@@ -268,12 +268,18 @@ func process_assign(frame):
 			frame.index = 1
 		1:
 			var target = frame.node.node
+			var value = frame.state["value"]
 			if target == null:
-				interpreter.erro_runtime("Destino de atribuição inválido (null)")
+				interpreter.erro_runtime("Não dá para guardar valor nesse lugar.")
 				pop_frame()
 				return
+			if _is_compound_assignment(frame.node):
+				value = _apply_compound_assignment(frame.node.op, target, value)
+				if value == null:
+					pop_frame()
+					return
 			if target.type == "identifier":
-				set_variable(target.name, frame.state["value"])
+				set_variable(target.name, value)
 			elif target.type == "array_access":
 				var arr_wrapper = get_variable_wrapper(target.array.name)
 				if arr_wrapper == null:
@@ -281,7 +287,7 @@ func process_assign(frame):
 					return
 				var arr = arr_wrapper["value"]
 				if arr == null or typeof(arr) != TYPE_DICTIONARY or not arr.has("dimensions"):
-					interpreter.erro_runtime("'" + target.array.name + "' não é um array")
+					interpreter.erro_runtime("'" + target.array.name + "' não é um array.")
 					pop_frame()
 					return
 				var indexes = []
@@ -289,7 +295,7 @@ func process_assign(frame):
 				for idx_node in target.indexes:
 					var idx_val = eval(idx_node)
 					if idx_val == null:
-						interpreter.erro_runtime("Índice de array é nulo")
+						interpreter.erro_runtime("O índice do array veio vazio.")
 						_idx_ok = false
 						break
 					indexes.append(idx_val)
@@ -298,21 +304,53 @@ func process_assign(frame):
 					return
 				if indexes.size() != arr["dimensions"].size():
 					interpreter.erro_runtime(
-						"Número de dimensões incorreto: esperado %d, recebeu %d" % [arr["dimensions"].size(), indexes.size()]
+						"Esse array espera %d índice(s), mas recebeu %d." % [arr["dimensions"].size(), indexes.size()]
 					)
 					pop_frame()
 					return
 				var offset = compute_offset(indexes, arr["dimensions"])
 				if offset < 0 or offset >= arr["data"].size():
 					interpreter.erro_runtime(
-						"Índice fora dos limites: %d (tamanho %d)" % [offset, arr["data"].size()]
+						"Índice fora do array: %d. O tamanho é %d." % [offset, arr["data"].size()]
 					)
 					pop_frame()
 					return
-				arr["data"][offset] = coerce_value(frame.state["value"], arr["element_type"])
+				arr["data"][offset] = coerce_value(value, arr["element_type"])
 			else:
-				interpreter.erro_runtime("Destino de atribuição inválido: " + str(target.type))
+				interpreter.erro_runtime("Não dá para atribuir valor em: " + str(target.type))
 			pop_frame()
+
+func _is_compound_assignment(node) -> bool:
+	return node.op != null and node.op.type in [
+		Token.TiposToken.OP_PLUS_EQUAL,
+		Token.TiposToken.OP_MINUS_EQUAL,
+		Token.TiposToken.OP_STAR_EQUAL,
+		Token.TiposToken.OP_SLASH_EQUAL
+	]
+
+func _apply_compound_assignment(op, target, right_value) -> Variant:
+	var left_value = null
+	if target.type == "identifier":
+		left_value = get_variable(target.name)
+	elif target.type == "array_access":
+		left_value = get_array_value(target)
+	else:
+		interpreter.erro_runtime("Não dá para atribuir valor em: " + str(target.type))
+		return null
+
+	var simple_op_type = _compound_to_simple_operator(op.type)
+	if simple_op_type == null:
+		interpreter.erro_runtime("Não reconheci esse operador: " + str(op.value))
+		return null
+	return apply_op(Token.new(simple_op_type, str(op.value).left(1), op.linha, op.coluna), left_value, right_value)
+
+func _compound_to_simple_operator(type):
+	match type:
+		Token.TiposToken.OP_PLUS_EQUAL:  return Token.TiposToken.OP_PLUS
+		Token.TiposToken.OP_MINUS_EQUAL: return Token.TiposToken.OP_MINUS
+		Token.TiposToken.OP_STAR_EQUAL:  return Token.TiposToken.OP_STAR
+		Token.TiposToken.OP_SLASH_EQUAL: return Token.TiposToken.OP_SLASH
+	return null
 
 func process_var_decl(frame):
 	match frame.index:
@@ -365,7 +403,7 @@ func handle_break():
 		pop_frame()
 		if frame.type == "while" or frame.type == "for":
 			return
-	interpreter.erro_runtime("'break' usado fora de loop")
+	interpreter.erro_runtime("break só funciona dentro de while ou for.")
 
 func handle_continue():
 	while not execution_stack.is_empty():
@@ -377,7 +415,7 @@ func handle_continue():
 				frame.index = 0
 			return
 		pop_frame()
-	interpreter.erro_runtime("'continue' usado fora de loop")
+	interpreter.erro_runtime("continue só funciona dentro de while ou for.")
 
 func process_return(frame) -> Variant:
 	match frame.index:
@@ -401,7 +439,7 @@ func handle_return(signal_):
 			frame.index = 3
 			return
 		pop_frame()
-	interpreter.erro_runtime("'return' fora de função")
+	interpreter.erro_runtime("return só faz sentido dentro de uma função.")
 
 # ─── Funções ───────────────────────────────────────────────────────────────────
 
@@ -436,7 +474,7 @@ func process_function_call(frame):
 				pop_frame()
 				return
 			if typeof(fn) != TYPE_DICTIONARY or fn.get("type") != "function":
-				interpreter.erro_runtime("'" + frame.node.name + "' não é uma função")
+				interpreter.erro_runtime("'" + frame.node.name + "' não é uma função.")
 				pop_frame()
 				return
 			frame.state["fn"] = fn
@@ -522,7 +560,7 @@ func has_function_call(node) -> bool:
 func process_expression(frame):
 	var node = frame.node
 	if node == null:
-		interpreter.erro_fatal("Expressão nula no executor")
+		interpreter.erro_fatal("O executor recebeu uma expressão vazia.")
 		pop_frame()
 		return
 
@@ -615,7 +653,7 @@ func process_expression(frame):
 							deliver_result_to_parent(not value)
 						Token.TiposToken.OP_PLUS_PLUS:
 							if node.operando == null or node.operando.type != "identifier":
-								interpreter.erro_runtime("'++' precisa de uma variável")
+								interpreter.erro_runtime("'++' precisa de uma variável.")
 								deliver_result_to_parent(value)
 							else:
 								var name = node.operando.name
@@ -624,7 +662,7 @@ func process_expression(frame):
 								deliver_result_to_parent(new_val if node.prefix else new_val - 1)
 						Token.TiposToken.OP_MINUS_MINUS:
 							if node.operando == null or node.operando.type != "identifier":
-								interpreter.erro_runtime("'--' precisa de uma variável")
+								interpreter.erro_runtime("'--' precisa de uma variável.")
 								deliver_result_to_parent(value)
 							else:
 								var name = node.operando.name
@@ -633,7 +671,7 @@ func process_expression(frame):
 								deliver_result_to_parent(new_val if node.prefix else new_val + 1)
 					pop_frame()
 		_:
-			interpreter.erro_runtime("Tipo de expressão não suportado: " + str(node.type))
+			interpreter.erro_runtime("Não sei lidar com essa expressão: " + str(node.type))
 			deliver_result_to_parent(null)
 			pop_frame()
 
@@ -642,7 +680,7 @@ func process_expression(frame):
 func apply_op(op, left, right) -> Variant:
 	if left == null or right == null:
 		interpreter.erro_runtime(
-			"Operação com valor nulo (variável não inicializada?)"
+			"Tem um valor vazio nessa conta. Alguma variável ficou sem inicializar?"
 		)
 		return null
 
@@ -657,12 +695,12 @@ func apply_op(op, left, right) -> Variant:
 		Token.TiposToken.OP_STAR:         return left * right
 		Token.TiposToken.OP_SLASH:
 			if right == 0:
-				interpreter.erro_fatal("Divisão por zero")
+				interpreter.erro_fatal("Divisão por zero não rola.")
 				return null
 			return left / right
 		Token.TiposToken.OP_MOD:
 			if right == 0:
-				interpreter.erro_fatal("Módulo por zero")
+				interpreter.erro_fatal("Módulo por zero não rola.")
 				return null
 			return int(left) % int(right)
 		Token.TiposToken.OP_GREATER:       return left > right
@@ -672,7 +710,7 @@ func apply_op(op, left, right) -> Variant:
 		Token.TiposToken.OP_EQUAL_EQUAL:   return left == right
 		Token.TiposToken.OP_NOT_EQUAL:     return left != right
 
-	interpreter.erro_runtime("Operador desconhecido: " + str(op))
+	interpreter.erro_runtime("Não reconheci o operador: " + str(op))
 	return null
 
 # ─── For ───────────────────────────────────────────────────────────────────────
@@ -702,7 +740,10 @@ func process_for(frame):
 				pop_frame()
 		3:
 			if frame.node.incremento != null:
-				push_frame("expression", frame.node.incremento)
+				if frame.node.incremento.type == "assign":
+					push_frame("assign", frame.node.incremento)
+				else:
+					push_frame("expression", frame.node.incremento)
 				frame.index = 4
 				return
 			frame.index = 4
@@ -733,7 +774,7 @@ func coerce_value(value, target_type) -> Variant:
 			if value == null:
 				return false
 			return bool(value)
-	interpreter.erro_runtime("Tipo desconhecido: '" + str(target_type) + "'")
+	interpreter.erro_runtime("Tipo desconhecido: '" + str(target_type) + "'.")
 	return value
 
 # ─── Global block ──────────────────────────────────────────────────────────────
@@ -764,13 +805,13 @@ func process_array_decl(frame):
 			var total_size = 1
 			for d in dimensions:
 				if d <= 0:
-					interpreter.erro_fatal("Tamanho de array inválido: %d" % d)
+					interpreter.erro_fatal("Tamanho de array inválido: %d." % d)
 					pop_frame()
 					return
 				total_size *= d
 
 			if total_size > 1000000:
-				interpreter.erro_fatal("Array muito grande: %d elementos" % total_size)
+				interpreter.erro_fatal("Esse array ficou grande demais: %d elementos." % total_size)
 				pop_frame()
 				return
 
@@ -794,7 +835,7 @@ func get_array_value(node) -> Variant:
 		return null
 	var arr = arr_wrapper["value"]
 	if arr == null or not arr.has("dimensions"):
-		interpreter.erro_runtime("Variável '" + node.array.name + "' não é um array")
+		interpreter.erro_runtime("A variável '" + node.array.name + "' não é um array.")
 		return null
 
 	var indexes = []
@@ -803,14 +844,14 @@ func get_array_value(node) -> Variant:
 
 	if indexes.size() != arr["dimensions"].size():
 		interpreter.erro_runtime(
-			"Número de dimensões incorreto: esperado %d, recebeu %d" % [arr["dimensions"].size(), indexes.size()]
+			"Esse array espera %d índice(s), mas recebeu %d." % [arr["dimensions"].size(), indexes.size()]
 		)
 		return null
 
 	var offset = compute_offset(indexes, arr["dimensions"])
 	if offset < 0 or offset >= arr["data"].size():
 		interpreter.erro_fatal(
-			"Índice fora dos limites: %d (array tem %d elementos)" % [offset, arr["data"].size()]
+			"Índice fora do array: %d. O array tem %d elemento(s)." % [offset, arr["data"].size()]
 		)
 		return null
 
@@ -822,7 +863,7 @@ func compute_offset(indexes, dimensions) -> int:
 	for i in range(dimensions.size() - 1, -1, -1):
 		var idx = indexes[i]
 		if idx == null:
-			interpreter.erro_runtime("Índice nulo na posição %d" % i)
+			interpreter.erro_runtime("O índice na posição %d veio vazio." % i)
 			return 0
 		offset += int(idx) * stride
 		stride *= dimensions[i]

@@ -70,19 +70,19 @@ func reset_progression() -> void:
 func locked_message(feature_id: String) -> String:
 	match feature_id:
 		FEATURE_IF:
-			return "Mecânica ainda não desbloqueada: if()"
+			return "Você ainda não liberou if()."
 		FEATURE_CART:
-			return "Mecânica ainda não desbloqueada: compra variável"
+			return "Você ainda não liberou compras com vários itens."
 		FEATURE_DISCOUNT:
-			return "Mecânica ainda não desbloqueada: desconto"
+			return "Você ainda não liberou a regra de desconto."
 		FEATURE_SENSOR:
-			return "Mecânica ainda não desbloqueada: sensor()"
+			return "Você ainda não liberou sensor()."
 		FEATURE_STOCK:
-			return "Mecânica ainda não desbloqueada: estoque"
+			return "Você ainda não abriu o estoque."
 		FEATURE_CHANGE:
-			return "Mecânica ainda não desbloqueada: troco"
+			return "Você ainda não liberou clientes com troco."
 		_:
-			return "Mecânica ainda não desbloqueada: %s" % feature_id
+			return "Ainda falta liberar: %s" % feature_id
 
 func _sync_legacy_game_state(feature_id: String, value: bool) -> void:
 	if GameManager == null:

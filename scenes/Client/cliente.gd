@@ -10,16 +10,13 @@ const _DIALOG_SCREEN :PackedScene = preload("res://scenes/Client/dialog_screen.t
 @export_category("Objects")
 @export var _hud :CanvasLayer = null
 
-@onready var client_texture: TextureRect = $TextureRect
-
-func _ready() -> void:
-	if challenge != null and challenge.is_golden:
-		client_texture.modulate = Color(1.0, 0.82, 0.12)
-
 func _show_dialog(dialog) -> DialogScreen:
 	if active_dialog and is_instance_valid(active_dialog):
+		active_dialog.visible = false
 		active_dialog.queue_free()
+		active_dialog = null
 	var _new_dialog : DialogScreen = _DIALOG_SCREEN.instantiate()
+	_new_dialog.visible = false
 	_new_dialog.data = dialog
 	_new_dialog.auto_advance = true
 	_hud.add_child(_new_dialog)
@@ -38,7 +35,7 @@ func show_request_dialog(new_challenge) -> void:
 
 	dialog[0] = {
 		"faceset": "res://assets/sprites/faceset1.png",
-		"dialog": "Olá! Gostaria de fazer uma compra.",
+		"dialog": "Oi, vou levar umas coisas.",
 		"title": "Cliente"
 	}
 
@@ -51,7 +48,7 @@ func show_request_dialog(new_challenge) -> void:
 	if _tem_troco():
 		dialog[dialog.size()] = {
 		"faceset": "res://assets/sprites/faceset1.png",
-			"dialog": "Vou pagar com R$ " + formatar(challenge.order.payment) + ". Envie o total da compra e o troco.",
+			"dialog": "Vou pagar com R$ " + formatar(challenge.order.payment) + ".",
 			"title": "Cliente"
 		}
 
@@ -63,28 +60,20 @@ func show_request_dialog(new_challenge) -> void:
 # =========================
 func gerar_texto_pedido(inputs):
 	if inputs.size() < 2:
-		return "Tenho um pedido."
+		return "Tenho um pedido aqui."
 
 	if challenge.requires_stock:
 		var texto_estoque = gerar_texto_ingredientes(challenge.requested_items, inputs)
-		if challenge.applies_discount:
-			texto_estoque += "\nSe passar de R$ 50, aplique 10% de desconto."
-		if _tem_troco():
-			texto_estoque += "\nDepois leia o pagamento e calcule o troco."
 		return texto_estoque
 
 	if challenge.type == "compra_variavel":
 		var partes = []
 		for value in inputs:
 			partes.append("R$ " + formatar(value))
-		var texto_carrinho = "Comprei varios itens: " + ", ".join(partes) + ". Some tudo ate receber -1"
-		if challenge.applies_discount:
-			texto_carrinho += ". Se passar de R$ 50, aplique 10% de desconto"
-		if _tem_troco():
-			return texto_carrinho + ". Depois leia o valor do pagamento, calcule o troco e envie total e troco."
-		return texto_carrinho + " e envie o valor final."
+		var texto_carrinho = "Peguei estes itens: " + ", ".join(partes) + "."
+		return texto_carrinho
 
-	var texto = "Gostaria de comprar dois itens: "
+	var texto = "Peguei dois itens: "
 
 	for i in range(inputs.size()):
 		texto += "R$ " + formatar(inputs[i])
@@ -94,27 +83,22 @@ func gerar_texto_pedido(inputs):
 		elif i < inputs.size() - 2:
 			texto += ", "
 
-	if challenge.applies_discount:
-		texto += ". Se passar de R$ 50, aplique 10% de desconto"
-	if _tem_troco():
-		texto += ". Depois leia o pagamento, calcule o troco e envie total e troco"
-	else:
-		texto += ". Qual o valor total?"
+	texto += ". Quanto ficou?"
 
 	return texto
 
 func gerar_texto_ingredientes(items: Array, inputs: Array) -> String:
-	var linhas = ["Quero comprar:"]
+	var linhas = ["Vou levar isso aqui:"]
 	for i in range(items.size()):
 		var item = items[i]
 		var price_index = i * 2
 		var price = inputs[price_index] if price_index < inputs.size() else 0.0
-		linhas.append("%dx %s - R$ %s cada" % [
+		linhas.append("%dx %s, R$ %s cada" % [
 			int(item.get("quantity", 0)),
 			str(item.get("name", "")),
 			formatar(price)
 		])
-	linhas.append("Calcule o total da compra.")
+	linhas.append("Quanto fica tudo?")
 	return "\n".join(linhas)
 
 
@@ -135,12 +119,12 @@ func dialogo_acerto(valores):
 		dialog = {
 			0: {
 				"faceset": "res://assets/sprites/faceset.png",
-				"dialog": "O total é R$ " + formatar(valores[0]) + ".",
+				"dialog": "Ficou R$ " + formatar(valores[0]) + ".",
 				"title": "Você"
 			},
 			1: {
 		"faceset": "res://assets/sprites/faceset1.png",
-				"dialog": "Perfeito, muito obrigado!",
+				"dialog": "Fechou, valeu!",
 				"title": "Cliente"
 			}
 		}
@@ -149,13 +133,13 @@ func dialogo_acerto(valores):
 		dialog = {
 			0: {
 				"faceset": "res://assets/sprites/faceset.png",
-				"dialog": "O total é R$ " + formatar(valores[0]) + 
-						  " e o troco é R$ " + formatar(valores[1]) + ".",
+				"dialog": "Ficou R$ " + formatar(valores[0]) +
+						  " e seu troco é R$ " + formatar(valores[1]) + ".",
 				"title": "Você"
 			},
 			1: {
 		"faceset": "res://assets/sprites/faceset1.png",
-				"dialog": "Perfeito! Tudo certo com o troco, obrigado!",
+				"dialog": "Boa, era isso mesmo.",
 				"title": "Cliente"
 			}
 		}
@@ -180,12 +164,12 @@ func dialogo_erro(valores):
 	var dialog = {
 		0: {
 			"faceset": "res://assets/sprites/faceset.png",
-			"dialog": "Minha resposta foi: " + resposta + ".",
+			"dialog": "Eu respondi: " + resposta + ".",
 			"title": "Você"
 		},
 		1: {
 		"faceset": "res://assets/sprites/faceset1.png",
-			"dialog": "Hmm... acho que esse valor não está correto.",
+			"dialog": "Acho que essa conta não bateu.",
 			"title": "Cliente"
 		}
 	}

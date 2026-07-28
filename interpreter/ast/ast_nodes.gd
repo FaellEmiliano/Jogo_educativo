@@ -130,11 +130,13 @@ class StringNode extends  ASTNodes:
 class AssignNode extends  ASTNodes:
 	var node
 	var value
+	var op
 	var type = "assign"
 	
-	func _init(n,v):
+	func _init(n,v,o = null):
 		node = n
 		value = v
+		op = o
 
 class IdentifierNode extends  ASTNodes:
 	var type = "identifier"

@@ -25,7 +25,12 @@ func _ready() -> void:
 	for unlocked_id in ["sentinel_client", "while", "for"]:
 		assert(cart_ids.has(unlocked_id), "Tópico não desbloqueado: %s" % unlocked_id)
 
+	help_menu.close_menu()
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_IF)
+	UpgradeManager.upgrade_comprado.emit("lang_if")
+	assert(help_menu.visible, "Compra de upgrade com tópico não abriu a ajuda")
+	assert(help_menu.get("_selected_topic_id") == "discount", "Upgrade de if não abriu o tópico de desconto")
+
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_SENSOR)
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_CHANGE)
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_STOCK)

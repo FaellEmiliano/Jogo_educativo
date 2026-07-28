@@ -27,6 +27,8 @@ var global_operations_per_frame := GLOBAL_OPERATIONS_PER_FRAME
 func start_script(script_id: String, source: String, script_name: String, context: Variant = null) -> String:
 	if is_script_running(script_id):
 		return str(_running_runtime_by_script_id[script_id])
+	_clear_inactive_runtime_outputs()
+	_clear_previous_runtimes_for_script(script_id)
 
 	var runtime_id := _generate_runtime_id()
 	var display_name := script_name.strip_edges()
@@ -39,7 +41,8 @@ func start_script(script_id: String, source: String, script_name: String, contex
 	interpreter.set_source_name(display_name)
 	interpreter.sleep_requested.connect(_on_runtime_sleep_requested.bind(runtime_id))
 	add_child(interpreter)
-	interpreter.executor.runtime_id = runtime_id
+	var executor: Executor = interpreter.get("executor")
+	executor.runtime_id = runtime_id
 
 	var runtime := {
 		"runtime_id": runtime_id,
@@ -47,7 +50,7 @@ func start_script(script_id: String, source: String, script_name: String, contex
 		"script_name": display_name,
 		"source": str(source),
 		"status": STATUS_RUNNING,
-		"executor": interpreter.executor,
+		"executor": executor,
 		"interpreter": interpreter,
 		"output": "",
 		"error": "",
@@ -78,6 +81,39 @@ func start_script(script_id: String, source: String, script_name: String, contex
 			_mark_runtime_finished(runtime_id)
 
 	return runtime_id
+
+
+func _clear_inactive_runtime_outputs() -> void:
+	var changed := false
+	for runtime_id in _runtime_order:
+		var runtime: Dictionary = _runtimes_by_id.get(runtime_id, {})
+		if _is_runtime_active(runtime):
+			continue
+		if str(runtime.get("output", "")).is_empty():
+			continue
+		runtime["output"] = ""
+		changed = true
+	if changed:
+		_emit_combined_output()
+
+
+func _clear_previous_runtimes_for_script(script_id: String) -> void:
+	var removed := false
+	for i in range(_runtime_order.size() - 1, -1, -1):
+		var runtime_id := _runtime_order[i]
+		var runtime: Dictionary = _runtimes_by_id.get(runtime_id, {})
+		if str(runtime.get("script_id", "")) != script_id:
+			continue
+		if _is_runtime_active(runtime):
+			continue
+		var interpreter: Interpreter = runtime.get("interpreter")
+		if interpreter != null:
+			interpreter.queue_free()
+		_runtimes_by_id.erase(runtime_id)
+		_runtime_order.remove_at(i)
+		removed = true
+	if removed:
+		_emit_combined_output()
 
 
 func stop_runtime(runtime_id: String) -> void:
@@ -204,6 +240,10 @@ func _process(_delta: float) -> void:
 		if interpreter == null:
 			_mark_runtime_error(runtime_id, "Runtime sem interpretador ativo.")
 			continue
+		var executor: Executor = runtime.get("executor")
+		if executor == null:
+			_mark_runtime_error(runtime_id, "Runtime sem executor ativo.")
+			continue
 
 		var budget: int = mini(maxi(1, operations_per_frame_per_script), operations_left)
 		interpreter.begin_scheduler_frame()
@@ -222,7 +262,7 @@ func _process(_delta: float) -> void:
 			_mark_runtime_error(runtime_id, str(runtime.get("output", "")))
 		elif requested_sleep:
 			continue
-		elif not interpreter.executor_flag or interpreter.executor.is_finished:
+		elif not interpreter.executor_flag or executor.is_finished:
 			_mark_runtime_finished(runtime_id)
 
 

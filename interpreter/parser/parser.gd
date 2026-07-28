@@ -57,7 +57,7 @@ func consumir(tipo):
 		avancar()
 	else:
 		interpreter.registrar_erro(
-			"Esperado '%s', encontrado '%s'" % [nome_token(tipo), nome_token(token_atual.type)],
+			"Faltou '%s' aqui. Encontrei '%s' no lugar." % [nome_token(tipo), nome_token(token_atual.type)],
 			token_atual.linha,
 			token_atual.coluna,
 			ErroInterpretador.TipoErro.SINTATICO
@@ -140,7 +140,7 @@ func factor():
 
 	# Token inválido — registra erro e retorna nó nulo seguro
 	interpreter.registrar_erro(
-		"Expressão inválida: '%s' ('%s')" % [nome_token(token.type), str(token.value)],
+		"Essa parte da expressão não fechou: '%s' ('%s')." % [nome_token(token.type), str(token.value)],
 		token.linha,
 		token.coluna,
 		ErroInterpretador.TipoErro.SINTATICO
@@ -240,10 +240,17 @@ func logical_or():
 
 func assignment():
 	var node = logical_or()
-	if token_atual.type == Token.TiposToken.OP_EQUAL:
-		consumir(Token.TiposToken.OP_EQUAL)
+	if token_atual.type in [
+		Token.TiposToken.OP_EQUAL,
+		Token.TiposToken.OP_PLUS_EQUAL,
+		Token.TiposToken.OP_MINUS_EQUAL,
+		Token.TiposToken.OP_STAR_EQUAL,
+		Token.TiposToken.OP_SLASH_EQUAL
+	]:
+		var op = token_atual
+		avancar()
 		var value = assignment()
-		node = ASTNodes.AssignNode.new(node, value)
+		node = ASTNodes.AssignNode.new(node, value, op)
 	return node
 
 # ─── Statements ────────────────────────────────────────────────────────────────
@@ -257,7 +264,7 @@ func statement():
 	# Proteção: EOF inesperado dentro de bloco
 	if is_eof():
 		interpreter.registrar_erro(
-			"Fim de arquivo inesperado (faltando '}'?)",
+			"O código acabou antes do esperado. Talvez esteja faltando '}'.",
 			token_atual.linha, token_atual.coluna,
 			ErroInterpretador.TipoErro.SINTATICO
 		)
@@ -276,7 +283,7 @@ func statement():
 		Token.TiposToken.RBRACE:
 			# '}' inesperado — não consome, deixa parse_block fechar
 			interpreter.registrar_erro(
-				"'}' inesperado",
+				"Tem um '}' sobrando aqui.",
 				token_atual.linha, token_atual.coluna,
 				ErroInterpretador.TipoErro.SINTATICO
 			)
@@ -369,7 +376,7 @@ func parse_block():
 
 	if is_eof() and token_atual.type != Token.TiposToken.RBRACE:
 		interpreter.registrar_erro(
-			"Bloco não fechado — faltando '}'",
+			"Esse bloco não fechou. Falta um '}'.",
 			token_atual.linha, token_atual.coluna,
 			ErroInterpretador.TipoErro.SINTATICO
 		)

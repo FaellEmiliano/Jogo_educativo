@@ -1,37 +1,9 @@
 [gd_scene format=3 uid="uid://co1ilpr2xmmvn"]
 
 [ext_resource type="Script" uid="uid://dvdm51yyflm5b" path="res://scenes/help/help_menu.gd" id="1_help"]
-[ext_resource type="Theme" uid="uid://bulhc5d7i3fnr" path="res://assets/themes/help_manual_theme.tres" id="2_theme"]
+[ext_resource type="Theme" path="res://assets/themes/game_ui_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="3_menu2"]
 [ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://assets/sprites/menu.png" id="4_menu"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_article"]
-content_margin_left = 14.0
-content_margin_top = 12.0
-content_margin_right = 14.0
-content_margin_bottom = 12.0
-bg_color = Color(0.0588235, 0.0470588, 0.0313726, 0.92)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.28, 0.21, 0.11, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hint"]
-content_margin_left = 12.0
-content_margin_top = 10.0
-content_margin_right = 12.0
-content_margin_bottom = 10.0
-bg_color = Color(0.07, 0.075, 0.05, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.48, 0.55, 0.34, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [node name="HelpMenu" type="Control" unique_id=1373795401]
 visible = false
@@ -102,23 +74,20 @@ theme_override_constants/separation = 2
 
 [node name="MenuTitle" type="Label" parent="WindowFrame/OuterMargin/Layout/Header/TitleBlock" unique_id=206695914]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
-theme_override_font_sizes/font_size = 15
-text = "CADERNO DA LOJA"
+theme_type_variation = &"TitleLabel"
+text = "CADERNO"
 
 [node name="MenuSubtitle" type="Label" parent="WindowFrame/OuterMargin/Layout/Header/TitleBlock" unique_id=2037320683]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.67, 0.62, 0.5, 1)
-theme_override_font_sizes/font_size = 8
-text = "Anotações rápidas para atender melhor"
+theme_type_variation = &"SubtitleLabel"
+text = "Cola rápida para não se perder"
 
 [node name="ProgressLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Header" unique_id=882165054]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.84, 0.72, 0.45, 1)
-theme_override_font_sizes/font_size = 8
-text = "0/0 páginas abertas"
+theme_type_variation = &"SubtitleLabel"
+text = "PÁGINAS 0/0"
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -126,7 +95,6 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 34)
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
 text = "VOLTAR"
 
 [node name="Separator" type="HSeparator" parent="WindowFrame/OuterMargin/Layout" unique_id=1569163821]
@@ -170,9 +138,8 @@ theme_override_constants/separation = 7
 [node name="TopicsTitle" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/SidebarFrame/SidebarMargin/SidebarLayout" unique_id=1398053771]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
-theme_override_font_sizes/font_size = 10
-text = "ASSUNTOS"
+theme_type_variation = &"CategoryLabel"
+text = "PÁGINAS"
 clip_text = true
 text_overrun_behavior = 3
 
@@ -228,15 +195,13 @@ theme_override_constants/separation = 2
 [node name="CategoryLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticleHeader/TitleColumn" unique_id=1197076726]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.78, 0.72, 1)
-theme_override_font_sizes/font_size = 8
+theme_type_variation = &"SubtitleLabel"
 text = "CATEGORIA"
 
 [node name="TitleLabel" type="Label" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticleHeader/TitleColumn" unique_id=1813187166]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.86, 0.58, 1)
-theme_override_font_sizes/font_size = 14
+theme_type_variation = &"TitleLabel"
 text = "Título"
 autowrap_mode = 2
 
@@ -244,9 +209,8 @@ autowrap_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(104, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.86, 0.62, 1)
-theme_override_font_sizes/font_size = 8
-text = "ABERTO"
+theme_type_variation = &"SuccessLabel"
+text = "LIBERADO"
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -256,7 +220,7 @@ layout_mode = 2
 [node name="ArticlePanel" type="PanelContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout" unique_id=794666730]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_article")
+theme_type_variation = &"DeepPanel"
 
 [node name="ArticleScroll" type="ScrollContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel" unique_id=363869086]
 layout_mode = 2
@@ -272,8 +236,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 250)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
-theme_override_constants/outline_size = 1
 bbcode_enabled = true
 text = "Conteúdo"
 fit_content = true
@@ -284,21 +246,19 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(178, 36)
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 9
-text = "ABRIR ANOTAÇÃO"
+text = "VER DICA"
 
 [node name="HintPanel" type="PanelContainer" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll/Article" unique_id=1751739575]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_hint")
+theme_type_variation = &"InsetPanel"
 
 [node name="HintLabel" type="RichTextLabel" parent="WindowFrame/OuterMargin/Layout/Pages/PageFrame/PageMargin/ContentLayout/ArticlePanel/ArticleScroll/Article/HintPanel" unique_id=162569750]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
-theme_override_colors/default_color = Color(0.84, 0.9, 0.72, 1)
 bbcode_enabled = true
-text = "Anotação"
+text = "Dica"
 fit_content = true
 scroll_active = false

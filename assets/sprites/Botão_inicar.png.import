@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://crgb8u5agdyo4"
-path="res://.godot/imported/chao.png-930a0c13503a091f4c5b2575ba0c8822.ctex"
+uid="uid://cpmct6nah1fq1"
+path="res://.godot/imported/Botão_inicar.png-4108d4447027325287d68cc8bd3bd118.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/chao.png"
-dest_files=["res://.godot/imported/chao.png-930a0c13503a091f4c5b2575ba0c8822.ctex"]
+source_file="res://assets/sprites/Botão_inicar.png"
+dest_files=["res://.godot/imported/Botão_inicar.png-4108d4447027325287d68cc8bd3bd118.ctex"]
 
 [params]
 

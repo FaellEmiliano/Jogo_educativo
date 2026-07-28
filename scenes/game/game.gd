@@ -12,6 +12,8 @@ const DebugMenuScene = preload("res://scenes/debug/debug_menu.tscn")
 @onready var shop_menu: HBoxContainer = $ShopMenu
 @onready var estoque_panel: NinePatchRect = $VBoxContainer/Estoque
 @onready var client_spawner: Node = $Cliente_manager
+@onready var help_menu: Control = $HUD/HelpMenu
+@onready var pause_menu: Control = $HUD/PauseMenu
 
 var debug_infinite_money := false
 var _debug_click_count := 0
@@ -27,7 +29,7 @@ func _ready() -> void:
 	for key in dados["unlocked_mechanics"]:
 		GameManager.unlocked_mechanics[key] = dados["unlocked_mechanics"][key]
 
-	dinheiro_label.text = str(GameManager.money)
+	dinheiro_label.text = _format_money(GameManager.money)
 	EventBus.update_money.connect(update_money)
 	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
 	dinheiro_panel.gui_input.connect(_on_dinheiro_panel_gui_input)
@@ -39,12 +41,16 @@ func _ready() -> void:
 
 func update_money(num: int) -> void:
 	if debug_infinite_money and num < 0:
-		dinheiro_label.text = str(GameManager.money)
+		dinheiro_label.text = _format_money(GameManager.money)
 		Saves.salvar(GameManager.money, GameManager.unlocked_mechanics, GameManager.upgrades)
 		return
 	GameManager.money += num
-	dinheiro_label.text = str(GameManager.money)
+	dinheiro_label.text = _format_money(GameManager.money)
 	Saves.salvar(GameManager.money, GameManager.unlocked_mechanics, GameManager.upgrades)
+
+
+func _format_money(value: int) -> String:
+	return "R$ %d" % value
 
 func set_debug_infinite_money(enabled: bool) -> void:
 	debug_infinite_money = enabled
@@ -74,6 +80,14 @@ func _open_debug_menu() -> void:
 		hud.add_child(_debug_menu)
 		_debug_menu.setup(self, client_spawner)
 	_debug_menu.open_menu()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	if help_menu.visible or (_debug_menu != null and is_instance_valid(_debug_menu) and _debug_menu.visible):
+		return
+	pause_menu.open_menu()
+	get_viewport().set_input_as_handled()
 
 func _on_feature_unlocked(_feature_id: String) -> void:
 	_atualizar_estado_estoque()

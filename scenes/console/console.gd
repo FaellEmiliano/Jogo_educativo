@@ -37,7 +37,7 @@ func _setup_tab_controls() -> void:
 
 func _setup_dialogs() -> void:
 	_rename_dialog = ConfirmationDialog.new()
-	_rename_dialog.title = "Renomear aba"
+	_rename_dialog.title = "Renomear script"
 	_rename_line_edit = LineEdit.new()
 	_rename_line_edit.custom_minimum_size = Vector2(280, 28)
 	_rename_dialog.add_child(_rename_line_edit)
@@ -45,8 +45,8 @@ func _setup_dialogs() -> void:
 	add_child(_rename_dialog)
 
 	_delete_dialog = ConfirmationDialog.new()
-	_delete_dialog.title = "Apagar aba"
-	_delete_dialog.dialog_text = "Apagar a aba atual?"
+	_delete_dialog.title = "Apagar script"
+	_delete_dialog.dialog_text = "Apagar este script?"
 	_delete_dialog.confirmed.connect(_on_delete_confirmed)
 	add_child(_delete_dialog)
 
@@ -100,20 +100,20 @@ func _update_status() -> void:
 		var runtime := InterpreterSystem.get_runtime_by_script_id(active_id)
 		if str(runtime.get("status", "")) == "sleeping":
 			status_label.text = "DORMINDO"
-			status_label.add_theme_color_override("font_color", Color(0.45, 0.75, 1.0))
+			status_label.theme_type_variation = &"SleepingLabel"
 		else:
 			status_label.text = "RODANDO"
-			status_label.add_theme_color_override("font_color", Color(0.45, 1.0, 0.55))
+			status_label.theme_type_variation = &"SuccessLabel"
 		run_button.disabled = true
 		stop_button.disabled = false
 	else:
 		var runtime := InterpreterSystem.get_runtime_by_script_id(active_id)
 		if str(runtime.get("status", "")) == "error":
 			status_label.text = "ERRO"
-			status_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35))
+			status_label.theme_type_variation = &"ErrorLabel"
 		else:
 			status_label.text = "PARADO"
-			status_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.35))
+			status_label.theme_type_variation = &"WarningLabel"
 		run_button.disabled = false
 		stop_button.disabled = true
 	stop_all_button.disabled = not has_running
@@ -214,7 +214,7 @@ func _on_rename_confirmed() -> void:
 
 func _on_delete_tab_pressed() -> void:
 	if InterpreterSystem.get_scripts().size() <= 1:
-		EventBus.emit_signal("send_debug", "Nao e possivel apagar a ultima aba.")
+		EventBus.emit_signal("send_debug", "Não dá para apagar o último script.")
 		return
 	_save_editor_to_active_script()
 	_delete_dialog.popup_centered()
@@ -222,7 +222,7 @@ func _on_delete_tab_pressed() -> void:
 func _on_delete_confirmed() -> void:
 	var active_id := str(InterpreterSystem.get_active_script().get("id", ""))
 	if not InterpreterSystem.delete_script(active_id):
-		EventBus.emit_signal("send_debug", "Nao foi possivel apagar a aba.")
+		EventBus.emit_signal("send_debug", "Não consegui apagar esse script.")
 		return
 	_refresh_tabs()
 	_load_active_script_into_editor()

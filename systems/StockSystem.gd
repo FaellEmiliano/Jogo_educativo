@@ -120,28 +120,28 @@ func pick_requestable_items(max_kinds: int) -> Array:
 
 func _validate_stock_purchase(compra: Array) -> Dictionary:
 	if compra.size() != SCRIPT_STOCK_SIZE or estoque.size() != SCRIPT_STOCK_SIZE:
-		return _stock_purchase_error("buy_stock(): esperado array de tamanho %d." % SCRIPT_STOCK_SIZE)
+		return _stock_purchase_error("A lista de compra precisa ter %d posições." % SCRIPT_STOCK_SIZE)
 
 	var quantities := []
 	var total_cost := 0
 	for i in range(SCRIPT_STOCK_SIZE):
 		var value = compra[i]
 		if not (value is int or value is float):
-			return _stock_purchase_error("buy_stock(): quantidade invalida no indice %d." % i)
+			return _stock_purchase_error("A quantidade na posição %d não é um número." % i)
 		if float(value) != float(int(value)):
-			return _stock_purchase_error("buy_stock(): quantidade precisa ser inteira no indice %d." % i)
+			return _stock_purchase_error("A quantidade na posição %d precisa ser inteira." % i)
 
 		var amount := int(value)
 		if amount < 0:
-			return _stock_purchase_error("buy_stock(): quantidade negativa no indice %d." % i)
+			return _stock_purchase_error("A quantidade na posição %d ficou negativa." % i)
 		if int(estoque[i].quantity) + amount > int(estoque[i].max_quantity):
-			return _stock_purchase_error("buy_stock(): compra ultrapassa o estoque maximo no indice %d." % i)
+			return _stock_purchase_error("A posição %d passa do limite do estoque." % i)
 
 		quantities.append(amount)
 		total_cost += amount * int(estoque[i].price)
 
 	if GameManager.money < total_cost:
-		return _stock_purchase_error("buy_stock(): dinheiro insuficiente para realizar a compra.")
+		return _stock_purchase_error("Não tem dinheiro suficiente para essa compra.")
 
 	return {
 		"success": true,

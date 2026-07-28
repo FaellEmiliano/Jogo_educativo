@@ -2,10 +2,12 @@
 
 [ext_resource type="Script" uid="uid://d1j5khlcgvaek" path="res://scenes/shop/item_upgrade.gd" id="1_1778y"]
 [ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="1_ixias"]
+[ext_resource type="Theme" path="res://assets/themes/game_ui_theme.tres" id="2_theme"]
 
 [node name="MarginContainer" type="MarginContainer" unique_id=1385447326]
 custom_minimum_size = Vector2(100, 75)
 size_flags_horizontal = 3
+theme = ExtResource("2_theme")
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 15
@@ -48,13 +50,15 @@ size_flags_horizontal = 3
 [node name="NomeLabel" type="Label" parent="Button/MarginContainer/HBoxContainer/Info" unique_id=1705065246]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Maior Lucro"
+theme_type_variation = &"ItemNameLabel"
+text = "Mais lucro"
 autowrap_mode = 2
 
 [node name="DescricaoLabel" type="Label" parent="Button/MarginContainer/HBoxContainer/Info" unique_id=1296960259]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Aumenta o dinheiro por compra feita"
+theme_type_variation = &"SubtitleLabel"
+text = "Cada venda rende um pouco mais"
 autowrap_mode = 2
 
 [node name="ComprarButton" type="Button" parent="Button/MarginContainer/HBoxContainer" unique_id=605948636]

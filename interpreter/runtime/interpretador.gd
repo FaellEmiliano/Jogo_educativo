@@ -8,7 +8,7 @@ signal output_changed(text)
 signal sleep_requested(seconds)
  
 @export var debug = false
-var executor = Executor.new()
+var executor: Executor = Executor.new()
 var executor_flag := false
 var erros: Array = []
 var saidas: Array[String] = []

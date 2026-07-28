@@ -8,6 +8,11 @@ var data :Dictionary = {}
 var auto_advance := false
 var auto_advance_delay := 1.2
 var _advancing := false
+var _auto_advance_serial := 0
+
+const AUTO_ADVANCE_MIN_DELAY := 1.4
+const AUTO_ADVANCE_MAX_DELAY := 4.0
+const AUTO_ADVANCE_SECONDS_PER_CHAR := 0.025
 
 signal end_dialog()
 
@@ -30,15 +35,29 @@ func _process(_delta: float) -> void:
 		_advance()
 
 func _initialize_dialog() -> void:
+	_auto_advance_serial += 1
+	var dialog_serial := _auto_advance_serial
 	_advancing = false
-	_name.text = data[_id]["title"]
-	_dialog.text = data[_id]["dialog"]
-	_faceset.texture = load(data[_id]["faceset"])
+	if data.is_empty() or not data.has(_id):
+		push_error("DialogScreen recebeu dados invalidos.")
+		queue_free()
+		return
+
+	var dialog_data = data[_id]
+	_name.text = dialog_data["title"]
+	_dialog.text = dialog_data["dialog"]
+	_faceset.texture = load(dialog_data["faceset"])
 	
+	_dialog.visible_ratio = 0.0
 	_dialog.visible_characters = 0
-	while _dialog.visible_ratio < 1:
+	visible = true
+	while is_inside_tree() and dialog_serial == _auto_advance_serial and _dialog.visible_ratio < 1:
 		await get_tree().create_timer(_step).timeout
+		if not is_inside_tree() or dialog_serial != _auto_advance_serial:
+			return
 		_dialog.visible_characters += 1
+	if not is_inside_tree() or dialog_serial != _auto_advance_serial:
+		return
 	if auto_advance:
 		_auto_advance_after_delay()
 
@@ -47,12 +66,20 @@ func _auto_advance_after_delay() -> void:
 	if _advancing:
 		return
 	_advancing = true
-	await get_tree().create_timer(auto_advance_delay).timeout
-	if is_inside_tree():
+	var auto_advance_serial := _auto_advance_serial
+	await get_tree().create_timer(_get_auto_advance_delay()).timeout
+	if is_inside_tree() and auto_advance_serial == _auto_advance_serial:
 		_advance()
 
 
+func _get_auto_advance_delay() -> float:
+	var base_delay = maxf(auto_advance_delay, AUTO_ADVANCE_MIN_DELAY)
+	var text_delay = float(_dialog.text.length()) * AUTO_ADVANCE_SECONDS_PER_CHAR
+	return clampf(base_delay + text_delay, AUTO_ADVANCE_MIN_DELAY, AUTO_ADVANCE_MAX_DELAY)
+
+
 func _advance() -> void:
+	_auto_advance_serial += 1
 	if _dialog.visible_ratio < 1:
 		_dialog.visible_ratio = 1
 		return

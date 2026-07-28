@@ -2,6 +2,7 @@ extends HBoxContainer
 
 const UpgradeItemScene = preload("res://scenes/shop/Item_upgrade.tscn")
 const UpgradeData = preload("res://data/UpgradeData.gd")
+const TOOLTIP_SIZE := Vector2(280, 152)
 
 @onready var upgrades_container: VBoxContainer = $ColorRect3/UpgradeScroll/Upgrade_table
 @onready var toggle_button: Button = $ColorRect2/Button
@@ -70,7 +71,7 @@ func _on_upgrade_liberado(id: String, data: Dictionary) -> void:
 		return
 	adicionar_upgrade(id, data)
 
-func _on_upgrade_comprado(id: String) -> void:
+func _on_upgrade_comprado(_id: String) -> void:
 	carregar_upgrades_visiveis()
 
 func _on_money_changed(_num: int) -> void:
@@ -122,13 +123,15 @@ func _show_upgrade_tooltip(id: String, data: Dictionary, global_pos: Vector2, fi
 
 	tooltip_nome_label.text = data.get("nome", "")
 	tooltip_descricao_label.text = data.get("descricao", "")
-	tooltip_preco_label.text = "Preco: %s" % int(data.get("preco", 0))
-	tooltip_status_label.text = "Status: %s" % _get_tooltip_status(id, data)
+	tooltip_preco_label.text = "Custa: %s" % int(data.get("preco", 0))
+	tooltip_status_label.text = "Situação: %s" % _get_tooltip_status(id, data)
 
 	var requisitos = _get_requisitos_text(data)
 	tooltip_requisitos_label.visible = requisitos != ""
 	tooltip_requisitos_label.text = requisitos
 
+	tooltip_panel.custom_minimum_size = TOOLTIP_SIZE
+	tooltip_panel.size = TOOLTIP_SIZE
 	tooltip_panel.visible = true
 	tooltip_panel.position = _get_tooltip_position(global_pos)
 
@@ -142,8 +145,8 @@ func _get_tooltip_status(id: String, data: Dictionary) -> String:
 	if UpgradeManager.upgrades_comprados.has(id):
 		return "comprado"
 	if GameManager.money >= int(data.get("preco", 0)):
-		return "disponivel"
-	return "dinheiro insuficiente"
+		return "dá para comprar"
+	return "falta grana"
 
 func _get_requisitos_text(data: Dictionary) -> String:
 	var requisitos = data.get("requer", [])
@@ -155,7 +158,7 @@ func _get_requisitos_text(data: Dictionary) -> String:
 		var requisito_id = str(requisito)
 		var requisito_data = UpgradeData.UPGRADES.get(requisito_id, {})
 		nomes.append(requisito_data.get("nome", requisito_id))
-	return "Requer: %s" % ", ".join(nomes)
+	return "Precisa de: %s" % ", ".join(nomes)
 
 func _get_tooltip_position(global_pos: Vector2) -> Vector2:
 	var offset = Vector2(306, 8)

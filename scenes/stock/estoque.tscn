@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dt0pgr0yq38yl" path="res://scenes/stock/estoque.gd" id="1_ggvvv"]
 [ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="2_menu2"]
+[ext_resource type="Theme" uid="uid://cjki0ylh8wyek" path="res://assets/themes/game_ui_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://assets/sprites/menu.png" id="4_menu"]
 
-[node name="Estoque" type="Control" unique_id=726871644]
+[node name="Estoque" type="Control"]
 top_level = true
 z_index = 20
 layout_mode = 3
@@ -12,13 +14,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 script = ExtResource("1_ggvvv")
 
-[node name="ColorRect" type="NinePatchRect" parent="." unique_id=1196120462]
+[node name="WindowFrame" type="NinePatchRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_menu2")
@@ -30,39 +37,101 @@ patch_margin_bottom = 5
 axis_stretch_horizontal = 2
 axis_stretch_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1531047053]
+[node name="OuterMargin" type="MarginContainer" parent="WindowFrame"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 25
-theme_override_constants/margin_top = 76
-theme_override_constants/margin_right = 360
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer" unique_id=642865033]
+[node name="RootLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin"]
 layout_mode = 2
-theme_override_constants/h_separation = 32
-theme_override_constants/v_separation = 24
-columns = 3
+theme_override_constants/separation = 10
 
-[node name="PurchaseSummaryPanel" type="Panel" parent="." unique_id=1767567420]
-layout_mode = 1
-anchors_preset = 13
-anchor_left = 1.0
-anchor_top = 0.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -335.0
-offset_top = 76.0
-offset_right = -25.0
-offset_bottom = -96.0
-grow_horizontal = 0
-grow_vertical = 2
+[node name="TopBar" type="HBoxContainer" parent="WindowFrame/OuterMargin/RootLayout"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="MarginContainer" type="MarginContainer" parent="PurchaseSummaryPanel" unique_id=1470623188]
+[node name="TitleBlock" type="VBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="WindowFrame/OuterMargin/RootLayout/TopBar/TitleBlock"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "ESTOQUE"
+
+[node name="Subtitle" type="Label" parent="WindowFrame/OuterMargin/RootLayout/TopBar/TitleBlock"]
+layout_mode = 2
+theme_type_variation = &"SubtitleLabel"
+text = "Escolha o que vai repor"
+
+[node name="MoneyLabel" type="Label" parent="WindowFrame/OuterMargin/RootLayout/TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_type_variation = &"CategoryLabel"
+text = "GRANA: R$ 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="WindowFrame/OuterMargin/RootLayout/TopBar"]
+custom_minimum_size = Vector2(92, 34)
+layout_mode = 2
+text = "FECHAR"
+
+[node name="BonusBanner" type="PanelContainer" parent="WindowFrame/OuterMargin/RootLayout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"InsetPanel"
+
+[node name="BonusLabel" type="Label" parent="WindowFrame/OuterMargin/RootLayout/BonusBanner"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SuccessLabel"
+text = "ESTOQUE CHEIO: clientes pagam 1.5x"
+horizontal_alignment = 1
+
+[node name="MessagePanel" type="PanelContainer" parent="WindowFrame/OuterMargin/RootLayout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"InsetPanel"
+
+[node name="AvisoLabel" type="Label" parent="WindowFrame/OuterMargin/RootLayout/MessagePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+text = "Aviso"
+autowrap_mode = 3
+
+[node name="Body" type="HBoxContainer" parent="WindowFrame/OuterMargin/RootLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="ProductsFrame" type="NinePatchRect" parent="WindowFrame/OuterMargin/RootLayout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource("4_menu")
+region_rect = Rect2(1, 1, 48, 49)
+patch_margin_left = 7
+patch_margin_top = 7
+patch_margin_right = 7
+patch_margin_bottom = 6
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="ProductsMargin" type="MarginContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -70,39 +139,103 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 14
+theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_bottom = 12
 
-[node name="PurchaseSummaryLabel" type="Label" parent="PurchaseSummaryPanel/MarginContainer" unique_id=1369293707]
+[node name="ProductsLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin"]
 layout_mode = 2
-text = "Nenhum item selecionado."
-autowrap_mode = 3
+theme_override_constants/separation = 8
 
-[node name="Button" type="Button" parent="." unique_id=842314009]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -44.0
-offset_bottom = 36.0
-grow_horizontal = 0
-text = "X"
+[node name="ProductsTitle" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin/ProductsLayout"]
+layout_mode = 2
+theme_type_variation = &"CategoryLabel"
+text = "PRODUTOS"
 
-[node name="Comprar" type="Button" parent="." unique_id=2071662564]
+[node name="ProductsScroll" type="ScrollContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin/ProductsLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ProductsFrame/ProductsMargin/ProductsLayout/ProductsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 3
+
+[node name="ReceiptFrame" type="NinePatchRect" parent="WindowFrame/OuterMargin/RootLayout/Body"]
+custom_minimum_size = Vector2(322, 0)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_menu2")
+region_rect = Rect2(4, 4, 42, 43)
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="ReceiptMargin" type="MarginContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame"]
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -280.0
-offset_top = -76.0
-offset_right = -25.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-text = "Comprar selecionados"
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
 
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="Comprar" to="." method="_on_comprar_pressed"]
+[node name="ReceiptLayout" type="VBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ReceiptTitle" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "COMPRA"
+horizontal_alignment = 1
+
+[node name="ReceiptHint" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+layout_mode = 2
+theme_type_variation = &"SubtitleLabel"
+text = "O que você separou"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PurchaseSummaryPanel" type="PanelContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="PurchaseSummaryLabel" type="Label" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/PurchaseSummaryPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyText"
+text = "Nada selecionado ainda."
+autowrap_mode = 3
+
+[node name="ReceiptActions" type="HBoxContainer" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Limpar" type="Button" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/ReceiptActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 44)
+layout_mode = 2
+text = "LIMPAR"
+
+[node name="Comprar" type="Button" parent="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/ReceiptActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "COMPRAR"
+
+[connection signal="pressed" from="WindowFrame/OuterMargin/RootLayout/TopBar/Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/ReceiptActions/Limpar" to="." method="_on_limpar_pressed"]
+[connection signal="pressed" from="WindowFrame/OuterMargin/RootLayout/Body/ReceiptFrame/ReceiptMargin/ReceiptLayout/ReceiptActions/Comprar" to="." method="_on_comprar_pressed"]

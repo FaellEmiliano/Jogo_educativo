@@ -1,12 +1,12 @@
 extends Control
 
-@onready var nome: Label = $MarginContainer/VBoxContainer/InfoRow/Nome
-@onready var preco: Label = $MarginContainer/VBoxContainer/InfoRow/Preco
-@onready var selected_quantity_label: Label = $MarginContainer/VBoxContainer/QuantityControls/SelectedQuantity
-@onready var stock_quantity_label: Label = $MarginContainer/VBoxContainer/StockQuantity
-@onready var texture: TextureRect = $MarginContainer/VBoxContainer/Texture
-@onready var minus_button: Button = $MarginContainer/VBoxContainer/QuantityControls/Minus
-@onready var add_button: Button = $MarginContainer/VBoxContainer/QuantityControls/Add
+@onready var nome: Label = %Nome
+@onready var preco: Label = %Preco
+@onready var selected_quantity_label: Label = %SelectedQuantity
+@onready var stock_quantity_label: Label = %StockQuantity
+@onready var product_initial: Label = %ProductInitial
+@onready var minus_button: Button = %Minus
+@onready var add_button: Button = %Add
 
 signal adicionar(nome)
 signal remover(nome)
@@ -17,7 +17,8 @@ func setup(data, amount := 0):
 	local_data = data
 	nome.text = data.name
 	preco.text = "R$ " + str(data.price)
-	stock_quantity_label.text = "%d/%d" % [data.quantity, data.max_quantity]
+	product_initial.text = str(data.name).substr(0, 1).to_upper()
+	stock_quantity_label.text = "ESTOQUE %d/%d" % [data.quantity, data.max_quantity]
 	set_selected_quantity(amount)
 
 func set_selected_quantity(amount: int) -> void:

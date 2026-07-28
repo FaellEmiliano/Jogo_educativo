@@ -100,41 +100,41 @@ func _enter_step(step: int) -> void:
 	match current_step:
 		0:
 			_call_if_exists(client_spawner, "bloquear_spawn")
-			_set_text("Bem Vindo! Esse tutorial vai passar pelas mecânicas básicas do jogo")
+			_set_text("Bem-vindo. Vou te mostrar o básico rapidinho, sem enrolar.")
 		1:
-			_set_text("O seu objetivo é automatizar o seu mercado, e para isso você precisa do menu mais importante do jogo, a tela de script, tente clicar nela!")
+			_set_text("A ideia é automatizar o mercado. Primeiro, abre a tela de script.")
 			if script_menu != null and script_menu.has_method("is_aberto") and script_menu.call("is_aberto"):
 				_advance_step()
 		2:
 			_call_if_exists(client_spawner, "bloquear_spawn")
 			_call_if_exists(script_menu, "set_aberto", [true])
-			_set_text("A tela de script é onde você irá passar a maior parte do seu tempo, veja como pode ser escrito um código básico")
+			_set_text("É aqui que você vai passar boa parte do jogo. Vamos começar com um código bem simples.")
 		3:
 			_call_if_exists(script_menu, "set_aberto", [true])
 			_set_code_text("int main(){\n    print(\"Ola mundo\");\n}")
-			_set_text("A linguagem dos scripts se assemelha com a linguagem C, tente executar o código ao lado")
+			_set_text("A linguagem parece C. Roda esse código para ver se está tudo respondendo.")
 		4:
-			_set_text("Quando houver algum erro de sintaxe ou uma saída com print ela irá aparecer na janela no rodapé do menu")
+			_set_text("Erros e prints aparecem ali embaixo, no retorno do sistema.")
 		5:
 			_call_if_exists(client_spawner, "bloquear_spawn")
 			if not _tutorial_client_spawned:
 				_tutorial_client_spawned = true
 				_call_if_exists(client_spawner, "spawnar_cliente_tutorial")
-			_set_text("Agora para interagir com os clientes existem duas funções básicas,input() e send()")
+			_set_text("Para atender cliente, você vai usar bastante duas funções: input() e send().")
 		6:
 			_call_if_exists(script_menu, "set_aberto", [true])
 			_set_code_text("int main(){\n    float a = input();\n	print(a);}")
-			_set_text("A função input interage pegando a entrada do cliente, cada vez que input() é chamado ele coleta exatamente uma entrada, ele pode ser chamado mais de uma vez caso houver outras entradas adicionais do cliente")
+			_set_text("input() pega um valor do cliente. Chamou uma vez, pegou um valor. Chamou de novo, pega o próximo.")
 		7:
 			_call_if_exists(script_menu, "set_aberto", [true])
 			_set_code_text("int main(){\n    float a = 99.99;\n		print(a);\n		send(a);}")
-			_set_text("O send() envia uma resposta ao cliente, se condizer com o que ele pediu ela é validada, caso não o cliente irá embora da loja")
+			_set_text("send() manda a resposta. Se o número estiver certo, a venda fecha. Se não, o cliente vai embora.")
 		8:
 			_call_if_exists(shop_menu, "set_aberto", [true])
 			_call_if_exists(script_menu, "set_aberto", [false])
-			_set_text("Com o menu de upgrades você pode melhorar o fluxo de clientes e o seu lucro, além de poder desbloquear novas mudanças")
+			_set_text("No menu de melhorias você compra coisas novas: mais lucro, mais clientes e novas regras para o código.")
 		9:
-			_set_text("Agora tente automatizar o fluxo dos seus clientes, boa sorte!")
+			_set_text("Pronto. Agora tenta deixar a loja rodando sozinha.")
 
 func _advance_step() -> void:
 	_enter_step(current_step + 1)
@@ -155,7 +155,7 @@ func _on_end_client(result: bool) -> void:
 		return
 
 	if not result:
-		_set_text("Placeholder de erro: resultado incorreto. Tente novamente ou avance manualmente.")
+		_set_text("A resposta ainda não bateu. Ajusta o código e tenta de novo.")
 		_tutorial_client_spawned = true
 		_call_if_exists(client_spawner, "spawnar_cliente_tutorial")
 

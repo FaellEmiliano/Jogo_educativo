@@ -34,10 +34,14 @@ func build_operadores():
 	operadores["<"] = Token.TiposToken.OP_MINOR
 	operadores["+"] = Token.TiposToken.OP_PLUS
 	operadores["++"] = Token.TiposToken.OP_PLUS_PLUS
+	operadores["+="] = Token.TiposToken.OP_PLUS_EQUAL
 	operadores["-"] = Token.TiposToken.OP_MINUS
 	operadores["--"] = Token.TiposToken.OP_MINUS_MINUS
+	operadores["-="] = Token.TiposToken.OP_MINUS_EQUAL
 	operadores["*"] = Token.TiposToken.OP_STAR
+	operadores["*="] = Token.TiposToken.OP_STAR_EQUAL
 	operadores["/"] = Token.TiposToken.OP_SLASH
+	operadores["/="] = Token.TiposToken.OP_SLASH_EQUAL
 	operadores["="] = Token.TiposToken.OP_EQUAL
 	operadores["=="] = Token.TiposToken.OP_EQUAL_EQUAL
 	operadores[">="] = Token.TiposToken.OP_GREATER_EQUAL

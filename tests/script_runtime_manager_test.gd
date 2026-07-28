@@ -31,6 +31,7 @@ func _ready() -> void:
 	await _test_wait_sleeps_runtime(manager)
 	await _test_stop_all(manager)
 	await _test_finished_runtime(manager)
+	await _test_restarting_script_replaces_previous_output(manager)
 
 	if _failures.is_empty():
 		print("SCRIPT_RUNTIME_MANAGER_TEST_OK")
@@ -97,6 +98,18 @@ func _test_finished_runtime(manager) -> void:
 	var runtime: Dictionary = manager.get_runtime_by_script_id("finito")
 	_check(str(runtime.get("status", "")) == "finished", "Script finito deve ficar finished.")
 	_check(_debug_text.contains("[Finito] inicio") and _debug_text.contains("[Finito] fim"), "Script finito deve imprimir inicio e fim.")
+
+
+func _test_restarting_script_replaces_previous_output(manager) -> void:
+	_debug_text = ""
+	manager.start_script("reload", "int main(){ print(variavel_inexistente); }", "Reload")
+	await _wait_until_not_running(manager, "reload")
+	_check(_debug_text.contains("variavel_inexistente"), "Primeira execucao deve mostrar o erro.")
+
+	manager.start_script("reload", "int main(){ print(\"ok\"); }", "Reload")
+	await _wait_until_not_running(manager, "reload")
+	_check(_debug_text.contains("[Reload] ok"), "Nova execucao deve mostrar a saida atual.")
+	_check(not _debug_text.contains("variavel_inexistente"), "Nova execucao nao deve manter erro antigo da mesma aba.")
 
 
 func _test_get_stock_loop(manager) -> void:

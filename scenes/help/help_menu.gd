@@ -3,6 +3,7 @@ extends Control
 const HelpTopicsData = preload("res://data/HelpTopics.gd")
 const HelpProgressData = preload("res://systems/HelpProgress.gd")
 const HelpTopicButton = preload("res://scenes/help/help_topic_button.gd")
+const UpgradeData = preload("res://data/UpgradeData.gd")
 
 @onready var topics_container: VBoxContainer = %TopicsContainer
 @onready var progress_label: Label = %ProgressLabel
@@ -24,14 +25,19 @@ func _ready() -> void:
 	close_button.pressed.connect(close_menu)
 	spoiler_button.pressed.connect(_toggle_hint)
 	FeatureManager.feature_unlocked.connect(_on_progress_changed)
-	UpgradeManager.upgrade_comprado.connect(_on_progress_changed)
+	UpgradeManager.upgrade_comprado.connect(_on_upgrade_comprado)
 	hide()
 
-func open_menu() -> void:
+func open_menu(topic_id := "") -> void:
+	if topic_id != "":
+		_selected_topic_id = str(topic_id)
 	show()
 	move_to_front()
 	_refresh_topics()
 	close_button.grab_focus()
+
+func open_topic(topic_id: String) -> void:
+	open_menu(topic_id)
 
 func close_menu() -> void:
 	hide()
@@ -72,11 +78,10 @@ func _rebuild_topic_list() -> void:
 func _create_category_label(category_name: String) -> Label:
 	var label := Label.new()
 	label.text = category_name.to_upper()
+	label.theme_type_variation = &"CategoryLabel"
 	label.clip_text = true
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_color_override("font_color", Color(0.96, 0.73, 0.32))
-	label.add_theme_font_size_override("font_size", 9)
 	label.custom_minimum_size = Vector2(0, 26)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	return label
@@ -92,8 +97,8 @@ func _show_topic(topic_id: String) -> void:
 	title_label.text = str(topic.get("title", ""))
 
 	if not HelpProgressData.is_requirement_met(topic.get("requirement", "")):
-		status_label.text = "BLOQUEADO"
-		status_label.add_theme_color_override("font_color", Color(0.72, 0.58, 0.34))
+		status_label.text = "FECHADO"
+		status_label.theme_type_variation = &"WarningLabel"
 		body_label.text = _get_locked_body(topic)
 		_current_hint = ""
 		spoiler_button.visible = false
@@ -101,8 +106,8 @@ func _show_topic(topic_id: String) -> void:
 		body_label.scroll_to_line(0)
 		return
 
-	status_label.text = "ABERTO"
-	status_label.add_theme_color_override("font_color", Color(0.58, 0.86, 0.62))
+	status_label.text = "LIBERADO"
+	status_label.theme_type_variation = &"SuccessLabel"
 	body_label.text = str(topic.get("text", ""))
 
 	_current_hint = str(topic.get("hint", ""))
@@ -117,12 +122,12 @@ func _toggle_hint() -> void:
 
 	hint_label.text = _current_hint
 	hint_panel.visible = true
-	spoiler_button.text = "FECHAR ANOTAÇÃO"
+	spoiler_button.text = "FECHAR DICA"
 
 func _hide_hint() -> void:
 	hint_panel.visible = false
 	hint_label.text = ""
-	spoiler_button.text = "ABRIR ANOTAÇÃO"
+	spoiler_button.text = "VER DICA"
 
 func _find_topic(topic_id: String) -> Dictionary:
 	for topic in HelpTopicsData.TOPICS:
@@ -136,7 +141,7 @@ func _has_topic(topic_id: String) -> bool:
 func _clear_content() -> void:
 	_selected_topic_id = ""
 	category_label.text = ""
-	title_label.text = "Nenhum tópico disponível"
+	title_label.text = "Nada liberado ainda"
 	status_label.text = ""
 	body_label.text = ""
 	_current_hint = ""
@@ -146,6 +151,15 @@ func _clear_content() -> void:
 func _on_progress_changed(_arg = null, _extra = null) -> void:
 	if visible:
 		_refresh_topics()
+
+func _on_upgrade_comprado(id: String) -> void:
+	_on_progress_changed(id)
+
+	var upgrade_data: Dictionary = UpgradeData.UPGRADES.get(id, {})
+	var topic_id := str(upgrade_data.get("help_topic", ""))
+	if topic_id.is_empty():
+		return
+	open_topic(topic_id)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and event.is_action_pressed("ui_cancel"):
@@ -161,32 +175,32 @@ func _refresh_button_selection() -> void:
 func _update_progress_label() -> void:
 	if progress_label == null:
 		return
-	progress_label.text = "%d/%d páginas abertas" % [_visible_topics.size(), HelpTopicsData.TOPICS.size()]
+	progress_label.text = "PÁGINAS %d/%d" % [_visible_topics.size(), HelpTopicsData.TOPICS.size()]
 
 func _get_locked_body(topic: Dictionary) -> String:
-	return """[b]Página presa no balcão[/b]
-Esse assunto entra no caderno quando a loja liberar: [b]%s[/b].
+	return """[b]Ainda não chegou essa parte[/b]
+Esse assunto aparece quando você liberar: [b]%s[/b].
 
 [b]Por enquanto[/b]
-Use os tópicos abertos da lista. Quando o upgrade chegar, esta página aparece completa sem precisar reiniciar o jogo.""" % _get_locked_reason(topic)
+Usa as páginas que já estão abertas. Quando o upgrade chegar, essa daqui aparece completa.""" % _get_locked_reason(topic)
 
 func _get_locked_reason(topic: Dictionary) -> String:
 	var requirement := str(topic.get("requirement", ""))
 	match requirement:
 		"troco":
-			return "mecânica de troco"
+			return "cliente com troco"
 		"sentinela", "loops":
 			return "compras variáveis"
 		"desconto":
-			return "desconto com if"
+			return "desconto acima de R$50"
 		"estoque":
-			return "sistema de estoque"
+			return "estoque"
 		"if":
-			return "Conceito: if()"
+			return "if()"
 		"sensor":
-			return "Conceito: sensor()"
+			return "sensor()"
 		"if_sensor":
-			return "Conceito: if() e sensor()"
+			return "if() e sensor()"
 		"", "start":
 			return "início do jogo"
 		_:

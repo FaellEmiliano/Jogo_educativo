@@ -1,23 +1,29 @@
 extends Control
 
 var estoque = []
-@onready var grid_container: GridContainer = $MarginContainer/GridContainer
-@onready var botao_comprar = $Comprar
-@onready var purchase_summary_label: Label = $PurchaseSummaryPanel/MarginContainer/PurchaseSummaryLabel
+@onready var grid_container: GridContainer = %GridContainer
+@onready var botao_comprar: Button = %Comprar
+@onready var limpar_button: Button = %Limpar
+@onready var purchase_summary_label: Label = %PurchaseSummaryLabel
+@onready var money_label: Label = %MoneyLabel
+@onready var bonus_banner: PanelContainer = %BonusBanner
+@onready var bonus_label: Label = %BonusLabel
+@onready var message_panel: PanelContainer = %MessagePanel
+@onready var aviso_label: Label = %AvisoLabel
 
 var item_template = preload("res://scenes/stock/item.tscn")
 var selected_quantities = {}
 var item_cards = {}
-var bonus_label: Label = null
-var aviso_label: Label = null
 
 func _on_button_pressed() -> void:
 	queue_free()
 
 func _ready() -> void:
 	EventBus.send_estoque.connect(draw_estoque)
-	_criar_bonus_label()
-	_criar_aviso_label()
+	EventBus.update_money.connect(_on_money_changed)
+	bonus_label.text = "ESTOQUE CHEIO: clientes pagam 1.5x"
+	_clear_message()
+	_refresh_money_label()
 	EventBus.emit_signal("get_estoque")
 
 func draw_estoque(est):
@@ -51,7 +57,7 @@ func increase_selected_quantity(item_id: String) -> void:
 	var current_amount = get_selected_quantity(item_id)
 	var remaining_capacity = get_remaining_capacity(item_id)
 	if current_amount >= remaining_capacity:
-		_show_message("Limite de estoque atingido para " + item_id + ".")
+		_show_message("Já não cabe mais " + item_id + ".")
 		return
 
 	selected_quantities[item_id] = current_amount + 1
@@ -111,9 +117,9 @@ func build_purchase_list_text() -> String:
 		lines.append("%s x%d - R$ %d" % [item.name, quantity, subtotal])
 
 	if lines.is_empty():
-		return "Nenhum item selecionado."
+		return "Nada selecionado ainda."
 
-	return "Lista de compra:\n\n%s\n\nTotal: R$ %d" % ["\n".join(lines), total]
+	return "Vai comprar:\n\n%s\n\nTotal: R$ %d" % ["\n".join(lines), total]
 
 func atualizar_ui():
 	refresh_stock_ui()
@@ -131,9 +137,12 @@ func refresh_stock_ui() -> void:
 		if not selected_quantities.has(nome) and is_instance_valid(item_cards[nome]):
 			item_cards[nome].set_selected_quantity(0)
 
-	botao_comprar.text = "Comprar selecionados"
+	botao_comprar.text = "COMPRAR"
 	botao_comprar.disabled = total_itens == 0
+	limpar_button.disabled = total_itens == 0
 	refresh_purchase_summary()
+	_refresh_bonus_label()
+	_refresh_money_label()
 
 func refresh_purchase_summary() -> void:
 	if purchase_summary_label == null:
@@ -143,12 +152,17 @@ func refresh_purchase_summary() -> void:
 func _on_comprar_pressed() -> void:
 	confirm_purchase()
 
+func _on_limpar_pressed() -> void:
+	selected_quantities.clear()
+	_clear_message()
+	refresh_stock_ui()
+
 func confirm_purchase() -> void:
 	selected_quantities = _sanitize_selected_quantities()
 	var total_preco = calculate_total_purchase_cost()
 
 	if total_preco <= 0:
-		_show_message("Selecione ao menos um item para comprar.")
+		_show_message("Escolhe pelo menos um item antes de comprar.")
 		refresh_stock_ui()
 		return
 
@@ -163,9 +177,10 @@ func confirm_purchase() -> void:
 		return
 
 	selected_quantities.clear()
-	_show_message("Compra realizada com sucesso.")
+	_show_message("Compra feita.")
 	draw_estoque(StockSystem.get_stock())
 	refresh_purchase_summary()
+	call_deferred("_refresh_money_label")
 
 func _sanitize_selected_quantities() -> Dictionary:
 	var valid_quantities := {}
@@ -175,35 +190,32 @@ func _sanitize_selected_quantities() -> Dictionary:
 			valid_quantities[str(nome)] = amount
 	return valid_quantities
 
-func _criar_bonus_label() -> void:
-	bonus_label = Label.new()
-	bonus_label.text = "Bônus ativo: prateleiras cheias! Recompensas dos clientes: 1.5x"
-	bonus_label.visible = false
-	bonus_label.position = Vector2(25, 8)
-	bonus_label.size = Vector2(780, 28)
-	add_child(bonus_label)
-
 func _refresh_bonus_label() -> void:
-	if bonus_label == null:
+	if bonus_label == null or bonus_banner == null:
 		return
-	bonus_label.visible = StockSystem.is_stock_full()
-
-func _criar_aviso_label() -> void:
-	aviso_label = Label.new()
-	aviso_label.visible = false
-	aviso_label.position = Vector2(25, 38)
-	aviso_label.size = Vector2(780, 28)
-	add_child(aviso_label)
+	var is_full := StockSystem.is_stock_full()
+	bonus_banner.visible = is_full
+	bonus_label.visible = is_full
 
 func _show_message(text: String) -> void:
-	if aviso_label == null:
+	if aviso_label == null or message_panel == null:
 		return
 	aviso_label.text = text
+	message_panel.visible = true
 	aviso_label.visible = true
 	EventBus.emit_signal("send_debug", text)
 
 func _clear_message() -> void:
-	if aviso_label == null:
+	if aviso_label == null or message_panel == null:
 		return
 	aviso_label.text = ""
+	message_panel.visible = false
 	aviso_label.visible = false
+
+func _on_money_changed(_amount: int) -> void:
+	_refresh_money_label()
+
+func _refresh_money_label() -> void:
+	if money_label == null:
+		return
+	money_label.text = "GRANA: R$ %d" % int(GameManager.money)

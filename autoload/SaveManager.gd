@@ -1,13 +1,18 @@
 extends Node
 
+signal save_import_finished(slot: int, ok: bool, message: String)
+
 const LEGACY_SAVE_PATH = "user://save.json"
 const SAVE_SLOT_PATH = "user://save_slot_%d.json"
 const SAVE_VERSION = 2
 const SLOT_COUNT = 3
+const MAX_IMPORT_BYTES = 1024 * 1024
 const ScriptWorkspace = preload("res://systems/ScriptWorkspace.gd")
 
 var dados: Dictionary = {}
 var current_slot: int = 0
+var _pending_import_slot := 0
+var _web_import_callback = null
 
 func _ready() -> void:
 	migrate_legacy_save_if_needed()
@@ -173,6 +178,119 @@ func migrate_legacy_save_if_needed() -> void:
 func solicitar_save(_motivo := "") -> void:
 	salvar()
 
+func export_save(slot: int) -> Dictionary:
+	if not _is_valid_slot(slot):
+		return {"ok": false, "message": "Slot invalido."}
+	if not OS.has_feature("web"):
+		return {"ok": false, "message": "Exportacao disponivel apenas no navegador."}
+	if not has_save(slot):
+		return {"ok": false, "message": "Nao ha save para exportar."}
+
+	var path := get_save_path(slot)
+	var file = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {"ok": false, "message": "Nao foi possivel ler o save."}
+
+	var buffer := file.get_buffer(file.get_length())
+	file.close()
+	var file_name := "jogo_educativo_slot_%d.json" % slot
+	JavaScriptBridge.download_buffer(buffer, file_name, "application/json")
+	return {"ok": true, "message": "Download do Slot %d iniciado." % slot}
+
+func import_save_from_browser(slot: int) -> Dictionary:
+	if not _is_valid_slot(slot):
+		return {"ok": false, "message": "Slot invalido."}
+	if not OS.has_feature("web"):
+		return {"ok": false, "message": "Importacao disponivel apenas no navegador."}
+	if _pending_import_slot != 0:
+		return {"ok": false, "message": "Ja existe uma importacao em andamento."}
+
+	_pending_import_slot = slot
+	_web_import_callback = JavaScriptBridge.create_callback(_on_web_import_file_loaded)
+	var window = JavaScriptBridge.get_interface("window")
+	window.__godotImportSaveCallback = _web_import_callback
+	JavaScriptBridge.eval("""
+(function () {
+	const callback = window.__godotImportSaveCallback;
+	if (typeof callback !== "function") {
+		return;
+	}
+
+	const input = document.createElement("input");
+	input.type = "file";
+	input.accept = "application/json,.json";
+	input.style.display = "none";
+
+	const cleanup = function () {
+		input.remove();
+		delete window.__godotImportSaveCallback;
+	};
+
+	input.onchange = function () {
+		const file = input.files && input.files[0];
+		if (!file) {
+			callback("", "cancel");
+			cleanup();
+			return;
+		}
+		if (file.size > 1048576) {
+			callback("", "too_large");
+			cleanup();
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = function () {
+			callback(String(reader.result || ""), "ok");
+			cleanup();
+		};
+		reader.onerror = function () {
+			callback("", "error");
+			cleanup();
+		};
+		reader.readAsText(file);
+	};
+	input.oncancel = function () {
+		callback("", "cancel");
+		cleanup();
+	};
+
+	document.body.appendChild(input);
+	input.click();
+})();
+""", true)
+	return {"ok": true, "message": "Escolha o arquivo de save do Slot %d." % slot}
+
+func import_save_text(slot: int, texto: String) -> Dictionary:
+	if not _is_valid_slot(slot):
+		return {"ok": false, "message": "Slot invalido."}
+	if texto.strip_edges().is_empty():
+		return {"ok": false, "message": "Arquivo de save vazio."}
+	if texto.to_utf8_buffer().size() > MAX_IMPORT_BYTES:
+		return {"ok": false, "message": "Arquivo de save muito grande."}
+
+	var json := JSON.new()
+	var erro := json.parse(texto)
+	if erro != OK or not (json.data is Dictionary):
+		return {"ok": false, "message": "Arquivo de save invalido."}
+
+	var imported_data: Dictionary = json.data
+	if not _looks_like_save_data(imported_data):
+		return {"ok": false, "message": "Arquivo nao parece ser um save deste jogo."}
+
+	imported_data = _validar_dados(imported_data)
+	imported_data["meta"]["last_saved_unix"] = Time.get_unix_time_from_system()
+	var file = FileAccess.open(get_save_path(slot), FileAccess.WRITE)
+	if file == null:
+		return {"ok": false, "message": "Nao foi possivel gravar o save importado."}
+
+	file.store_string(JSON.stringify(imported_data, "\t"))
+	file.close()
+	dados = imported_data
+	current_slot = slot
+	_carregar_sistemas(dados)
+	return {"ok": true, "message": "Slot %d importado com sucesso." % slot}
+
 func get_tutorial_data() -> Dictionary:
 	if dados.is_empty():
 		if current_slot == 0:
@@ -220,6 +338,27 @@ func _resolve_slot(slot: int) -> int:
 
 func _is_valid_slot(slot: int) -> bool:
 	return slot >= 1 and slot <= SLOT_COUNT
+
+func _on_web_import_file_loaded(args: Array) -> void:
+	var slot := _pending_import_slot
+	_pending_import_slot = 0
+	_web_import_callback = null
+
+	if args.size() < 2 or str(args[1]) != "ok":
+		save_import_finished.emit(slot, false, "Importacao cancelada.")
+		return
+
+	var result := import_save_text(slot, str(args[0]))
+	save_import_finished.emit(slot, bool(result.get("ok", false)), str(result.get("message", "")))
+
+func _looks_like_save_data(data: Dictionary) -> bool:
+	for key in ["meta", "game", "shop", "stock", "interpreter", "tutorial"]:
+		if data.has(key):
+			return true
+	for legacy_key in ["dinheiro", "unlocked_mechanics", "upgrades", "script_text"]:
+		if data.has(legacy_key):
+			return true
+	return false
 
 func _format_timestamp(unix_time: int) -> String:
 	if unix_time <= 0:

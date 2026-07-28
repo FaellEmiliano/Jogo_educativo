@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bayj4c0tksojv" path="res://scenes/shop/shop_menu.gd" id="1_7rw3u"]
 [ext_resource type="Texture2D" uid="uid://c5l08g30ydut5" path="res://assets/sprites/menu.png" id="2_iurgq"]
 [ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="2_nhusp"]
-[ext_resource type="Theme" uid="uid://drigaqmmyems" path="res://assets/themes/pixel label.tres" id="3_nhusp"]
+[ext_resource type="Theme" path="res://assets/themes/game_ui_theme.tres" id="3_nhusp"]
 
 [node name="ShopMenu" type="HBoxContainer" unique_id=1226205563]
 top_level = true
@@ -12,6 +12,7 @@ anchor_bottom = 1.0
 offset_left = -323.0
 offset_right = 95.0
 grow_vertical = 2
+theme = ExtResource("3_nhusp")
 theme_override_constants/separation = 0
 script = ExtResource("1_7rw3u")
 
@@ -64,8 +65,6 @@ offset_bottom = 2.0
 grow_horizontal = 2
 grow_vertical = 2
 focus_mode = 0
-theme = ExtResource("3_nhusp")
-theme_override_font_sizes/font_size = 10
 toggle_mode = true
 text = "Melhorias
 "
@@ -76,9 +75,9 @@ layer = 20
 
 [node name="UpgradeTooltip" type="NinePatchRect" parent="TooltipLayer"]
 visible = false
-custom_minimum_size = Vector2(236, 128)
-offset_right = 236.0
-offset_bottom = 128.0
+custom_minimum_size = Vector2(280, 152)
+offset_right = 280.0
+offset_bottom = 152.0
 mouse_filter = 2
 texture = ExtResource("2_nhusp")
 region_rect = Rect2(4, 4, 42, 43)
@@ -107,37 +106,32 @@ theme_override_constants/separation = 4
 
 [node name="NomeLabel" type="Label" parent="TooltipLayer/UpgradeTooltip/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("3_nhusp")
-theme_override_font_sizes/font_size = 10
-text = "Upgrade"
+theme_type_variation = &"ItemNameLabel"
+text = "Melhoria"
 autowrap_mode = 2
 
 [node name="DescricaoLabel" type="Label" parent="TooltipLayer/UpgradeTooltip/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("3_nhusp")
-theme_override_font_sizes/font_size = 8
-text = "Descricao"
+theme_type_variation = &"BodyText"
+text = "O que muda"
 autowrap_mode = 2
 
 [node name="PrecoLabel" type="Label" parent="TooltipLayer/UpgradeTooltip/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("3_nhusp")
-theme_override_font_sizes/font_size = 8
-text = "Preco: 0"
+theme_type_variation = &"BodyText"
+text = "Custa: 0"
 autowrap_mode = 2
 
 [node name="StatusLabel" type="Label" parent="TooltipLayer/UpgradeTooltip/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("3_nhusp")
-theme_override_font_sizes/font_size = 8
-text = "Status"
+theme_type_variation = &"WarningLabel"
+text = "Situação"
 autowrap_mode = 2
 
 [node name="RequisitosLabel" type="Label" parent="TooltipLayer/UpgradeTooltip/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme = ExtResource("3_nhusp")
-theme_override_font_sizes/font_size = 8
-text = "Requer"
+theme_type_variation = &"BodyText"
+text = "Precisa"
 autowrap_mode = 2
 
 [connection signal="toggled" from="ColorRect2/Button" to="." method="_on_button_toggled"]

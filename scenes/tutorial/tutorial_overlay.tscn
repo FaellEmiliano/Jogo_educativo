@@ -61,7 +61,7 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/normal_font_size = 10
-text = "Texto tutorial placeholder"
+text = "Tutorial"
 
 [node name="Buttons" type="HBoxContainer" parent="Root/Panel/VBoxContainer" unique_id=602997710]
 layout_mode = 2
@@ -78,4 +78,4 @@ text = "Pular"
 layout_mode = 2
 theme = ExtResource("2_theme")
 theme_override_font_sizes/font_size = 10
-text = "Proximo"
+text = "Próximo"

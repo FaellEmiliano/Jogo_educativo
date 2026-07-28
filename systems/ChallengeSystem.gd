@@ -119,7 +119,7 @@ func _apply_customer_tier(challenge: ChallengeData, options: Dictionary) -> void
 
 func _apply_discount_modifier(challenge: ChallengeData, options: Dictionary) -> void:
 	var force_discount = bool(options.get("discount", false))
-	if force_discount or (FeatureManager.has_feature(FeatureManager.FEATURE_DISCOUNT) and randf() < 0.55):
+	if force_discount or FeatureManager.has_feature(FeatureManager.FEATURE_DISCOUNT):
 		challenge.applies_discount = true
 
 func _apply_change_modifier(challenge: ChallengeData, options: Dictionary) -> void:

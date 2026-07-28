@@ -1,26 +1,35 @@
 [gd_scene format=3 uid="uid://c0gde4ljk87oh"]
 
 [ext_resource type="Script" uid="uid://d2j7q6af68gl3" path="res://scenes/stock/item.gd" id="1_8wggg"]
-[ext_resource type="Texture2D" uid="uid://cr1shtxlxu3vn" path="res://icon.svg" id="1_jafm8"]
+[ext_resource type="Theme" uid="uid://cjki0ylh8wyek" path="res://assets/themes/game_ui_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://c7pl7uc51il4w" path="res://assets/sprites/menu2.png" id="3_menu2"]
 
-[node name="item" type="Control" unique_id=264029291]
-custom_minimum_size = Vector2(190, 240)
+[node name="item" type="Control"]
+custom_minimum_size = Vector2(196, 236)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 190.0
-offset_bottom = 240.0
+offset_right = 196.0
+offset_bottom = 236.0
+theme = ExtResource("2_theme")
 script = ExtResource("1_8wggg")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1151381774]
+[node name="CardFrame" type="NinePatchRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.43137255)
+texture = ExtResource("3_menu2")
+region_rect = Rect2(4, 4, 42, 43)
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1978239793]
+[node name="CardMargin" type="MarginContainer" parent="CardFrame"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,56 +41,71 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1301197663]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Texture" type="TextureRect" parent="MarginContainer/VBoxContainer" unique_id=1797071651]
-custom_minimum_size = Vector2(0, 92)
-layout_mode = 2
-stretch_mode = 5
-texture = ExtResource("1_jafm8")
-
-[node name="InfoRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1670462520]
-layout_mode = 2
-
-[node name="Nome" type="Label" parent="MarginContainer/VBoxContainer/InfoRow" unique_id=1695298616]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Nome"
-text_overrun_behavior = 3
-
-[node name="Preco" type="Label" parent="MarginContainer/VBoxContainer/InfoRow" unique_id=446799311]
-layout_mode = 2
-text = "R$"
-horizontal_alignment = 2
-
-[node name="QuantityControls" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1333861701]
+[node name="VBoxContainer" type="VBoxContainer" parent="CardFrame/CardMargin"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Minus" type="Button" parent="MarginContainer/VBoxContainer/QuantityControls" unique_id=963014766]
+[node name="ProductFrame" type="PanelContainer" parent="CardFrame/CardMargin/VBoxContainer"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+theme_type_variation = &"InsetPanel"
+
+[node name="ProductInitial" type="Label" parent="CardFrame/CardMargin/VBoxContainer/ProductFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeroTitle"
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Nome" type="Label" parent="CardFrame/CardMargin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ItemNameLabel"
+text = "Nome"
+horizontal_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="Preco" type="Label" parent="CardFrame/CardMargin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SubtitleLabel"
+text = "R$ 0"
+horizontal_alignment = 1
+
+[node name="QuantityControls" type="HBoxContainer" parent="CardFrame/CardMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Minus" type="Button" parent="CardFrame/CardMargin/VBoxContainer/QuantityControls"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 36)
 layout_mode = 2
 text = "-"
 
-[node name="SelectedQuantity" type="Label" parent="MarginContainer/VBoxContainer/QuantityControls" unique_id=1634696017]
+[node name="SelectedQuantity" type="Label" parent="CardFrame/CardMargin/VBoxContainer/QuantityControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 36)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+theme_type_variation = &"TitleLabel"
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Add" type="Button" parent="MarginContainer/VBoxContainer/QuantityControls" unique_id=1543958516]
+[node name="Add" type="Button" parent="CardFrame/CardMargin/VBoxContainer/QuantityControls"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 36)
 layout_mode = 2
 text = "+"
 
-[node name="StockQuantity" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2029287833]
+[node name="StockQuantity" type="Label" parent="CardFrame/CardMargin/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "0/10"
+theme_type_variation = &"SubtitleLabel"
+text = "0/10 NO ESTOQUE"
 horizontal_alignment = 1
 
-[connection signal="pressed" from="MarginContainer/VBoxContainer/QuantityControls/Minus" to="." method="_on_minus_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/QuantityControls/Add" to="." method="_on_add_pressed"]
+[connection signal="pressed" from="CardFrame/CardMargin/VBoxContainer/QuantityControls/Minus" to="." method="_on_minus_pressed"]
+[connection signal="pressed" from="CardFrame/CardMargin/VBoxContainer/QuantityControls/Add" to="." method="_on_add_pressed"]

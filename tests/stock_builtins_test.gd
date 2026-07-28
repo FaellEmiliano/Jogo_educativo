@@ -17,6 +17,10 @@ func _ready() -> void:
 	await _test_buy_stock_insufficient_money()
 	await _test_buy_stock_zero_purchase()
 	await _test_full_restock_script()
+	await _test_compound_assignment_variable()
+	await _test_compound_assignment_array()
+	await _test_invalid_compound_assignment_reports_error()
+	await _test_print_array_formats_values()
 
 	if _failures.is_empty():
 		print("STOCK_BUILTINS_TEST_OK")
@@ -192,6 +196,49 @@ int main() {
 """)
 	_check(_stock_quantities() == [5, 10, 5, 5, 6, 5], "Script completo deve repor produtos abaixo de 5.")
 	_check(GameManager.money == 938, "Script completo deve descontar apenas a compra valida.")
+
+func _test_compound_assignment_variable() -> void:
+	await _run_code("""
+int main() {
+	float dinheiro = 10;
+	dinheiro += 5;
+	dinheiro -= 2;
+	dinheiro *= 3;
+	print(dinheiro);
+}
+""")
+	_check(_debug_text == "39", "Operadores compostos devem funcionar com variavel.")
+
+func _test_compound_assignment_array() -> void:
+	await _run_code("""
+int main() {
+	int estoque[3];
+	estoque[0] = 5;
+	estoque[0] += 2;
+	print(estoque[0]);
+}
+""")
+	_check(_debug_text == "7", "Operadores compostos devem funcionar com acesso a array.")
+
+func _test_invalid_compound_assignment_reports_error() -> void:
+	await _run_code("""
+int main() {
+	5 += 1;
+}
+""")
+	_check(_debug_text.contains("Destino de atribuição inválido"), "Uso invalido de operador composto deve reportar erro.")
+
+func _test_print_array_formats_values() -> void:
+	await _run_code("""
+int main() {
+	int valores[3];
+	valores[0] = 2;
+	valores[1] = 4;
+	valores[2] = 6;
+	print(valores);
+}
+""")
+	_check(_debug_text == "[2, 4, 6]", "print(array) deve mostrar todos os valores do array.")
 
 func _run_code(code: String) -> void:
 	_debug_text = ""
