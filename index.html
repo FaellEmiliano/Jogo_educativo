@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AutoMarket</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      overflow: hidden;
+    }
+
+    #game {
+      width: 100%;
+      height: 100%;
+      display: block;
+      outline: none;
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading">Carregando AutoMarket...</div>
+  <canvas id="game">Seu navegador não suporta canvas.</canvas>
+
+  <script src="AutoMarket.js"></script>
+  <script>
+    const GODOT_CONFIG = {
+      args: [],
+      canvasResizePolicy: 2,
+      executable: "AutoMarket",
+      experimentalVK: false,
+      fileSizes: {},
+      focusCanvas: true,
+      gdextensionLibs: []
+    };
+
+    const engine = new Engine(GODOT_CONFIG);
+    const loading = document.getElementById("loading");
+
+    engine.startGame({
+      canvas: document.getElementById("game"),
+      onProgress: function (current, total) {
+        if (total > 0) {
+          const percent = Math.round((current / total) * 100);
+          loading.textContent = `Carregando AutoMarket... ${percent}%`;
+        }
+      }
+    }).then(function () {
+      loading.remove();
+    }).catch(function (error) {
+      console.error(error);
+      loading.textContent = "Não foi possível carregar o AutoMarket.";
+    });
+  </script>
+</body>
+</html>
