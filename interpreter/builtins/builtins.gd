@@ -11,6 +11,7 @@ func register(executor):
 	executor.register_builtin("sensor", _catch_sensor)
 	executor.register_builtin("get_stock", _get_stock)
 	executor.register_builtin("buy_stock", _buy_stock)
+	executor.register_builtin("await", _await)
 	executor.register_builtin("wait", _wait)
 
 func _print(args):
@@ -61,8 +62,14 @@ func _buy_stock(args):
 	return null
 
 func _wait(args):
+	return _await(args)
+
+func _await(args):
+	if not FeatureManager.has_feature(FeatureManager.FEATURE_STOCK):
+		exec.interpreter.erro_runtime("Você ainda não liberou await(). Compre o upgrade Abrir estoque.")
+		return null
 	if args.size() != 1:
-		exec.interpreter.erro_runtime("wait() precisa receber o tempo de espera.")
+		exec.interpreter.erro_runtime("await() precisa receber o tempo de espera.")
 		return null
 	var seconds := maxf(0.0, float(args[0]))
 	exec.interpreter.request_sleep(seconds)

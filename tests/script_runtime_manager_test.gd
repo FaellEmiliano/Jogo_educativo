@@ -21,6 +21,8 @@ func _ready() -> void:
 	var manager := ScriptRuntimeManagerScript.new()
 	add_child(manager)
 
+	await _test_await_requires_stock(manager)
+	FeatureManager.unlock_feature(FeatureManager.FEATURE_STOCK)
 	await _test_infinite_print_does_not_freeze(manager)
 	await _test_two_infinite_scripts_share_frames(manager)
 	await _test_stop_one_runtime(manager)
@@ -28,7 +30,7 @@ func _ready() -> void:
 	await _test_get_stock_loop(manager)
 	await _test_buy_stock(manager)
 	await _test_script_can_use_input_and_send(manager)
-	await _test_wait_sleeps_runtime(manager)
+	await _test_await_sleeps_runtime(manager)
 	await _test_stop_all(manager)
 	await _test_finished_runtime(manager)
 	await _test_restarting_script_replaces_previous_output(manager)
@@ -161,7 +163,7 @@ int main() {
 			float y = input();
 			send(x + y);
 		}
-		wait(0.1);
+		await(0.1);
 	}
 }
 """, "InputSend")
@@ -172,15 +174,22 @@ int main() {
 	await get_tree().process_frame
 
 
-func _test_wait_sleeps_runtime(manager) -> void:
+func _test_await_sleeps_runtime(manager) -> void:
 	_debug_text = ""
-	manager.start_script("waiter", "int main(){ while (1) { print(\"tick\"); wait(1); } }", "Waiter")
+	manager.start_script("waiter", "int main(){ while (1) { print(\"tick\"); await(1); } }", "Waiter")
 	await _wait_frames(3)
 	var runtime: Dictionary = manager.get_runtime_by_script_id("waiter")
-	_check(str(runtime.get("status", "")) == "sleeping", "wait(1) deve colocar o runtime em sleeping.")
-	_check(_debug_text.contains("[Waiter] tick"), "wait() deve permitir imprimir antes de dormir.")
+	_check(str(runtime.get("status", "")) == "sleeping", "await(1) deve colocar o runtime em sleeping.")
+	_check(_debug_text.contains("[Waiter] tick"), "await() deve permitir imprimir antes de dormir.")
 	manager.stop_script("waiter")
 	await get_tree().process_frame
+
+
+func _test_await_requires_stock(manager) -> void:
+	_debug_text = ""
+	manager.start_script("locked_await", "int main(){ await(0.1); }", "AwaitBloqueado")
+	await _wait_until_not_running(manager, "locked_await")
+	_check(_debug_text.contains("Compre o upgrade Abrir estoque"), "await() deve informar qual upgrade libera a função.")
 
 
 func _infinite_script() -> String:

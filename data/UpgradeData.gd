@@ -12,7 +12,7 @@ const UPGRADES = {
 	"lang_if": {
 		"nome": "Aprender if()",
 		"categoria": "linguagem",
-		"descricao": "Libera decisões no código e a regra de desconto acima de R$50",
+		"descricao": "Libera decisões no código. Compras acima de R$50 recebem 10% de desconto",
 		"preco": 260,
 		"dinheiro_minimo": 120,
 		"help_topic": "discount",
@@ -77,11 +77,11 @@ const UPGRADES = {
 	"gameplay_stock": {
 		"nome": "Abrir estoque",
 		"categoria": "gameplay",
-		"descricao": "Clientes começam a pedir produtos com quantidade",
+		"descricao": "Clientes começam a pedir produtos com quantidade e libera await()",
 		"preco": 1120,
 		"dinheiro_minimo": 860,
 		"requer": ["gameplay_change"],
-		"help_topic": "stock",
+		"help_topic": "await",
 		"efeito": {"tipo": "unlock_feature", "feature": "stock"}
 	},
 	"premium_3": {

@@ -113,10 +113,10 @@ Se o script fica preso, provavelmente ele está olhando sempre para a mesma info
 		"category": "Mecânicas da loja",
 		"requirement": "desconto",
 		"text": """[b]Regra fixa da loja[/b]
-Algumas compras recebem desconto quando passam de um valor mínimo. O cliente não precisa pedir: é uma regra da loja.
+Toda compra cujo total bruto seja maior que R$50 recebe 10% de desconto. O cliente não precisa pedir: é uma regra da loja.
 
 [b]Quando observar[/b]
-Confira o total da compra antes de pensar no desconto. O limite só faz sentido depois que a compra inteira foi considerada.
+Primeiro some todos os produtos. Se o total passar de R$50, aplique o desconto uma única vez sobre o total.
 
 [b]Cuidado[/b]
 O desconto pertence à compra inteira, não a cada produto separado.""",
@@ -161,6 +161,27 @@ Se o pedido de compra tiver formato estranho, passar do limite do item ou faltar
 [b]Cuidado[/b]
 A ordem do array é a ordem da prateleira. Se uma posição estiver errada, você compra o produto errado.""",
 		"hint": "Compare o que já tem com o limite da prateleira antes de escolher quanto comprar."
+	},
+	{
+		"id": "await",
+		"title": "await()",
+		"category": "Funções da loja",
+		"requirement": "estoque",
+		"text": """[b]Liberado com o estoque[/b]
+O upgrade [b]Abrir estoque[/b] também libera [code]await()[/code] para seus scripts automáticos.
+
+[b]Dar uma pausa no script[/b]
+[code]await(segundos)[/code] suspende o script pelo tempo indicado. Enquanto ele espera, a loja, os clientes e os outros scripts continuam funcionando normalmente.
+
+[b]Por que isso é útil[/b]
+Um script automático costuma usar [code]while[/code] para observar a loja o tempo todo. Sem uma pausa, ele verifica a mesma coisa muitas vezes seguidas. [code]await()[/code] controla esse ritmo sem travar o jogo.
+
+[b]Como usar[/b]
+[code]await(1);[/code] espera um segundo antes de continuar. Tempos menores, como [code]await(0.1);[/code], servem para verificações mais frequentes.
+
+[b]Cuidado[/b]
+A espera acontece somente no script que chamou a função. Um tempo muito alto pode fazer esse script demorar para perceber o próximo cliente.""",
+		"hint": "Dentro de um [code]while[/code] automático, coloque [code]await()[/code] depois de verificar ou atender o cliente."
 	},
 	{
 		"id": "if",

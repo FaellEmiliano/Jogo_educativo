@@ -3,6 +3,7 @@ extends Node
 const HelpMenuScene = preload("res://scenes/help/help_menu.tscn")
 const HelpTopicsData = preload("res://data/HelpTopics.gd")
 const HelpProgressData = preload("res://systems/HelpProgress.gd")
+const UpgradeData = preload("res://data/UpgradeData.gd")
 
 func _ready() -> void:
 	FeatureManager.reset_progression()
@@ -13,6 +14,7 @@ func _ready() -> void:
 		assert(initial_ids.has(required_id), "Tópico básico ausente: %s" % required_id)
 	assert(not initial_ids.has("sentinel_client"), "Sentinela apareceu antes do desbloqueio")
 	assert(not initial_ids.has("stock"), "Estoque apareceu antes do desbloqueio")
+	assert(not initial_ids.has("await"), "await() apareceu antes do desbloqueio")
 
 	var help_menu := HelpMenuScene.instantiate()
 	add_child(help_menu)
@@ -30,12 +32,18 @@ func _ready() -> void:
 	UpgradeManager.upgrade_comprado.emit("lang_if")
 	assert(help_menu.visible, "Compra de upgrade com tópico não abriu a ajuda")
 	assert(help_menu.get("_selected_topic_id") == "discount", "Upgrade de if não abriu o tópico de desconto")
+	assert(str(UpgradeData.UPGRADES["lang_if"]["descricao"]).contains("10%"), "Upgrade de if não informou o percentual do desconto")
+	var discount_body := help_menu.get_node("%BodyLabel") as RichTextLabel
+	assert(discount_body.text.contains("10%"), "Ajuda de desconto não informou o percentual")
 
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_SENSOR)
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_CHANGE)
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_STOCK)
+	UpgradeManager.upgrade_comprado.emit("gameplay_stock")
+	assert(help_menu.get("_selected_topic_id") == "await", "Upgrade de estoque não abriu o tópico de await()")
 	var all_ids := _topic_ids(help_menu.get("_visible_topics"))
 	assert(all_ids.has("stock"), "Tópico de estoque não foi desbloqueado")
+	assert(all_ids.has("await"), "Tópico de await() não foi desbloqueado")
 	assert(all_ids.size() == HelpTopicsData.TOPICS.size(), "Nem todos os tópicos foram liberados")
 
 	help_menu.call("_show_topic", "sentinel_client")
