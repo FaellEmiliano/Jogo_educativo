@@ -23,15 +23,17 @@ func _run_tests() -> void:
 	_check(not Saves.has_save(2), "Slot 2 deve iniciar vazio no teste.")
 	_check(not Saves.has_save(3), "Slot 3 deve iniciar vazio no teste.")
 
-	_create_slot_with_money(1, 10)
-	_create_slot_with_money(2, 20)
-	_create_slot_with_money(3, 30)
+	_create_slot_with_money(1, 10, 1)
+	_create_slot_with_money(2, 20, 2)
+	_create_slot_with_money(3, 30, 3)
 
 	Saves.load_game(1)
 	_check(GameManager.money == 10, "Slot 1 deve carregar dinheiro proprio.")
+	_check(GameManager.diamonds == 1, "Slot 1 deve carregar diamantes próprios.")
 
 	Saves.load_game(2)
 	_check(GameManager.money == 20, "Slot 2 deve carregar dinheiro proprio.")
+	_check(GameManager.diamonds == 2, "Slot 2 deve carregar diamantes próprios.")
 	GameManager.money = 25
 	Saves.solicitar_save("teste_slot_2")
 
@@ -40,21 +42,36 @@ func _run_tests() -> void:
 
 	Saves.load_game(3)
 	_check(GameManager.money == 30, "Slot 3 deve carregar dinheiro proprio.")
+	_check(GameManager.diamonds == 3, "Slot 3 deve carregar diamantes próprios.")
 	GameManager.money = 35
 	Saves.solicitar_save("teste_slot_3")
 
 	Saves.load_game(3)
 	_check(GameManager.money == 35, "Autosave deve alterar apenas o slot ativo.")
 
+	Saves.load_game(1)
+	FeatureManager.unlock_feature(FeatureManager.FEATURE_DELIVERY)
+	UpgradeManager.upgrades_comprados["delivery_online"] = true
+	GameManager.upgrades = ["delivery_online"]
+	DeliverySystem.unlock(false)
+	_check(DeliverySystem.debug_set_report([0, 3, 2]), "Relatório ativo deve ser configurável no teste de save.")
+	Saves.solicitar_save("teste_delivery_slot_1")
+	Saves.load_game(2)
+	Saves.load_game(1)
+	_check(FeatureManager.has_feature(FeatureManager.FEATURE_DELIVERY), "Save deve restaurar o desbloqueio do Delivery.")
+	_check(DeliverySystem.state == DeliverySystem.State.WAITING_DECLARATION, "Save deve restaurar o estado do relatório ativo.")
+	_check(DeliverySystem.active_deliveries == [0, 3, 2], "Save deve restaurar as entregas do relatório ativo.")
+
 	Saves.delete_save(2)
 	_check(not Saves.has_save(2), "Apagar Slot 2 deve deixar o slot vazio.")
 	_check(Saves.has_save(1), "Apagar Slot 2 nao pode apagar Slot 1.")
 	_check(Saves.has_save(3), "Apagar Slot 2 nao pode apagar Slot 3.")
 
-func _create_slot_with_money(slot: int, money: int) -> void:
+func _create_slot_with_money(slot: int, money: int, diamonds: int) -> void:
 	Saves.set_current_slot(slot)
 	Saves.resetar()
 	GameManager.money = money
+	GameManager.diamonds = diamonds
 	Saves.solicitar_save("teste_slot_%d" % slot)
 	_check(Saves.has_save(slot), "Slot %d deve existir apos salvar." % slot)
 

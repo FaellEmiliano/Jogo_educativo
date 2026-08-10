@@ -133,6 +133,15 @@ func get_active_script_title() -> String:
 func get_scripts() -> Array:
 	return script_workspace.scripts.duplicate(true)
 
+func ensure_delivery_script() -> String:
+	return script_workspace.ensure_delivery_script()
+
+func get_delivery_script_id() -> String:
+	return script_workspace.delivery_script_id
+
+func is_reserved_script(id: String) -> bool:
+	return script_workspace.is_reserved_script(id)
+
 func get_script_workspace_data() -> Dictionary:
 	return script_workspace.serialize()
 

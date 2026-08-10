@@ -98,7 +98,7 @@ theme_type_variation = &"InsetPanel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"SuccessLabel"
-text = "ESTOQUE CHEIO: clientes pagam 1.5x"
+text = "ESTOQUE CHEIO: recompensas valem 1,5x"
 horizontal_alignment = 1
 
 [node name="MessagePanel" type="PanelContainer" parent="WindowFrame/OuterMargin/RootLayout"]

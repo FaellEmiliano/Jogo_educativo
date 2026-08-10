@@ -4,10 +4,11 @@ signal save_import_finished(slot: int, ok: bool, message: String)
 
 const LEGACY_SAVE_PATH = "user://save.json"
 const SAVE_SLOT_PATH = "user://save_slot_%d.json"
-const SAVE_VERSION = 2
+const SAVE_VERSION = 3
 const SLOT_COUNT = 3
 const MAX_IMPORT_BYTES = 1024 * 1024
 const ScriptWorkspace = preload("res://systems/ScriptWorkspace.gd")
+const DeliveryConfigData = preload("res://data/DeliveryConfig.gd")
 
 var dados: Dictionary = {}
 var current_slot: int = 0
@@ -352,7 +353,7 @@ func _on_web_import_file_loaded(args: Array) -> void:
 	save_import_finished.emit(slot, bool(result.get("ok", false)), str(result.get("message", "")))
 
 func _looks_like_save_data(data: Dictionary) -> bool:
-	for key in ["meta", "game", "shop", "stock", "interpreter", "tutorial"]:
+	for key in ["meta", "game", "shop", "stock", "delivery", "interpreter", "tutorial"]:
 		if data.has(key):
 			return true
 	for legacy_key in ["dinheiro", "unlocked_mechanics", "upgrades", "script_text"]:
@@ -380,6 +381,7 @@ func _montar_save_data() -> Dictionary:
 		"game": _coletar_dados_sistema(GameManager),
 		"shop": _coletar_dados_sistema(UpgradeManager),
 		"stock": _coletar_dados_sistema(StockSystem),
+		"delivery": _coletar_dados_sistema(DeliverySystem),
 		"interpreter": _coletar_dados_sistema(InterpreterSystem),
 		"tutorial": _validar_tutorial(dados.get("tutorial", {}))
 	})
@@ -393,9 +395,10 @@ func _coletar_dados_sistema(system: Object) -> Dictionary:
 
 func _carregar_sistemas(save_data: Dictionary) -> void:
 	_carregar_sistema(GameManager, save_data.get("game", {}))
-	_carregar_sistema(UpgradeManager, save_data.get("shop", {}))
 	_carregar_sistema(StockSystem, save_data.get("stock", {}))
 	_carregar_sistema(InterpreterSystem, save_data.get("interpreter", {}))
+	_carregar_sistema(DeliverySystem, save_data.get("delivery", {}))
+	_carregar_sistema(UpgradeManager, save_data.get("shop", {}))
 
 func _carregar_sistema(system: Object, system_data: Variant) -> void:
 	if system != null and system.has_method("load_save_data") and system_data is Dictionary:
@@ -422,6 +425,8 @@ func _save_padrao() -> Dictionary:
 		},
 		"game": {
 			"dinheiro": 0,
+			"diamonds": 0,
+			"game_completed": false,
 			"secret_menu_unlocked": false,
 			"unlocked_mechanics": {
 				"sum": true,
@@ -430,7 +435,8 @@ func _save_padrao() -> Dictionary:
 				"change": false,
 				"stock": false,
 				"if": false,
-				"sensor": false
+				"sensor": false,
+				"delivery": false
 			},
 			"upgrades": []
 		},
@@ -439,6 +445,16 @@ func _save_padrao() -> Dictionary:
 		},
 		"stock": {
 			"quantities": {}
+		},
+		"delivery": {
+			"state": 0,
+			"next_report_id": 1,
+			"active_report_id": 0,
+			"active_deliveries": [],
+			"last_rewarded_report_id": 0,
+			"next_report_unix": 0,
+			"last_result": {},
+			"last_generated_deliveries": []
 		},
 		"interpreter": {
 			"script_text": "",
@@ -470,6 +486,9 @@ func _validar_dados(data: Dictionary) -> Dictionary:
 	if normalizado.has("stock") and normalizado["stock"] is Dictionary:
 		resultado["stock"] = _validar_stock(normalizado["stock"])
 
+	if normalizado.has("delivery") and normalizado["delivery"] is Dictionary:
+		resultado["delivery"] = _validar_delivery(normalizado["delivery"])
+
 	if normalizado.has("interpreter") and normalizado["interpreter"] is Dictionary:
 		resultado["interpreter"] = _validar_interpreter(normalizado["interpreter"])
 
@@ -498,6 +517,12 @@ func _validar_game(data: Dictionary) -> Dictionary:
 
 	if data.has("secret_menu_unlocked"):
 		resultado["secret_menu_unlocked"] = bool(data["secret_menu_unlocked"])
+
+	if data.has("diamonds") and (data["diamonds"] is int or data["diamonds"] is float):
+		resultado["diamonds"] = clampi(int(data["diamonds"]), 0, DeliveryConfigData.MAX_DIAMONDS)
+
+	if data.has("game_completed"):
+		resultado["game_completed"] = bool(data["game_completed"])
 
 	if data.has("unlocked_mechanics") and data["unlocked_mechanics"] is Dictionary:
 		for key in resultado["unlocked_mechanics"]:
@@ -566,6 +591,41 @@ func _validar_tutorial(data: Dictionary) -> Dictionary:
 	if data.has("step") and (data["step"] is int or data["step"] is float):
 		resultado["step"] = max(0, int(data["step"]))
 
+	return resultado
+
+func _validar_delivery(data: Dictionary) -> Dictionary:
+	var resultado = _save_padrao()["delivery"]
+	resultado["state"] = clampi(int(data.get("state", 0)), 0, 3)
+	resultado["next_report_id"] = maxi(1, int(data.get("next_report_id", 1)))
+	resultado["active_report_id"] = maxi(0, int(data.get("active_report_id", 0)))
+	resultado["last_rewarded_report_id"] = maxi(0, int(data.get("last_rewarded_report_id", 0)))
+	resultado["next_report_unix"] = maxi(0, int(data.get("next_report_unix", 0)))
+
+	for key in ["active_deliveries", "last_generated_deliveries"]:
+		var raw_values = data.get(key, [])
+		if raw_values is Array and raw_values.size() == DeliveryConfigData.REPORT_SIZE:
+			var values := []
+			var valid := true
+			for raw_value in raw_values:
+				if not (raw_value is int or raw_value is float) or float(raw_value) != float(int(raw_value)):
+					valid = false
+					break
+				values.append(clampi(int(raw_value), DeliveryConfigData.MIN_DELIVERIES, DeliveryConfigData.MAX_DELIVERIES))
+			if valid:
+				resultado[key] = values
+
+	if data.get("last_result") is Dictionary:
+		resultado["last_result"] = data["last_result"].duplicate(true)
+
+	if int(resultado["active_report_id"]) <= int(resultado["last_rewarded_report_id"]):
+		resultado["active_report_id"] = 0
+		resultado["active_deliveries"] = []
+		if int(resultado["state"]) == 1:
+			resultado["state"] = 2
+	resultado["next_report_id"] = maxi(
+		int(resultado["next_report_id"]),
+		maxi(int(resultado["active_report_id"]), int(resultado["last_rewarded_report_id"])) + 1
+	)
 	return resultado
 
 func _dados_compatibilidade(save_data: Dictionary) -> Dictionary:

@@ -1,5 +1,7 @@
 extends Control
 
+const DeliveryConfigData = preload("res://data/DeliveryConfig.gd")
+
 var game = null
 var client_spawner = null
 
@@ -11,6 +13,8 @@ func _ready() -> void:
 	%CloseButton.pressed.connect(close_menu)
 	infinite_money_button.toggled.connect(_on_infinite_money_toggled)
 	%AddMoney.pressed.connect(_on_add_money_pressed)
+	%AddDiamond.pressed.connect(_on_add_diamond_pressed)
+	%ForceDeliveryReport.pressed.connect(_on_force_delivery_report_pressed)
 	%UnlockFeatures.pressed.connect(_on_unlock_features_pressed)
 	%Restock.pressed.connect(_on_restock_pressed)
 	%SpawnSum.pressed.connect(_spawn_client.bind("soma"))
@@ -52,6 +56,23 @@ func _on_infinite_money_toggled(enabled: bool) -> void:
 func _on_add_money_pressed() -> void:
 	EventBus.emit_signal("update_money", 1000)
 	status_label.text = "+1000 adicionados."
+
+
+func _on_add_diamond_pressed() -> void:
+	var added := GameManager.add_diamonds(1, DeliveryConfigData.MAX_DIAMONDS)
+	Saves.solicitar_save("debug_diamante")
+	status_label.text = "+1 diamante adicionado." if added > 0 else "Diamantes já estão no máximo."
+
+
+func _on_force_delivery_report_pressed() -> void:
+	if not FeatureManager.has_feature(FeatureManager.FEATURE_DELIVERY):
+		status_label.text = "Libere o Delivery Online primeiro."
+		return
+	if DeliverySystem.debug_make_report_ready():
+		Saves.solicitar_save("debug_delivery")
+		status_label.text = "Novo relatório de Delivery criado."
+	else:
+		status_label.text = "Não foi possível criar o relatório."
 
 
 func _on_unlock_features_pressed() -> void:

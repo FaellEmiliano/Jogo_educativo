@@ -1,6 +1,8 @@
 extends Node
 class_name Executor
 
+const DeliveryConfigData = preload("res://data/DeliveryConfig.gd")
+
 var input_stack
 var id
 
@@ -9,6 +11,11 @@ var execution_stack = []
 var call_stack = []
 var builtins = {}
 var runtime_id := ""
+var script_id := ""
+var program_ast = null
+var delivery_report_id := 0
+var delivery_recursive_functions := {}
+var max_call_depth := DeliveryConfigData.MAX_CALL_DEPTH
 
 var is_finished = false
 
@@ -80,6 +87,9 @@ func load_program(program_node, context):
 	execution_stack.clear()
 	call_stack.clear()
 	is_finished = false
+	program_ast = program_node
+	delivery_report_id = 0
+	delivery_recursive_functions.clear()
 
 	var builtins_obj = Builtins.new()
 	builtins_obj.register(self)
@@ -507,6 +517,17 @@ func process_function_call(frame):
 
 			var fn = frame.state["fn"]
 			var args = frame.state["args"]
+			if call_stack.size() >= max_call_depth:
+				interpreter.erro_runtime("O limite de chamadas recursivas foi atingido. Confira se o caso-base consegue encerrar a função.")
+				pop_frame()
+				return
+
+			if delivery_report_id > 0:
+				var function_name := str(fn.name)
+				for active_frame in call_stack:
+					if str(active_frame.get("name", "")) == function_name:
+						delivery_recursive_functions[function_name] = true
+						break
 
 			var new_frame = {
 				"name": fn.name,
@@ -544,6 +565,18 @@ func deliver_result_to_parent(value):
 	var parent = execution_stack[execution_stack.size() - 2]
 	parent.state["value"] = value
 	parent.state.erase("waiting_for")
+
+func begin_delivery_report(report_id: int) -> void:
+	if delivery_report_id == report_id:
+		return
+	delivery_report_id = report_id
+	delivery_recursive_functions.clear()
+
+func has_delivery_recursion(function_names: Array) -> bool:
+	for function_name in function_names:
+		if bool(delivery_recursive_functions.get(str(function_name), false)):
+			return true
+	return false
 
 # ─── Expressões async ──────────────────────────────────────────────────────────
 

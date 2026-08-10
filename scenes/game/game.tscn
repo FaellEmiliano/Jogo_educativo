@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" uid="uid://co1ilpr2xmmvn" path="res://scenes/help/help_menu.tscn" id="10_help"]
 [ext_resource type="PackedScene" path="res://scenes/game/pause_menu.tscn" id="11_pause"]
 [ext_resource type="Texture2D" uid="uid://bupalnvb8y3ph" path="res://assets/sprites/Botão_ajuda.png" id="12_help_button"]
+[ext_resource type="PackedScene" path="res://scenes/delivery/delivery_panel.tscn" id="13_delivery"]
+[ext_resource type="PackedScene" path="res://scenes/game/completion_overlay.tscn" id="14_completion"]
 
 [node name="Game" type="Control" unique_id=1523316571]
 layout_mode = 3
@@ -36,7 +38,7 @@ offset_right = 124.0
 offset_bottom = 56.0
 
 [node name="ColorRect" type="NinePatchRect" parent="VBoxContainer" unique_id=1107853405]
-custom_minimum_size = Vector2(124, 52)
+custom_minimum_size = Vector2(124, 72)
 layout_mode = 2
 size_flags_vertical = 3
 texture = ExtResource("3_pxg2w")
@@ -56,9 +58,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -54.0
-offset_top = -16.0
+offset_top = -26.0
 offset_right = 54.0
-offset_bottom = 16.0
+offset_bottom = 26.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -73,8 +75,23 @@ layout_mode = 2
 text = "R$ 0"
 horizontal_alignment = 1
 
+[node name="DiamondRow" type="HBoxContainer" parent="VBoxContainer/ColorRect/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+tooltip_text = "Diamantes do Delivery Online. Junte 5 para comprar o upgrade Zerar."
+
+[node name="DiamondIcon" type="Label" parent="VBoxContainer/ColorRect/VBoxContainer/DiamondRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.82, 1, 1)
+text = "◆"
+
+[node name="DiamondLabel" type="Label" parent="VBoxContainer/ColorRect/VBoxContainer/DiamondRow"]
+layout_mode = 2
+theme_type_variation = &"SleepingLabel"
+text = "0 / 5"
+
 [node name="Control" type="Control" parent="VBoxContainer" unique_id=442166389]
-custom_minimum_size = Vector2(0, 196)
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 
 [node name="Estoque" type="NinePatchRect" parent="VBoxContainer" unique_id=630837029]
@@ -106,6 +123,30 @@ grow_vertical = 2
 text = "estoque"
 flat = true
 
+[node name="Delivery" type="NinePatchRect" parent="VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(124, 44)
+layout_mode = 2
+texture = ExtResource("3_pxg2w")
+region_rect = Rect2(1, 0, 48, 50)
+patch_margin_left = 6
+patch_margin_top = 7
+patch_margin_right = 6
+patch_margin_bottom = 6
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[node name="DeliveryButton" type="Button" parent="VBoxContainer/Delivery"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "delivery"
+tooltip_text = "Abrir o painel do Delivery Online"
+flat = true
+
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1152540424]
 
 [node name="DebugHotspot" type="Button" parent="HUD" unique_id=1463090922]
@@ -117,6 +158,44 @@ flat = true
 [node name="HelpMenu" parent="HUD" unique_id=2111261114 instance=ExtResource("10_help")]
 
 [node name="PauseMenu" parent="HUD" instance=ExtResource("11_pause")]
+
+[node name="DeliveryPanel" parent="HUD" instance=ExtResource("13_delivery")]
+
+[node name="CompletionOverlay" parent="HUD" instance=ExtResource("14_completion")]
+
+[node name="NotificationPanel" type="PanelContainer" parent="HUD"]
+visible = false
+process_mode = 3
+z_index = 180
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -372.0
+offset_top = 64.0
+offset_right = -20.0
+offset_bottom = 146.0
+grow_horizontal = 0
+theme_type_variation = &"DeepPanel"
+
+[node name="Margin" type="MarginContainer" parent="HUD/NotificationPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="NotificationLabel" type="Label" parent="HUD/NotificationPanel/Margin"]
+layout_mode = 2
+theme_type_variation = &"CategoryLabel"
+text = "Notificação"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="NotificationTimer" type="Timer" parent="HUD"]
+process_mode = 3
+wait_time = 4.0
+one_shot = true
 
 [node name="ColorRect" type="Control" parent="HUD" unique_id=74741330]
 custom_minimum_size = Vector2(100, 52)
@@ -170,7 +249,7 @@ texture = ExtResource("9_h34u2")
 top_level = false
 z_index = 2
 layout_mode = 1
-offset_right = 104.0
+offset_right = 124.0
 grow_vertical = 1
 mouse_filter = 2
 

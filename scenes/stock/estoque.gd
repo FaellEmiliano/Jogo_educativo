@@ -23,7 +23,7 @@ func _ready() -> void:
 	EventBus.send_estoque.connect(draw_estoque)
 	EventBus.update_money.connect(_on_money_changed)
 	_load_receipt_note_texture()
-	bonus_label.text = "ESTOQUE CHEIO: clientes pagam 1.5x"
+	bonus_label.text = "ESTOQUE CHEIO: recompensas valem 1,5x"
 	_clear_message()
 	_refresh_money_label()
 	EventBus.emit_signal("get_estoque")
@@ -179,7 +179,11 @@ func confirm_purchase() -> void:
 		return
 
 	selected_quantities.clear()
-	_show_message("Compra feita.")
+	var warning := str(result.get("warning", ""))
+	if warning.is_empty():
+		_show_message("Compra concluída.")
+	else:
+		_show_message("Compra incompleta: o dinheiro acabou. Confira o estoque; os primeiros itens da lista podem ter sido comprados.")
 	draw_estoque(StockSystem.get_stock())
 	refresh_purchase_summary()
 	call_deferred("_refresh_money_label")

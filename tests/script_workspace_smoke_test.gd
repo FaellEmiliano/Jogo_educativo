@@ -5,6 +5,7 @@ const ScriptWorkspace = preload("res://systems/ScriptWorkspace.gd")
 func _ready() -> void:
 	_test_workspace_documents()
 	_test_legacy_migration()
+	_test_delivery_document()
 	print("SCRIPT_WORKSPACE_SMOKE_TEST_OK")
 	await get_tree().process_frame
 	get_tree().quit()
@@ -50,3 +51,18 @@ func _test_legacy_migration() -> void:
 	assert(migrated.scripts.size() == 1, "Save antigo deve virar uma aba.")
 	assert(migrated.get_active_title() == "Principal", "Save antigo deve migrar para Principal.")
 	assert(migrated.get_active_source() == "codigo antigo", "Migracao nao pode perder o codigo antigo.")
+
+func _test_delivery_document() -> void:
+	var workspace := ScriptWorkspace.new()
+	var delivery_id := workspace.ensure_delivery_script()
+	assert(not delivery_id.is_empty(), "Delivery deve receber um id próprio.")
+	assert(workspace.get_script_document(delivery_id).get("title") == "Delivery", "A aba reservada deve se chamar Delivery.")
+	workspace.rename_script(delivery_id, "Outro nome")
+	assert(workspace.get_script_document(delivery_id).get("title") == "Delivery", "A aba Delivery não pode ser renomeada.")
+	assert(not workspace.delete_script(delivery_id), "A aba Delivery não pode ser apagada.")
+	workspace.set_active_script(delivery_id)
+	workspace.update_active_source("codigo delivery")
+	var loaded := ScriptWorkspace.new()
+	loaded.deserialize(workspace.serialize())
+	assert(loaded.delivery_script_id == delivery_id, "O save deve preservar o id da aba Delivery.")
+	assert(loaded.get_script_document(delivery_id).get("source") == "codigo delivery", "O save deve preservar o código do Delivery.")

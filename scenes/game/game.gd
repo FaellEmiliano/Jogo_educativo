@@ -4,6 +4,7 @@ extends Control
 # Estado real (money, upgrades, unlocked_mechanics) vive em GameManager
 const TutorialOverlayScene = preload("res://scenes/tutorial/tutorial_overlay.tscn")
 const DebugMenuScene = preload("res://scenes/debug/debug_menu.tscn")
+const DeliveryConfigData = preload("res://data/DeliveryConfig.gd")
 
 @onready var dinheiro_label: Label = $VBoxContainer/ColorRect/VBoxContainer/Dinheiro
 @onready var dinheiro_panel: NinePatchRect = $VBoxContainer/ColorRect
@@ -11,15 +12,26 @@ const DebugMenuScene = preload("res://scenes/debug/debug_menu.tscn")
 @onready var script_menu: VBoxContainer = $ScriptMenu
 @onready var shop_menu: HBoxContainer = $ShopMenu
 @onready var estoque_panel: NinePatchRect = $VBoxContainer/Estoque
+@onready var delivery_panel_button: NinePatchRect = $VBoxContainer/Delivery
+@onready var delivery_button: Button = $VBoxContainer/Delivery/DeliveryButton
+@onready var diamond_row: HBoxContainer = $VBoxContainer/ColorRect/VBoxContainer/DiamondRow
+@onready var diamond_label: Label = $VBoxContainer/ColorRect/VBoxContainer/DiamondRow/DiamondLabel
 @onready var client_spawner: Node = $Cliente_manager
 @onready var help_menu: Control = $HUD/HelpMenu
 @onready var pause_menu: Control = $HUD/PauseMenu
 @onready var debug_hotspot: Button = $HUD/DebugHotspot
+@onready var delivery_panel: Control = $HUD/DeliveryPanel
+@onready var completion_overlay: Control = $HUD/CompletionOverlay
+@onready var notification_panel: PanelContainer = $HUD/NotificationPanel
+@onready var notification_label: Label = $HUD/NotificationPanel/Margin/NotificationLabel
+@onready var notification_timer: Timer = $HUD/NotificationTimer
 
 var debug_infinite_money := false
 var _debug_click_count := 0
 var _last_debug_click_ms := 0
 var _debug_menu = null
+var _notification_queue: Array[String] = []
+var _current_notification := ""
 
 
 func _ready() -> void:
@@ -31,14 +43,20 @@ func _ready() -> void:
 		GameManager.unlocked_mechanics[key] = dados["unlocked_mechanics"][key]
 
 	dinheiro_label.text = _format_money(GameManager.money)
+	_update_diamonds(GameManager.diamonds)
 	EventBus.update_money.connect(update_money)
+	EventBus.player_notification.connect(_queue_notification)
 	EventBus.secret_menu_unlocked.connect(_on_secret_menu_unlocked)
 	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
+	GameManager.diamonds_changed.connect(_update_diamonds)
+	GameManager.game_completed_changed.connect(_on_game_completed_changed)
 	dinheiro_panel.gui_input.connect(_on_dinheiro_panel_gui_input)
+	delivery_button.pressed.connect(_open_delivery_panel)
+	notification_timer.timeout.connect(_show_next_notification)
 	_update_debug_hotspot()
 	UpgradeManager.verificar_desbloqueios()
 	EventBus.emit_signal("update_money", 0)
-	_atualizar_estado_estoque()
+	_atualizar_estado_mecanicas()
 	_instanciar_tutorial_se_necessario()
 
 
@@ -103,11 +121,49 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func _on_feature_unlocked(_feature_id: String) -> void:
-	_atualizar_estado_estoque()
+	_atualizar_estado_mecanicas()
 	Saves.salvar(GameManager.money, GameManager.unlocked_mechanics, GameManager.upgrades)
 
-func _atualizar_estado_estoque() -> void:
+func _atualizar_estado_mecanicas() -> void:
 	estoque_panel.visible = FeatureManager.has_feature(FeatureManager.FEATURE_STOCK)
+	delivery_panel_button.visible = FeatureManager.has_feature(FeatureManager.FEATURE_DELIVERY)
+	diamond_row.visible = delivery_panel_button.visible or GameManager.diamonds > 0
+
+func _open_delivery_panel() -> void:
+	if not FeatureManager.has_feature(FeatureManager.FEATURE_DELIVERY):
+		_queue_notification(FeatureManager.locked_message(FeatureManager.FEATURE_DELIVERY))
+		return
+	script_menu.set_aberto(false)
+	shop_menu.set_aberto(false)
+	delivery_panel.open_panel()
+
+func _update_diamonds(value: int) -> void:
+	diamond_label.text = "%d / %d" % [value, DeliveryConfigData.MAX_DIAMONDS]
+	diamond_row.visible = FeatureManager.has_feature(FeatureManager.FEATURE_DELIVERY) or value > 0
+
+func _on_game_completed_changed(completed: bool) -> void:
+	if completed:
+		completion_overlay.open_overlay()
+
+func _queue_notification(message: String) -> void:
+	var clean_message := message.strip_edges()
+	if clean_message.is_empty() or clean_message == _current_notification:
+		return
+	if not _notification_queue.is_empty() and _notification_queue.back() == clean_message:
+		return
+	_notification_queue.append(clean_message)
+	if not notification_panel.visible:
+		_show_next_notification()
+
+func _show_next_notification() -> void:
+	if _notification_queue.is_empty():
+		_current_notification = ""
+		notification_panel.hide()
+		return
+	_current_notification = _notification_queue.pop_front()
+	notification_label.text = _current_notification
+	notification_panel.show()
+	notification_timer.start()
 
 func _instanciar_tutorial_se_necessario() -> void:
 	var tutorial_data = Saves.get_tutorial_data()

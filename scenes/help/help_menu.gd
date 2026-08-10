@@ -204,6 +204,8 @@ func _get_locked_reason(topic: Dictionary) -> String:
 			return "if()"
 		"sensor":
 			return "sensor()"
+		"delivery":
+			return "Delivery Online"
 		"if_sensor":
 			return "if() e sensor()"
 		"", "start":

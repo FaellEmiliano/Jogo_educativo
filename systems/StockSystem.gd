@@ -47,7 +47,10 @@ func try_buy_stock_from_script(compra: Array) -> Dictionary:
 	EventBus.emit_signal("get_estoque")
 
 	if incomplete:
-		return {"success": true, "warning": "compra incompleta! dinheiro insuficiente"}
+		return {
+			"success": true,
+			"warning": "Compra incompleta: dinheiro insuficiente. Os primeiros itens da lista podem ter sido comprados."
+		}
 	return {"success": true, "warning": ""}
 
 func add_item(item_name: String, amount: int) -> int:

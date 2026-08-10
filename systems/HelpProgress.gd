@@ -27,6 +27,8 @@ static func is_requirement_met(requirement: Variant) -> bool:
 			return FeatureManager.has_feature(FeatureManager.FEATURE_IF)
 		"sensor":
 			return FeatureManager.has_feature(FeatureManager.FEATURE_SENSOR)
+		"delivery":
+			return FeatureManager.has_feature(FeatureManager.FEATURE_DELIVERY)
 		"if_sensor":
 			return (
 				FeatureManager.has_feature(FeatureManager.FEATURE_IF)
@@ -44,4 +46,3 @@ static func get_visible_topics(topics: Array) -> Array:
 		if topic is Dictionary and is_requirement_met(topic.get("requirement", "")):
 			visible_topics.append(topic)
 	return visible_topics
-

@@ -28,7 +28,7 @@ func setup(id: String, data: Dictionary) -> void:
 	nome_label.text = data.get("nome", "")
 	descricao_label.text = data.get("categoria", "")
 	descricao_label.visible = descricao_label.text != ""
-	preco_button.text = "Comprar\n%s" % int(data.get("preco", 0))
+	preco_button.text = "Comprar\n%s" % UpgradeManager.format_price(upgrade_id)
 	toogle_state(UpgradeManager.upgrades_comprados.has(upgrade_id))
 
 func toogle_state(bought: bool) -> void:
@@ -37,9 +37,8 @@ func toogle_state(bought: bool) -> void:
 		preco_button.text = "Comprado"
 		preco_button.disabled = true
 	else:
-		var preco = int(upgrade_data.get("preco", 0))
-		preco_button.text = "Comprar\n%s" % preco
-		preco_button.disabled = GameManager.money < preco
+		preco_button.text = "Comprar\n%s" % UpgradeManager.format_price(upgrade_id)
+		preco_button.disabled = not UpgradeManager.can_buy(upgrade_id)
 
 func toggle_state(bought: bool) -> void:
 	toogle_state(bought)

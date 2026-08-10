@@ -13,6 +13,9 @@ var reward_multiplier := 1.0
 var spawn_delay_min := 5.0
 var spawn_delay_max := 8.0
 
+const CURRENCY_MONEY := "money"
+const CURRENCY_DIAMONDS := "diamonds"
+
 func _ready() -> void:
 	verificar_desbloqueios()
 
@@ -57,7 +60,39 @@ func can_buy(id: String) -> bool:
 		return false
 	if not upgrades_liberados.has(id) or upgrades_comprados.has(id):
 		return false
-	return GameManager.money >= int(UpgradeData.UPGRADES[id].get("preco", 0))
+	if id == "zerar" and GameManager.game_completed:
+		return false
+	return get_currency_balance(get_upgrade_currency(id)) >= int(UpgradeData.UPGRADES[id].get("preco", 0))
+
+func get_upgrade_currency(id: String) -> String:
+	if not UpgradeData.UPGRADES.has(id):
+		return CURRENCY_MONEY
+	return str(UpgradeData.UPGRADES[id].get("currency", CURRENCY_MONEY))
+
+func get_currency_balance(currency: String) -> int:
+	if currency == CURRENCY_DIAMONDS:
+		return GameManager.diamonds
+	return GameManager.money
+
+func format_price(id: String) -> String:
+	if not UpgradeData.UPGRADES.has(id):
+		return "0"
+	var price := int(UpgradeData.UPGRADES[id].get("preco", 0))
+	if get_upgrade_currency(id) == CURRENCY_DIAMONDS:
+		return "%d diamantes" % price
+	return "R$ %d" % price
+
+func get_missing_currency_text(id: String) -> String:
+	if not UpgradeData.UPGRADES.has(id):
+		return "indisponível"
+	var currency := get_upgrade_currency(id)
+	var price := int(UpgradeData.UPGRADES[id].get("preco", 0))
+	var missing := maxi(0, price - get_currency_balance(currency))
+	if missing <= 0:
+		return "dá para comprar"
+	if currency == CURRENCY_DIAMONDS:
+		return "faltam %d diamantes" % missing
+	return "falta grana"
 
 func comprar_upgrade(id: String) -> void:
 	if not UpgradeData.UPGRADES.has(id):
@@ -72,20 +107,27 @@ func comprar_upgrade(id: String) -> void:
 		return
 	
 	var preco = int(UpgradeData.UPGRADES[id].get("preco", 0))
-	if GameManager.money < preco:
-		push_warning("Dinheiro insuficiente para comprar: %s" % id)
+	var currency := get_upgrade_currency(id)
+	if get_currency_balance(currency) < preco:
+		push_warning("Moeda insuficiente para comprar: %s" % id)
 		return
 
 	upgrades_comprados[id] = true
 	if not GameManager.upgrades.has(id):
 		GameManager.upgrades.append(id)
-	EventBus.emit_signal("update_money", -preco)
+	if currency == CURRENCY_DIAMONDS and not GameManager.spend_diamonds(preco):
+		upgrades_comprados.erase(id)
+		GameManager.upgrades.erase(id)
+		return
 	print("Upgrade comprado: ", id)
-	aplicar_upgrade(id)
+	aplicar_upgrade(id, true)
+	if currency == CURRENCY_MONEY:
+		EventBus.emit_signal("update_money", -preco)
 	upgrade_comprado.emit(id)
 	verificar_desbloqueios()
+	Saves.solicitar_save("upgrade_%s" % id)
 
-func aplicar_upgrade(id: String) -> void:
+func aplicar_upgrade(id: String, emit_feedback := true) -> void:
 	if not UpgradeData.UPGRADES.has(id):
 		return
 	print("Aplicando upgrade: ", id)
@@ -98,6 +140,13 @@ func aplicar_upgrade(id: String) -> void:
 		"spawn_delay":
 			spawn_delay_min = float(efeito.get("min", spawn_delay_min))
 			spawn_delay_max = float(efeito.get("max", spawn_delay_max))
+		"unlock_delivery":
+			DeliverySystem.unlock(emit_feedback)
+		"complete_game":
+			GameManager.complete_game(emit_feedback)
+			DeliverySystem.mark_completed(false)
+			if emit_feedback:
+				EventBus.emit_signal("player_notification", "Jogo concluído!\nSua loja chegou ao nível máximo de automação.")
 	upgrade_aplicado.emit(id)
 
 func calcular_recompensa(valor_base: int) -> int:
@@ -133,6 +182,6 @@ func load_save_data(data: Dictionary) -> void:
 			upgrades_comprados[str(id)] = true
 
 	for id in upgrades_comprados:
-		aplicar_upgrade(id)
+		aplicar_upgrade(id, false)
 
 	verificar_desbloqueios()

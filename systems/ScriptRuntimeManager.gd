@@ -43,6 +43,7 @@ func start_script(script_id: String, source: String, script_name: String, contex
 	add_child(interpreter)
 	var executor: Executor = interpreter.get("executor")
 	executor.runtime_id = runtime_id
+	executor.script_id = script_id
 
 	var runtime := {
 		"runtime_id": runtime_id,

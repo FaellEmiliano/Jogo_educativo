@@ -2,7 +2,7 @@ extends HBoxContainer
 
 const UpgradeItemScene = preload("res://scenes/shop/Item_upgrade.tscn")
 const UpgradeData = preload("res://data/UpgradeData.gd")
-const TOOLTIP_SIZE := Vector2(280, 152)
+const TOOLTIP_SIZE := Vector2(320, 190)
 
 @onready var upgrades_container: VBoxContainer = $ColorRect3/UpgradeScroll/Upgrade_table
 @onready var toggle_button: Button = $ColorRect2/Button
@@ -29,6 +29,7 @@ func _ready() -> void:
 	UpgradeManager.upgrade_comprado.connect(_on_upgrade_comprado)
 	UpgradeManager.upgrades_atualizados.connect(carregar_upgrades_visiveis)
 	EventBus.update_money.connect(_on_money_changed)
+	GameManager.diamonds_changed.connect(_on_diamonds_changed)
 	carregar_upgrades_visiveis()
 
 func carregar_upgrades_visiveis() -> void:
@@ -77,6 +78,9 @@ func _on_upgrade_comprado(_id: String) -> void:
 func _on_money_changed(_num: int) -> void:
 	call_deferred("_refresh_after_money_changed")
 
+func _on_diamonds_changed(_value: int) -> void:
+	call_deferred("_refresh_after_money_changed")
+
 func _refresh_after_money_changed() -> void:
 	UpgradeManager.verificar_desbloqueios()
 	for id in itens_por_upgrade:
@@ -122,8 +126,8 @@ func _show_upgrade_tooltip(id: String, data: Dictionary, global_pos: Vector2, fi
 	_tooltip_upgrade_id = id
 
 	tooltip_nome_label.text = data.get("nome", "")
-	tooltip_descricao_label.text = data.get("descricao", "")
-	tooltip_preco_label.text = "Custa: %s" % int(data.get("preco", 0))
+	tooltip_descricao_label.text = data.get("tooltip", data.get("descricao", ""))
+	tooltip_preco_label.text = "Custa: %s" % UpgradeManager.format_price(id)
 	tooltip_status_label.text = "Situação: %s" % _get_tooltip_status(id, data)
 
 	var requisitos = _get_requisitos_text(data)
@@ -141,12 +145,10 @@ func _hide_tooltip(reset_fixado: bool) -> void:
 	if reset_fixado:
 		_tooltip_fixado = false
 
-func _get_tooltip_status(id: String, data: Dictionary) -> String:
+func _get_tooltip_status(id: String, _data: Dictionary) -> String:
 	if UpgradeManager.upgrades_comprados.has(id):
 		return "comprado"
-	if GameManager.money >= int(data.get("preco", 0)):
-		return "dá para comprar"
-	return "falta grana"
+	return UpgradeManager.get_missing_currency_text(id)
 
 func _get_requisitos_text(data: Dictionary) -> String:
 	var requisitos = data.get("requer", [])

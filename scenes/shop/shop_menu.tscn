@@ -10,7 +10,7 @@ top_level = true
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_left = -323.0
-offset_right = 95.0
+offset_right = 124.0
 grow_vertical = 2
 theme = ExtResource("3_nhusp")
 theme_override_constants/separation = 0
@@ -43,7 +43,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="ColorRect2" type="NinePatchRect" parent="." unique_id=325175098]
-custom_minimum_size = Vector2(104, 46)
+custom_minimum_size = Vector2(124, 46)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("2_iurgq")
@@ -75,9 +75,9 @@ layer = 20
 
 [node name="UpgradeTooltip" type="NinePatchRect" parent="TooltipLayer"]
 visible = false
-custom_minimum_size = Vector2(280, 152)
-offset_right = 280.0
-offset_bottom = 152.0
+custom_minimum_size = Vector2(320, 190)
+offset_right = 320.0
+offset_bottom = 190.0
 mouse_filter = 2
 texture = ExtResource("2_nhusp")
 region_rect = Rect2(4, 4, 42, 43)

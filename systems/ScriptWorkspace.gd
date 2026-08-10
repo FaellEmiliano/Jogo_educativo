@@ -1,12 +1,18 @@
 extends RefCounted
 
-const WORKSPACE_VERSION := 2
+const WORKSPACE_VERSION := 3
 const DEFAULT_SOURCE := "int main(){\n\n}\n"
 const DEFAULT_TITLE := "Principal"
+const DELIVERY_TITLE := "Delivery"
+const DELIVERY_SOURCE := """int main() {
+	// Leia o relatório do Delivery e declare os lucros.
+}
+"""
 
 var active_script_id := ""
 var main_script_id := ""
 var stock_script_id := ""
+var delivery_script_id := ""
 
 var scripts: Array[Dictionary] = []
 var _next_id_number := 1
@@ -37,6 +43,8 @@ func create_script(title: String = "", source: String = DEFAULT_SOURCE) -> Strin
 	return str(script["id"])
 
 func delete_script(id: String) -> bool:
+	if id == delivery_script_id:
+		return false
 	if scripts.size() <= 1:
 		return false
 
@@ -51,6 +59,8 @@ func delete_script(id: String) -> bool:
 		main_script_id = str(scripts[0]["id"])
 	if stock_script_id == id:
 		stock_script_id = ""
+	if delivery_script_id == id:
+		delivery_script_id = ""
 	if was_active:
 		var next_index: int = mini(index, scripts.size() - 1)
 		next_index = maxi(next_index, 0)
@@ -61,6 +71,8 @@ func delete_script(id: String) -> bool:
 	return true
 
 func rename_script(id: String, new_title: String) -> void:
+	if id == delivery_script_id:
+		return
 	var script := get_script_document(id)
 	if script.is_empty():
 		return
@@ -108,6 +120,15 @@ func get_active_title() -> String:
 	var script := get_active_script()
 	return str(script.get("title", DEFAULT_TITLE))
 
+func ensure_delivery_script() -> String:
+	if not delivery_script_id.is_empty() and _find_script_index(delivery_script_id) != -1:
+		return delivery_script_id
+	delivery_script_id = create_script(DELIVERY_TITLE, DELIVERY_SOURCE)
+	return delivery_script_id
+
+func is_reserved_script(id: String) -> bool:
+	return not delivery_script_id.is_empty() and id == delivery_script_id
+
 func serialize() -> Dictionary:
 	_ensure_default_script()
 	_ensure_valid_active_script()
@@ -116,6 +137,7 @@ func serialize() -> Dictionary:
 		"active_script_id": active_script_id,
 		"main_script_id": main_script_id,
 		"stock_script_id": stock_script_id,
+		"delivery_script_id": delivery_script_id,
 		"scripts": scripts.duplicate(true)
 	}
 
@@ -124,6 +146,7 @@ func deserialize(data: Dictionary) -> void:
 	active_script_id = ""
 	main_script_id = ""
 	stock_script_id = ""
+	delivery_script_id = ""
 	_next_id_number = 1
 
 	if data.has("script_workspace") and data["script_workspace"] is Dictionary:
@@ -145,6 +168,7 @@ func deserialize(data: Dictionary) -> void:
 		active_script_id = str(data.get("active_script_id", ""))
 		main_script_id = str(data.get("main_script_id", ""))
 		stock_script_id = str(data.get("stock_script_id", ""))
+		delivery_script_id = str(data.get("delivery_script_id", ""))
 	elif data.has("script_text") and data["script_text"] is String:
 		_migrate_old_save_if_needed(data)
 
@@ -156,6 +180,8 @@ func deserialize(data: Dictionary) -> void:
 		main_script_id = str(scripts[0]["id"])
 	if not stock_script_id.is_empty() and _find_script_index(stock_script_id) == -1:
 		stock_script_id = ""
+	if not delivery_script_id.is_empty() and _find_script_index(delivery_script_id) == -1:
+		delivery_script_id = ""
 
 func migrate_old_save_if_needed(data: Dictionary) -> void:
 	if data.has("scripts") or data.has("script_workspace"):
@@ -171,6 +197,7 @@ func _migrate_old_save_if_needed(data: Dictionary) -> void:
 	active_script_id = ""
 	main_script_id = ""
 	stock_script_id = ""
+	delivery_script_id = ""
 	_next_id_number = 1
 
 	var old_source := ""

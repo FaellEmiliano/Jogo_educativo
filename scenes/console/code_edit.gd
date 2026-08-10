@@ -21,6 +21,9 @@ const COMPLETION_WORDS := [
 	"sensor",
 	"get_stock",
 	"buy_stock",
+	"get_deliveries",
+	"declare_profit",
+	"await",
 	"wait",
 	"cliente_na_tela",
 ]
@@ -57,7 +60,7 @@ func _configure_syntax_highlighter() -> void:
 	for type_name in ["int", "float", "char", "void", "bool", "string"]:
 		highlighter.add_keyword_color(type_name, COLOR_TYPE)
 
-	for function_name in ["main", "print", "input", "send", "sensor", "get_stock", "buy_stock", "wait"]:
+	for function_name in ["main", "print", "input", "send", "sensor", "get_stock", "buy_stock", "get_deliveries", "declare_profit", "await", "wait"]:
 		highlighter.add_keyword_color(function_name, COLOR_FUNCTION)
 
 	highlighter.add_color_region("//", "", COLOR_COMMENT, true)
@@ -95,7 +98,7 @@ func _completion_prefixes() -> PackedStringArray:
 	return prefixes
 
 func _completion_kind_for_word(word: String) -> int:
-	if word in ["print", "send", "input", "sensor", "get_stock", "buy_stock", "wait", "main"]:
+	if word in ["print", "send", "input", "sensor", "get_stock", "buy_stock", "get_deliveries", "declare_profit", "await", "wait", "main"]:
 		return KIND_FUNCTION
 	if word in ["true", "false"]:
 		return KIND_CONSTANT
@@ -106,6 +109,6 @@ func _completion_kind_for_word(word: String) -> int:
 func _completion_color_for_word(word: String) -> Color:
 	if word in ["int", "float", "bool"]:
 		return COLOR_TYPE
-	if word in ["print", "send", "input", "sensor", "get_stock", "buy_stock", "wait", "main"]:
+	if word in ["print", "send", "input", "sensor", "get_stock", "buy_stock", "get_deliveries", "declare_profit", "await", "wait", "main"]:
 		return COLOR_FUNCTION
 	return COLOR_KEYWORD

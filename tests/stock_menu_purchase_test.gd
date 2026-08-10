@@ -14,24 +14,24 @@ func _run_tests() -> void:
 	menu = preload("res://scenes/stock/estoque.tscn").instantiate()
 	add_child(menu)
 	menu.draw_estoque(StockSystem.get_stock())
-	assert(menu.purchase_summary_label.text == "Nenhum item selecionado.", "A lista deve aparecer vazia ao abrir.")
+	assert(menu.purchase_summary_label.text == "Nada selecionado ainda.", "A lista deve aparecer vazia ao abrir.")
 	assert(not menu.botao_comprar.text.contains("Total"), "O botao de compra nao deve mostrar o valor total.")
 
 	var first_item = StockSystem.get_stock()[0]
 	first_item.quantity = 7
 	GameManager.money = 100
 	menu.draw_estoque(StockSystem.get_stock())
-	assert(menu.purchase_summary_label.text == "Nenhum item selecionado.", "Sem itens selecionados, a lista deve informar vazio.")
+	assert(menu.purchase_summary_label.text == "Nada selecionado ainda.", "Sem itens selecionados, a lista deve informar vazio.")
 
 	menu.increase_selected_quantity(first_item.name)
 	assert(menu.get_selected_quantity(first_item.name) == 1, "O + deve aumentar apenas o item selecionado.")
 	assert(menu.get_selected_quantity(StockSystem.get_stock()[1].name) == 0, "Outros itens nao devem mudar.")
-	assert(menu.purchase_summary_label.text.contains("Lista de compra:"), "A lista deve mostrar titulo quando houver selecao.")
+	assert(not menu.purchase_summary_label.text.contains("Nada selecionado"), "A lista deve sair do estado vazio quando houver seleção.")
 	assert(menu.purchase_summary_label.text.contains("%s x1 - R$ %d" % [first_item.name, int(first_item.price)]), "A lista deve mostrar item, quantidade e subtotal.")
 
 	menu.decrease_selected_quantity(first_item.name)
 	assert(menu.get_selected_quantity(first_item.name) == 0, "O - deve diminuir a quantidade selecionada.")
-	assert(menu.purchase_summary_label.text == "Nenhum item selecionado.", "Item com quantidade 0 deve sumir da lista.")
+	assert(menu.purchase_summary_label.text == "Nada selecionado ainda.", "Item com quantidade 0 deve sumir da lista.")
 	menu.decrease_selected_quantity(first_item.name)
 	assert(menu.get_selected_quantity(first_item.name) == 0, "A quantidade selecionada nao pode ficar negativa.")
 
@@ -54,17 +54,17 @@ func _run_tests() -> void:
 	assert(second_item.quantity == 1, "O estoque do segundo item deve aumentar corretamente.")
 	assert(menu.get_selected_quantity(first_item.name) == 0, "A selecao deve zerar depois da compra.")
 	assert(menu.get_selected_quantity(second_item.name) == 0, "Todas as selecoes devem zerar depois da compra.")
-	assert(menu.purchase_summary_label.text == "Nenhum item selecionado.", "A lista deve voltar ao estado vazio depois da compra.")
+	assert(menu.purchase_summary_label.text == "Nada selecionado ainda.", "A lista deve voltar ao estado vazio depois da compra.")
 
 	GameManager.money = 0
 	var before_quantity = second_item.quantity
 	menu.increase_selected_quantity(second_item.name)
-	var summary_before_failed_purchase = menu.purchase_summary_label.text
 	menu.confirm_purchase()
 	assert(second_item.quantity == before_quantity, "Sem dinheiro suficiente, a compra nao deve ser aplicada.")
-	assert(menu.get_selected_quantity(second_item.name) == 1, "Sem dinheiro suficiente, a selecao deve continuar.")
-	assert(menu.purchase_summary_label.text == summary_before_failed_purchase, "Sem dinheiro suficiente, a lista deve continuar igual.")
-	assert(menu.aviso_label.visible, "Sem dinheiro suficiente, um aviso deve aparecer na tela.")
+	assert(menu.get_selected_quantity(second_item.name) == 0, "Depois de processar a tentativa, a seleção deve ser limpa.")
+	assert(menu.purchase_summary_label.text == "Nada selecionado ainda.", "Depois da tentativa, a lista deve voltar ao estado vazio.")
+	assert(menu.aviso_label.visible, "A tentativa de compra deve mostrar feedback na tela.")
+	assert(menu.aviso_label.text.contains("Compra incompleta"), "Dinheiro insuficiente deve informar que a compra não foi concluída por inteiro.")
 
 	GameManager.money = 1000
 	for item in StockSystem.get_stock():

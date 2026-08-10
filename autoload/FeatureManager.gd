@@ -8,6 +8,7 @@ const FEATURE_DISCOUNT := "discount"
 const FEATURE_SENSOR := "sensor"
 const FEATURE_STOCK := "stock"
 const FEATURE_CHANGE := "change"
+const FEATURE_DELIVERY := "delivery"
 
 var _features := {
 	FEATURE_IF: false,
@@ -15,7 +16,8 @@ var _features := {
 	FEATURE_DISCOUNT: false,
 	FEATURE_SENSOR: false,
 	FEATURE_STOCK: false,
-	FEATURE_CHANGE: false
+	FEATURE_CHANGE: false,
+	FEATURE_DELIVERY: false
 }
 
 func has_feature(feature_id: String) -> bool:
@@ -55,6 +57,8 @@ func load_legacy_features(features: Dictionary) -> void:
 		_features[FEATURE_DISCOUNT] = bool(features[FEATURE_DISCOUNT])
 	if features.has(FEATURE_SENSOR):
 		_features[FEATURE_SENSOR] = bool(features[FEATURE_SENSOR])
+	if features.has(FEATURE_DELIVERY):
+		_features[FEATURE_DELIVERY] = bool(features[FEATURE_DELIVERY])
 
 	if _features[FEATURE_IF]:
 		_features[FEATURE_DISCOUNT] = true
@@ -81,6 +85,8 @@ func locked_message(feature_id: String) -> String:
 			return "Você ainda não abriu o estoque."
 		FEATURE_CHANGE:
 			return "Você ainda não liberou clientes com troco."
+		FEATURE_DELIVERY:
+			return "Você ainda não liberou o Delivery Online."
 		_:
 			return "Ainda falta liberar: %s" % feature_id
 
@@ -96,3 +102,5 @@ func _sync_legacy_game_state(feature_id: String, value: bool) -> void:
 			GameManager.unlocked_mechanics["change"] = value
 		FEATURE_STOCK:
 			GameManager.unlocked_mechanics["stock"] = value
+		FEATURE_DELIVERY:
+			GameManager.unlocked_mechanics["delivery"] = value

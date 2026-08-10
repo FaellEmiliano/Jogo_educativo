@@ -27,6 +27,7 @@ func _ready() -> void:
 	code_edit.text_changed.connect(_on_code_text_changed)
 	code_edit.focus_exited.connect(_on_code_focus_exited)
 	_connect_execution_signals()
+	FeatureManager.feature_unlocked.connect(_on_feature_unlocked)
 	_update_status()
 
 func _setup_tab_controls() -> void:
@@ -178,8 +179,16 @@ func _refresh_tabs() -> void:
 	if tab_bar.get_tab_count() > 0:
 		tab_bar.current_tab = active_index
 
-	delete_tab_button.disabled = scripts.size() <= 1
+	var active_reserved := InterpreterSystem.is_reserved_script(active_id)
+	delete_tab_button.disabled = scripts.size() <= 1 or active_reserved
+	rename_tab_button.disabled = active_reserved
 	_is_refreshing_tabs = false
+
+func _on_feature_unlocked(feature_id: String) -> void:
+	if feature_id != FeatureManager.FEATURE_DELIVERY:
+		return
+	InterpreterSystem.ensure_delivery_script()
+	_refresh_tabs()
 
 func _on_tab_changed(tab: int) -> void:
 	if _is_refreshing_tabs:
@@ -200,6 +209,8 @@ func _on_new_tab_pressed() -> void:
 	Saves.solicitar_save("script_criado")
 
 func _on_rename_tab_pressed() -> void:
+	if InterpreterSystem.is_reserved_script(str(InterpreterSystem.get_active_script().get("id", ""))):
+		return
 	_save_editor_to_active_script()
 	_rename_line_edit.text = InterpreterSystem.get_active_script_title()
 	_rename_line_edit.select_all()
@@ -213,6 +224,9 @@ func _on_rename_confirmed() -> void:
 	Saves.solicitar_save("script_renomeado")
 
 func _on_delete_tab_pressed() -> void:
+	if InterpreterSystem.is_reserved_script(str(InterpreterSystem.get_active_script().get("id", ""))):
+		EventBus.emit_signal("send_debug", "A aba Delivery faz parte da automação final e não pode ser apagada.")
+		return
 	if InterpreterSystem.get_scripts().size() <= 1:
 		EventBus.emit_signal("send_debug", "Não dá para apagar o último script.")
 		return

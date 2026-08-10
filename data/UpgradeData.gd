@@ -1,11 +1,13 @@
 extends Node
 
+const DeliveryConfigData = preload("res://data/DeliveryConfig.gd")
+
 const UPGRADES = {
 	"premium_1": {
 		"nome": "Caixa mais esperto I",
 		"categoria": "economia",
-		"descricao": "+20% no dinheiro que cada cliente deixa",
-		"preco": 80,
+		"descricao": "+20% adicional e cumulativo na recompensa de cada atendimento",
+		"preco": 40,
 		"dinheiro_minimo": 0,
 		"efeito": {"tipo": "reward_multiplier", "valor": 0.2}
 	},
@@ -13,7 +15,7 @@ const UPGRADES = {
 		"nome": "Aprender if()",
 		"categoria": "linguagem",
 		"descricao": "Libera decisões no código. Compras acima de R$50 recebem 10% de desconto",
-		"preco": 260,
+		"preco": 100,
 		"dinheiro_minimo": 120,
 		"help_topic": "discount",
 		"efeito": {"tipo": "unlock_feature", "feature": "if"}
@@ -22,7 +24,7 @@ const UPGRADES = {
 		"nome": "Aprender while()",
 		"categoria": "linguagem",
 		"descricao": "Clientes podem mandar vários preços; -1 avisa que a lista acabou",
-		"preco": 340,
+		"preco": 110,
 		"dinheiro_minimo": 220,
 		"requer": ["lang_if"],
 		"help_topic": "sentinel_client",
@@ -32,15 +34,15 @@ const UPGRADES = {
 		"nome": "Boca a boca I",
 		"categoria": "fluxo",
 		"descricao": "Clientes aparecem a cada 4s a 6s",
-		"preco": 160,
+		"preco": 50,
 		"dinheiro_minimo": 0,
 		"efeito": {"tipo": "spawn_delay", "min": 4.0, "max": 6.0}
 	},
 	"premium_2": {
 		"nome": "Caixa mais esperto II",
 		"categoria": "economia",
-		"descricao": "+25% no dinheiro que cada cliente deixa",
-		"preco": 420,
+		"descricao": "+25% adicional e cumulativo na recompensa de cada atendimento",
+		"preco": 80,
 		"dinheiro_minimo": 240,
 		"requer": ["premium_1"],
 		"efeito": {"tipo": "reward_multiplier", "valor": 0.25}
@@ -49,7 +51,7 @@ const UPGRADES = {
 		"nome": "Aprender sensor()",
 		"categoria": "linguagem",
 		"descricao": "Permite o código olhar se tem cliente esperando",
-		"preco": 580,
+		"preco": 180,
 		"dinheiro_minimo": 360,
 		"requer": ["lang_while"],
 		"help_topic": "sensor",
@@ -59,7 +61,7 @@ const UPGRADES = {
 		"nome": "Boca a boca II",
 		"categoria": "fluxo",
 		"descricao": "Clientes aparecem a cada 2.5s a 4.5s",
-		"preco": 720,
+		"preco": 100,
 		"dinheiro_minimo": 520,
 		"requer": ["marketing_1", "lang_sensor"],
 		"efeito": {"tipo": "spawn_delay", "min": 2.5, "max": 4.5}
@@ -67,8 +69,8 @@ const UPGRADES = {
 	"gameplay_change": {
 		"nome": "Cliente com troco",
 		"categoria": "gameplay",
-		"descricao": "Clientes passam a pagar a mais e esperar o troco certo",
-		"preco": 900,
+		"descricao": "Clientes entregam um valor acima do total e esperam o troco correto",
+		"preco": 180,
 		"dinheiro_minimo": 680,
 		"requer": ["lang_sensor"],
 		"help_topic": "change_client",
@@ -77,18 +79,18 @@ const UPGRADES = {
 	"gameplay_stock": {
 		"nome": "Abrir estoque",
 		"categoria": "gameplay",
-		"descricao": "Clientes começam a pedir produtos com quantidade e libera await()",
-		"preco": 1120,
+		"descricao": "Clientes pedem produtos com quantidade. Também libera estoque e await()",
+		"preco": 240,
 		"dinheiro_minimo": 860,
 		"requer": ["gameplay_change"],
-		"help_topic": "await",
+		"help_topic": "stock",
 		"efeito": {"tipo": "unlock_feature", "feature": "stock"}
 	},
 	"premium_3": {
 		"nome": "Caixa mais esperto III",
 		"categoria": "economia",
-		"descricao": "+30% no dinheiro que cada cliente deixa",
-		"preco": 1500,
+		"descricao": "+30% adicional e cumulativo na recompensa de cada atendimento",
+		"preco": 150,
 		"dinheiro_minimo": 1150,
 		"requer": ["premium_2", "gameplay_stock"],
 		"efeito": {"tipo": "reward_multiplier", "valor": 0.3}
@@ -97,9 +99,30 @@ const UPGRADES = {
 		"nome": "Boca a boca III",
 		"categoria": "fluxo",
 		"descricao": "Clientes aparecem a cada 1s a 3s",
-		"preco": 2000,
+		"preco": 200,
 		"dinheiro_minimo": 1500,
 		"requer": ["marketing_2", "gameplay_stock"],
 		"efeito": {"tipo": "spawn_delay", "min": 1.0, "max": 3.0}
+	},
+	"delivery_online": {
+		"nome": "Delivery Online",
+		"categoria": "gameplay",
+		"descricao": "Abre uma plataforma de entregas. Calcule e declare os lucros para ganhar dinheiro e diamantes",
+		"tooltip": "O Delivery gera relatórios com entregas normais, expressas e VIP. A solução usa função recursiva, if, array e for ou while para calcular as três categorias.",
+		"preco": DeliveryConfigData.DELIVERY_UNLOCK_COST,
+		"currency": "money",
+		"requer": ["premium_3", "marketing_3"],
+		"help_topic": "delivery_overview",
+		"efeito": {"tipo": "unlock_delivery"}
+	},
+	"zerar": {
+		"nome": "Zerar",
+		"categoria": "final",
+		"descricao": "Conclui sua jornada na loja. Custa 5 diamantes conquistados no Delivery Online",
+		"tooltip": "Requer 5 diamantes. Você recebe diamantes ao aprovar relatórios do Delivery Online.",
+		"preco": DeliveryConfigData.FINAL_UPGRADE_COST,
+		"currency": "diamonds",
+		"requer": ["delivery_online"],
+		"efeito": {"tipo": "complete_game"}
 	}
 }

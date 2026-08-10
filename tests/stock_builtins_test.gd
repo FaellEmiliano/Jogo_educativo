@@ -95,7 +95,7 @@ int main() {
 """)
 	_check(_stock_quantities() == [0, 0, 0, 0, 0, 0], "Array de tamanho errado nao deve alterar estoque.")
 	_check(GameManager.money == 100, "Array de tamanho errado nao deve alterar dinheiro.")
-	_check(_debug_text.contains("buy_stock(): esperado array de tamanho 6."), "Array de tamanho errado deve mostrar erro no output.")
+	_check(_debug_text.contains("buy_stock() espera um array com 6 posições."), "Array de tamanho errado deve mostrar erro no output.")
 
 func _test_buy_stock_negative_quantity() -> void:
 	_reset_stock()
@@ -115,7 +115,7 @@ int main() {
 """)
 	_check(_stock_quantities() == [0, 0, 0, 0, 0, 0], "Quantidade negativa nao deve alterar estoque.")
 	_check(GameManager.money == 100, "Quantidade negativa nao deve alterar dinheiro.")
-	_check(_debug_text.contains("buy_stock(): quantidade negativa no indice 0."), "Quantidade negativa deve mostrar erro no output.")
+	_check(_debug_text.contains("A quantidade na posição 0 ficou negativa."), "Quantidade negativa deve mostrar erro no output.")
 
 func _test_buy_stock_over_capacity() -> void:
 	_reset_stock()
@@ -133,7 +133,7 @@ int main() {
 """)
 	_check(_stock_quantities() == [0, 0, 0, 0, 0, 0], "Compra acima do limite nao deve alterar estoque.")
 	_check(GameManager.money == 10000, "Compra acima do limite nao deve alterar dinheiro.")
-	_check(_debug_text.contains("buy_stock(): compra ultrapassa o estoque maximo no indice 0."), "Compra acima do limite deve mostrar erro no output.")
+	_check(_debug_text.contains("A posição 0 passa do limite do estoque."), "Compra acima do limite deve mostrar erro no output.")
 
 func _test_buy_stock_insufficient_money() -> void:
 	_reset_stock()
@@ -154,7 +154,8 @@ int main() {
 """)
 	_check(_stock_quantities() == [3, 0, 0, 0, 0, 0], "Dinheiro insuficiente deve comprar o que der na ordem dos indices.")
 	_check(GameManager.money == 2, "Dinheiro insuficiente deve descontar apenas o que foi comprado.")
-	_check(_debug_text.contains("compra incompleta! dinheiro insuficiente"), "Dinheiro insuficiente deve mostrar aviso no output.")
+	_check(_debug_text.contains("Compra incompleta: dinheiro insuficiente"), "Dinheiro insuficiente deve mostrar aviso claro no output.")
+	_check(_debug_text.contains("primeiros itens da lista"), "Compra parcial deve explicar a ordem usada pelo estoque.")
 
 func _test_buy_stock_zero_purchase() -> void:
 	_reset_stock()
@@ -221,7 +222,7 @@ int main() {
 	print(dinheiro);
 }
 """)
-	_check(_debug_text == "39", "Operadores compostos devem funcionar com variavel.")
+	_check(_debug_text == "39.0", "Operadores compostos devem preservar o tipo float da variavel.")
 
 func _test_compound_assignment_array() -> void:
 	await _run_code("""
@@ -240,7 +241,7 @@ int main() {
 	5 += 1;
 }
 """)
-	_check(_debug_text.contains("Destino de atribuição inválido"), "Uso invalido de operador composto deve reportar erro.")
+	_check(_debug_text.contains("Não dá para atribuir valor em: number"), "Uso invalido de operador composto deve reportar erro.")
 
 func _test_print_array_formats_values() -> void:
 	await _run_code("""

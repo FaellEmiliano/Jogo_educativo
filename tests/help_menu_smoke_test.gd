@@ -15,6 +15,7 @@ func _ready() -> void:
 	assert(not initial_ids.has("sentinel_client"), "Sentinela apareceu antes do desbloqueio")
 	assert(not initial_ids.has("stock"), "Estoque apareceu antes do desbloqueio")
 	assert(not initial_ids.has("await"), "await() apareceu antes do desbloqueio")
+	assert(not initial_ids.has("delivery_overview"), "Delivery apareceu antes do desbloqueio")
 
 	var help_menu := HelpMenuScene.instantiate()
 	add_child(help_menu)
@@ -40,11 +41,26 @@ func _ready() -> void:
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_CHANGE)
 	FeatureManager.unlock_feature(FeatureManager.FEATURE_STOCK)
 	UpgradeManager.upgrade_comprado.emit("gameplay_stock")
-	assert(help_menu.get("_selected_topic_id") == "await", "Upgrade de estoque não abriu o tópico de await()")
+	assert(help_menu.get("_selected_topic_id") == "stock", "Upgrade de estoque não abriu o tópico principal de estoque")
 	var all_ids := _topic_ids(help_menu.get("_visible_topics"))
 	assert(all_ids.has("stock"), "Tópico de estoque não foi desbloqueado")
 	assert(all_ids.has("await"), "Tópico de await() não foi desbloqueado")
-	assert(all_ids.size() == HelpTopicsData.TOPICS.size(), "Nem todos os tópicos foram liberados")
+	var stock_body := help_menu.get_node("%BodyLabel") as RichTextLabel
+	assert(stock_body.text.contains("recompensa de cada atendimento vale 1,5x"), "Ajuda de estoque não explicou o bônus sem alterar o total")
+	assert(not all_ids.has("delivery_overview"), "Delivery apareceu antes do upgrade")
+
+	DeliverySystem.unlock(false)
+	var delivery_ids := _topic_ids(help_menu.get("_visible_topics"))
+	for delivery_topic in ["delivery_overview", "delivery_commands", "recursion_delivery"]:
+		assert(delivery_ids.has(delivery_topic), "Tópico de Delivery não foi desbloqueado: %s" % delivery_topic)
+	assert(delivery_ids.size() == HelpTopicsData.TOPICS.size(), "Nem todos os tópicos foram liberados")
+	help_menu.call("_show_topic", "delivery_commands")
+	var delivery_body := help_menu.get_node("%BodyLabel") as RichTextLabel
+	assert(delivery_body.text.contains("L(n) = 2 * L(n - 1) + b"), "Ajuda do Delivery não exibiu a fórmula recorrente do lucro")
+	assert(delivery_body.text.contains("L(n) = b * (2^n - 1)"), "Ajuda do Delivery não exibiu a fórmula direta do lucro")
+	assert(delivery_body.text.contains("serve apenas para conferir"), "Ajuda do Delivery não diferenciou a fórmula direta da solução exigida")
+	help_menu.call("_show_topic", "delivery_overview")
+	assert(delivery_body.text.contains("for") and delivery_body.text.contains("while"), "Ajuda do Delivery não informou o requisito de loop")
 
 	help_menu.call("_show_topic", "sentinel_client")
 	var hint_panel := help_menu.get_node("%HintPanel") as PanelContainer
@@ -59,6 +75,8 @@ func _ready() -> void:
 	assert(not help_menu.visible, "Menu não fechou")
 
 	print("HELP_MENU_SMOKE_TEST_OK")
+	await get_tree().process_frame
+	get_tree().quit()
 
 func _topic_ids(topics: Array) -> Array:
 	var ids: Array = []

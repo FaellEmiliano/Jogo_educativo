@@ -1,5 +1,6 @@
 extends Node
 class_name Builtins
+const DeliveryValidator = preload("res://systems/DeliveryProgramValidator.gd")
 @onready var interpretador: Interpreter = $"../.."
 var exec
 
@@ -11,6 +12,8 @@ func register(executor):
 	executor.register_builtin("sensor", _catch_sensor)
 	executor.register_builtin("get_stock", _get_stock)
 	executor.register_builtin("buy_stock", _buy_stock)
+	executor.register_builtin("get_deliveries", _get_deliveries)
+	executor.register_builtin("declare_profit", _declare_profit)
 	executor.register_builtin("await", _await)
 	executor.register_builtin("wait", _wait)
 
@@ -59,6 +62,64 @@ func _buy_stock(args):
 	var warning := str(result.get("warning", ""))
 	if not warning.is_empty():
 		exec.interpreter.emitir_saida(warning)
+	return null
+
+func _get_deliveries(args):
+	if args.size() != 0:
+		exec.interpreter.erro_runtime("get_deliveries() é chamado sem nada dentro dos parênteses.")
+		return null
+	var response := DeliverySystem.request_deliveries(exec.runtime_id, exec.script_id)
+	if not response.get("success", false):
+		exec.interpreter.erro_runtime(str(response.get("message", "Não foi possível ler o relatório do Delivery.")))
+		return null
+	var report_id := int(response.get("report_id", 0))
+	var deliveries: Array = response.get("deliveries", [])
+	exec.begin_delivery_report(report_id)
+	return {
+		"element_type": "int",
+		"dimensions": [deliveries.size()],
+		"data": deliveries.duplicate()
+	}
+
+func _declare_profit(args):
+	if args.size() == 0:
+		exec.interpreter.erro_runtime("declare_profit() precisa receber o array de lucros.")
+		return null
+	if args.size() > 1:
+		exec.interpreter.erro_runtime("declare_profit() recebe somente um argumento.")
+		return null
+
+	var profits = args[0]
+	if not _is_language_array(profits):
+		exec.interpreter.erro_runtime("declare_profit() espera um array com 3 posições.")
+		return null
+	if profits["dimensions"].size() != 1 or int(profits["dimensions"][0]) != 3 or profits["data"].size() != 3:
+		exec.interpreter.erro_runtime("declare_profit() espera um array com 3 posições.")
+		return null
+	for index in range(profits["data"].size()):
+		if typeof(profits["data"][index]) != TYPE_INT:
+			exec.interpreter.erro_runtime("O lucro na posição %d precisa ser inteiro." % index)
+			return null
+
+	var validation := DeliveryValidator.analyze(exec.program_ast)
+	var recursive_functions: Array = validation.get("recursive_functions", [])
+	var runtime_recursion_ok: bool = exec.has_delivery_recursion(recursive_functions)
+	var response := DeliverySystem.submit_declaration(
+		profits["data"].duplicate(),
+		exec.runtime_id,
+		exec.script_id,
+		exec.delivery_report_id,
+		validation,
+		runtime_recursion_ok
+	)
+	if response.get("success", false):
+		exec.interpreter.emitir_saida(str(response.get("message", "Declaração aprovada.")))
+		return null
+	var message := str(response.get("message", "Declaração rejeitada."))
+	if response.get("fatal", false):
+		exec.interpreter.erro_runtime(message)
+	elif response.get("emit_feedback", true):
+		exec.interpreter.emitir_saida(message)
 	return null
 
 func _wait(args):
