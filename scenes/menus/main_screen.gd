@@ -25,6 +25,15 @@ var _actions_popup: NinePatchRect
 var _popup_export_frame: Control
 var _popup_import_button: Button
 var _popup_export_button: Button
+var _student_prompt: ColorRect
+var _student_prompt_title: Label
+var _student_prompt_description: Label
+var _student_name_input: LineEdit
+var _student_name_error: Label
+var _student_name_counter: Label
+var _student_confirm_button: Button
+var _pending_student_slot := 0
+var _pending_student_is_new := false
 
 const MENU_BUTTON_NORMAL := Color(1, 1, 1, 0.92)
 const MENU_BUTTON_HOVER := Color(1.08, 1.08, 1.08, 1)
@@ -32,12 +41,15 @@ const MENU_BUTTON_PRESSED := Color(0.82, 0.82, 0.82, 1)
 
 
 func _ready() -> void:
+	StudentIdentity.clear_student()
+	Saves.clear_current_slot()
 	Saves.migrate_legacy_save_if_needed()
 	Saves.save_import_finished.connect(_on_save_import_finished)
 	_setup_menu_button_feedback(start_button)
 	_setup_menu_button_feedback(help_button)
 	_setup_menu_button_feedback(github_button)
 	_setup_slot_menu()
+	_create_student_name_prompt()
 	save_menu.visible = false
 
 
@@ -232,6 +244,89 @@ func _create_slot_actions_popup() -> void:
 	box.add_child(import_control["frame"])
 
 
+func _create_student_name_prompt() -> void:
+	_student_prompt = ColorRect.new()
+	_student_prompt.name = "StudentNamePrompt"
+	_student_prompt.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_student_prompt.color = Color(0, 0, 0, 0.76)
+	_student_prompt.mouse_filter = Control.MOUSE_FILTER_STOP
+	_student_prompt.z_index = 200
+	_student_prompt.hide()
+	add_child(_student_prompt)
+
+	var frame := _create_panel_frame(Vector2(480, 290))
+	frame.name = "StudentNameFrame"
+	frame.set_anchors_preset(Control.PRESET_CENTER)
+	frame.offset_left = -240.0
+	frame.offset_top = -145.0
+	frame.offset_right = 240.0
+	frame.offset_bottom = 145.0
+	_student_prompt.add_child(frame)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 24)
+	frame.add_child(margin)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 12)
+	margin.add_child(content)
+
+	_student_prompt_title = Label.new()
+	_student_prompt_title.theme_type_variation = &"TitleLabel"
+	_student_prompt_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(_student_prompt_title)
+
+	_student_prompt_description = Label.new()
+	_student_prompt_description.theme_type_variation = &"BodyText"
+	_student_prompt_description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_student_prompt_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(_student_prompt_description)
+
+	_student_name_input = LineEdit.new()
+	_student_name_input.name = "StudentNameInput"
+	_student_name_input.custom_minimum_size = Vector2(0, 42)
+	_student_name_input.max_length = Saves.MAX_STUDENT_NAME_LENGTH
+	_student_name_input.placeholder_text = "Nome do aluno"
+	_student_name_input.text_changed.connect(_on_student_name_changed)
+	_student_name_input.text_submitted.connect(func(_text: String):
+		if not _student_confirm_button.disabled:
+			_on_student_name_confirmed()
+	)
+	content.add_child(_student_name_input)
+
+	var feedback_row := HBoxContainer.new()
+	feedback_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content.add_child(feedback_row)
+
+	_student_name_error = Label.new()
+	_student_name_error.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_student_name_error.theme_type_variation = &"ErrorLabel"
+	feedback_row.add_child(_student_name_error)
+
+	_student_name_counter = Label.new()
+	_student_name_counter.theme_type_variation = &"SubtitleLabel"
+	feedback_row.add_child(_student_name_counter)
+
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 12)
+	content.add_child(buttons)
+
+	var back_control := _create_button_frame("VOLTAR", Vector2(160, 40))
+	var back_button: Button = back_control["button"]
+	back_button.pressed.connect(_hide_student_name_prompt)
+	buttons.add_child(back_control["frame"])
+
+	var confirm_control := _create_button_frame("CONTINUAR", Vector2(190, 40))
+	_student_confirm_button = confirm_control["button"]
+	_student_confirm_button.pressed.connect(_on_student_name_confirmed)
+	buttons.add_child(confirm_control["frame"])
+
+
 func _refresh_slot_menu() -> void:
 	for slot in range(1, Saves.SLOT_COUNT + 1):
 		var info := Saves.get_slot_info(slot)
@@ -289,11 +384,76 @@ func _on_confirm_new_game_confirmed() -> void:
 
 func _on_slot_play_pressed(slot: int) -> void:
 	_hide_slot_actions_popup()
+	StudentIdentity.clear_student()
 	Saves.set_current_slot(slot)
 	if Saves.has_save(slot):
 		Saves.load_game(slot)
+		if Saves.has_valid_student_name():
+			StudentIdentity.show_student(Saves.get_student_name())
+			_go_to_game()
+			return
+		_show_student_name_prompt(slot, false)
+		return
+	_show_student_name_prompt(slot, true)
+
+
+func _show_student_name_prompt(slot: int, is_new_save: bool) -> void:
+	_pending_student_slot = slot
+	_pending_student_is_new = is_new_save
+	_student_prompt_title.text = "IDENTIFICACAO DO ALUNO"
+	if is_new_save:
+		_student_prompt_description.text = "Informe o nome que ficara associado permanentemente a este save."
 	else:
-		Saves.resetar()
+		_student_prompt_description.text = "Este save foi criado antes da identificacao. Informe o nome do aluno para continuar."
+	_student_name_input.clear()
+	_on_student_name_changed("")
+	_student_prompt.show()
+	_student_prompt.move_to_front()
+	_student_name_input.grab_focus()
+
+
+func _hide_student_name_prompt() -> void:
+	_student_prompt.hide()
+	_pending_student_slot = 0
+	_pending_student_is_new = false
+	Saves.clear_current_slot()
+	StudentIdentity.clear_student()
+
+
+func _on_student_name_changed(student_name: String) -> void:
+	var clean_name := Saves.normalize_student_name(student_name)
+	var valid := Saves.is_valid_student_name(student_name)
+	_student_confirm_button.disabled = not valid
+	_student_name_counter.text = "%d/%d" % [student_name.length(), Saves.MAX_STUDENT_NAME_LENGTH]
+	if clean_name.is_empty():
+		_student_name_error.text = "Informe um nome para continuar."
+	elif student_name.length() > Saves.MAX_STUDENT_NAME_LENGTH:
+		_student_name_error.text = "Use no maximo %d caracteres." % Saves.MAX_STUDENT_NAME_LENGTH
+	else:
+		_student_name_error.text = ""
+
+
+func _on_student_name_confirmed() -> void:
+	if _pending_student_slot == 0:
+		return
+	var clean_name := Saves.normalize_student_name(_student_name_input.text)
+	if not Saves.is_valid_student_name(clean_name):
+		_on_student_name_changed(_student_name_input.text)
+		return
+
+	var saved := false
+	if _pending_student_is_new:
+		saved = Saves.create_new_save(_pending_student_slot, clean_name)
+	else:
+		saved = Saves.set_student_name(clean_name)
+	if not saved:
+		_student_name_error.text = "Nao foi possivel salvar o nome. Tente novamente."
+		return
+
+	_student_prompt.hide()
+	_pending_student_slot = 0
+	_pending_student_is_new = false
+	StudentIdentity.show_student(clean_name)
 	_go_to_game()
 
 
@@ -377,6 +537,11 @@ func _hide_slot_actions_popup() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _student_prompt != null and _student_prompt.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_hide_student_name_prompt()
+			get_viewport().set_input_as_handled()
+		return
 	if _actions_popup == null or not _actions_popup.visible:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

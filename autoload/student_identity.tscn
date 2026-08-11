@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://autoload/StudentIdentity.gd" id="1_script"]
+[ext_resource type="Theme" path="res://assets/themes/game_ui_theme.tres" id="2_theme"]
+
+[node name="root" type="CanvasLayer" unique_id=1591324836]
+layer = 100
+visible = false
+process_mode = 3
+script = ExtResource("1_script")
+
+[node name="TopCenter" type="CenterContainer" parent="." unique_id=392273296]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 10.0
+offset_bottom = 52.0
+mouse_filter = 2
+
+[node name="NamePlate" type="PanelContainer" parent="TopCenter" unique_id=494696623]
+custom_minimum_size = Vector2(190, 36)
+layout_mode = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+theme_type_variation = &"TitlePanel"
+
+[node name="Margin" type="MarginContainer" parent="TopCenter/NamePlate" unique_id=74372470]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 7
+
+[node name="StudentName" type="Label" parent="TopCenter/NamePlate/Margin" unique_id=729047545]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"CategoryLabel"
+text = "Aluno:"
+horizontal_alignment = 1
+vertical_alignment = 1

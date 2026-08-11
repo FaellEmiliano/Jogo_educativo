@@ -37,6 +37,12 @@ var _current_notification := ""
 func _ready() -> void:
 	# Carrega save e popula GameManager
 	var dados = Saves.carregar()
+	if not Saves.has_valid_student_name():
+		StudentIdentity.clear_student()
+		push_warning("Save sem identificacao de aluno. Retornando ao menu de slots.")
+		get_tree().change_scene_to_file("res://scenes/menus/main_screen.tscn")
+		return
+	StudentIdentity.show_student(Saves.get_student_name())
 	GameManager.money = dados["dinheiro"]
 	GameManager.upgrades = dados["upgrades"]
 	for key in dados["unlocked_mechanics"]:

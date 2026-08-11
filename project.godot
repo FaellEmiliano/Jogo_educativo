@@ -28,6 +28,7 @@ DeliverySystem="*res://systems/DeliverySystem.gd"
 SensorSystem="*uid://ou06kkfrjtva"
 TransactionManager="*res://systems/TransactionManager.gd"
 UpgradeManager="*uid://c01l4yaux6hjg"
+StudentIdentity="*res://autoload/student_identity.tscn"
 
 [display]
 

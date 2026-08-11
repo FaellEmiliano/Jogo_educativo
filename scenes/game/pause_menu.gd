@@ -30,5 +30,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_main_menu_pressed() -> void:
 	Saves.solicitar_save("pause_main_menu")
+	StudentIdentity.clear_student()
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/menus/main_screen.tscn")

@@ -4,8 +4,9 @@ signal save_import_finished(slot: int, ok: bool, message: String)
 
 const LEGACY_SAVE_PATH = "user://save.json"
 const SAVE_SLOT_PATH = "user://save_slot_%d.json"
-const SAVE_VERSION = 3
+const SAVE_VERSION = 4
 const SLOT_COUNT = 3
+const MAX_STUDENT_NAME_LENGTH = 50
 const MAX_IMPORT_BYTES = 1024 * 1024
 const ScriptWorkspace = preload("res://systems/ScriptWorkspace.gd")
 const DeliveryConfigData = preload("res://data/DeliveryConfig.gd")
@@ -22,7 +23,13 @@ func set_current_slot(slot: int) -> void:
 	if not _is_valid_slot(slot):
 		push_warning("Slot de save invalido: %d" % slot)
 		return
+	if current_slot != slot:
+		dados.clear()
 	current_slot = slot
+
+func clear_current_slot() -> void:
+	current_slot = 0
+	dados.clear()
 
 func get_current_slot() -> int:
 	return current_slot
@@ -109,6 +116,45 @@ func resetar() -> void:
 	_carregar_sistemas(dados)
 	save_game(target_slot)
 
+func create_new_save(slot: int, student_name: String) -> bool:
+	var clean_name := normalize_student_name(student_name)
+	if not is_valid_student_name(clean_name) or not _is_valid_slot(slot) or has_save(slot):
+		return false
+
+	current_slot = slot
+	dados = create_new_save_data()
+	dados["meta"]["student_name"] = clean_name
+	_carregar_sistemas(dados)
+	save_game(slot)
+	return true
+
+func set_student_name(student_name: String) -> bool:
+	var clean_name := normalize_student_name(student_name)
+	if not is_valid_student_name(clean_name) or current_slot == 0:
+		return false
+	if dados.is_empty():
+		load_game(current_slot)
+	if has_valid_student_name():
+		return get_student_name() == clean_name
+	dados["meta"]["student_name"] = clean_name
+	save_game(current_slot)
+	return true
+
+func get_student_name() -> String:
+	if dados.is_empty():
+		return ""
+	return normalize_student_name(str(dados.get("meta", {}).get("student_name", "")))
+
+func has_valid_student_name() -> bool:
+	return is_valid_student_name(get_student_name())
+
+func normalize_student_name(student_name: String) -> String:
+	return student_name.strip_edges()
+
+func is_valid_student_name(student_name: String) -> bool:
+	var clean_name := normalize_student_name(student_name)
+	return not clean_name.is_empty() and clean_name.length() <= MAX_STUDENT_NAME_LENGTH
+
 func create_new_save_data() -> Dictionary:
 	return _save_padrao()
 
@@ -120,7 +166,8 @@ func get_slot_info(slot: int) -> Dictionary:
 		"money": 0,
 		"last_saved_unix": 0,
 		"last_saved_text": "",
-		"summary": "Slot vazio"
+		"summary": "Slot vazio",
+		"student_name": ""
 	}
 	if not _is_valid_slot(slot):
 		info["summary"] = "Slot invalido"
@@ -143,12 +190,16 @@ func get_slot_info(slot: int) -> Dictionary:
 	var upgrades: Dictionary = valid_data.get("shop", {}).get("comprados", {})
 	var last_saved := int(meta.get("last_saved_unix", 0))
 	var money := int(game.get("dinheiro", 0))
+	var student_name := normalize_student_name(str(meta.get("student_name", "")))
 
 	info["exists"] = true
 	info["money"] = money
 	info["last_saved_unix"] = last_saved
 	info["last_saved_text"] = _format_timestamp(last_saved)
+	info["student_name"] = student_name
 	info["summary"] = "Dinheiro: R$ %d\nUpgrades: %d" % [money, upgrades.size()]
+	if is_valid_student_name(student_name):
+		info["summary"] = "Aluno: %s\n%s" % [student_name, info["summary"]]
 	if last_saved > 0:
 		info["summary"] += "\nUltimo save: " + str(info["last_saved_text"])
 	return info
@@ -376,7 +427,8 @@ func _format_timestamp(unix_time: int) -> String:
 func _montar_save_data() -> Dictionary:
 	return _validar_dados({
 		"meta": {
-			"save_version": SAVE_VERSION
+			"save_version": SAVE_VERSION,
+			"student_name": get_student_name()
 		},
 		"game": _coletar_dados_sistema(GameManager),
 		"shop": _coletar_dados_sistema(UpgradeManager),
@@ -421,7 +473,8 @@ func _save_padrao() -> Dictionary:
 	return {
 		"meta": {
 			"save_version": SAVE_VERSION,
-			"last_saved_unix": 0
+			"last_saved_unix": 0,
+			"student_name": ""
 		},
 		"game": {
 			"dinheiro": 0,
@@ -476,6 +529,10 @@ func _validar_dados(data: Dictionary) -> Dictionary:
 			resultado["meta"]["save_version"] = int(meta["save_version"])
 		if meta.has("last_saved_unix") and (meta["last_saved_unix"] is int or meta["last_saved_unix"] is float):
 			resultado["meta"]["last_saved_unix"] = int(meta["last_saved_unix"])
+		if meta.has("student_name") and meta["student_name"] is String:
+			var student_name := normalize_student_name(meta["student_name"])
+			if is_valid_student_name(student_name):
+				resultado["meta"]["student_name"] = student_name
 
 	if normalizado.has("game") and normalizado["game"] is Dictionary:
 		resultado["game"] = _validar_game(normalizado["game"])
